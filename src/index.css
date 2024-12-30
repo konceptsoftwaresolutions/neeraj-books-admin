@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  font-family: "Poppins", sans-serif !important;
+}
+
+.primary-gradient {
+  background: linear-gradient(90deg, #1f437f, #be2220);
+}
+
+.ql-container.ql-snow {
+  border: none;
+  
+}
+
+.testimonial-item {
+  cursor: move;
+}
+.testimonial-list {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* @media screen and (max-width: 767px) {
+    .mobile-nav{
+        position: absolute;
+        left: -200px;
+    }
+  } */
