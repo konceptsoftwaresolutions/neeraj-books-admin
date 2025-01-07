@@ -24,7 +24,8 @@ const Home = () => {
   return (
     <PageCont>
       <div className="flex justify-start items-center gap-3   ">
-        <Heading text="Admin Dashboard" /> <BillPDF />
+        <Heading text="Admin Dashboard" /> 
+        {/* <BillPDF /> */}
       </div>
       <div className="mt-4">
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -58,22 +59,22 @@ const Home = () => {
         </form>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6 lg:gap-8 my-5 max-h-screen overflow-auto">
-        <StatsCard title={"Today's Patients"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Weekly Patients"} icon={<FaUser />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaCarAlt />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaTruck />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaWindowClose />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaSync />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaBook />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaShoppingCart />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaUser />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaUser />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaBook />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaShoppingCart />} value="100" growth="100" />
-        <StatsCard title={"Monthly Patients"} icon={<FaWallet />} value="100" growth="100" />
+        <StatsCard title={"Today's Sales"} icon={<FaWallet />} value="100" growth="100" />
+        <StatsCard title={"Yesterday's Sales"} icon={<FaUser />} value="100" growth="100" />
+        <StatsCard title={"Last 7 days Sale"} icon={<FaWallet />} value="100" growth="100" />
+        <StatsCard title={"Last 30 days Sale"} icon={<FaWallet />} value="100" growth="100" />
+        <StatsCard title={"Pending Orders"} icon={<FaCarAlt />} value="100" growth="100" />
+        <StatsCard title={"Shipped Orders"} icon={<FaTruck />} value="100" growth="100" />
+        <StatsCard title={"Cancelled Orders"} icon={<FaWindowClose />} value="100" growth="100" />
+        <StatsCard title={"Refunded Orders"} icon={<FaSync />} value="100" growth="100" />
+        <StatsCard title={"Total Products"} icon={<FaBook />} value="100" growth="100" />
+        <StatsCard title={"Total Orders"} icon={<FaShoppingCart />} value="100" growth="100" />
+        <StatsCard title={"Total Sales"} icon={<FaWallet />} value="100" growth="100" />
+        <StatsCard title={"Total Customers"} icon={<FaUser />} value="100" growth="100" />
+        <StatsCard title={"Total Products Sold"} icon={<FaUser />} value="100" growth="100" />
+        <StatsCard title={"Total Other Orders"} icon={<FaBook />} value="100" growth="100" />
+        <StatsCard title={"Other OrdersTotal"} icon={<FaShoppingCart />} value="100" growth="100" />
+        <StatsCard title={"Other Order Clients"} icon={<FaWallet />} value="100" growth="100" />
       </div>
     </PageCont>
   );

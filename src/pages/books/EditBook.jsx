@@ -7,9 +7,18 @@ import { mediumOptions } from "../../constant/options";
 import Heading from "../../components/Heading";
 import EditModal from "./EditModal";
 import Reviews from "./Reviews";
-
+import { useDispatch } from "react-redux";
+import { deleteBook, editBookDetails } from "../../redux/features/books";
+import { MdDelete } from "react-icons/md";
+import ImageField from "../../common/fields/ImageField";
 
 const EditBook = () => {
+  const dispatch = useDispatch();
+  const categoryOptions = [
+    { label: "I.G.N.O.U", value: "ignou" },
+    { label: "N.I.O.S", value: "nios" },
+  ];
+
   const {
     handleSubmit,
     formState: { errors },
@@ -19,11 +28,31 @@ const EditBook = () => {
 
   const onSubmit = (data) => {
     console.log(data);
+    const final = { ...data, _id: "" };
+    dispatch(editBookDetails(final));
+  };
+
+  const handleBookDelete = (final) => {
+    let id = "";
+    const data = { _id: id };
+    dispatch(deleteBook(data));
   };
 
   return (
     <PageCont>
-      <Heading text="Edit Book Details" />
+      <div className="flex justify-between items-center">
+        <Heading text="Edit Book Details" />
+        <Button
+          type="button"
+          onClick={handleBookDelete}
+          variant="filled"
+          className="bg-cstm-blue rounded-md poppins-font hover:bg-red-500 px-2"
+        >
+          <span className="poppins-font flex items-center gap-1">
+            <MdDelete size={18} />
+          </span>
+        </Button>
+      </div>
       <div className="mt-4">
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -66,7 +95,7 @@ const EditBook = () => {
             <InputField
               control={control}
               errors={errors}
-              name="paperBookPrice"
+              name="price"
               label="Paperback Book Price"
               type="number"
             />
@@ -77,19 +106,12 @@ const EditBook = () => {
               label="Paperback Book Old Price"
               type="number"
             />
-             <InputField
-              control={control}
-              errors={errors}
-              name="category"
-              label="Category"
-              type="number"
-            />
           </div>
           <div className="flex flex-col gap-3">
             <InputField
               control={control}
               errors={errors}
-              name="shortDescription"
+              name="description"
               label="Short Description"
               type="description"
             />
@@ -102,13 +124,13 @@ const EditBook = () => {
             />
           </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
-            <InputField
+            {/* <InputField
               control={control}
               errors={errors}
               name="bookCover"
               label="Book Cover"
               type="file"
-            />
+            /> */}
             <InputField
               control={control}
               errors={errors}
@@ -116,72 +138,119 @@ const EditBook = () => {
               label="Preview PDF"
               type="file"
             />
-          </div>
-          <div className="mt-3">
             <InputField
               control={control}
               errors={errors}
-              name="suggestedBooks"
-              label="Suggested Books"
+              name="category"
+              label="Select Category"
+              options={categoryOptions}
               type="select"
+              // mode="single"
             />
           </div>
+          {/* <div className="mt-3 ">
+            <InputField
+              control={control}
+              errors={errors}
+              name="category"
+              label="Select Category"
+              options={categoryOptions}
+              type="select"
+              mode="single"
+            />
+          </div> */}
+
           <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <InputField
               control={control}
               errors={errors}
               name="weight"
-              label="weight"
+              label="Weight"
             />
             <InputField
               control={control}
               errors={errors}
               name="stock"
               label="Stock"
-              // type="option"
+              type="number"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="discount"
+              label="Discount"
+              type="number"
+            />
+            {/* <InputField
+              control={control}
+              errors={errors}
+              name="price"
+              label="MRP"
+              type="text"
+            /> */}
+
+            <InputField
+              control={control}
+              errors={errors}
+              name="ebook"
+              label="E-Book"
+              type="file"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="paperprice"
+              label="E-Book(MRP)"
+              type="number"
+            />
+          </div>
+          <div>
+            <ImageField
+              control={control}
+              errors={errors}
+              name={"adhaarImg"}
+              maxFiles={5}
+              label="Upload Book Images"
+            />
+          </div>
+          <Button type="submit" className="primary-gradient mt-4 mb-4">
+            Add
+          </Button>
+
+          <hr />
+          <hr />
+          <button>
+            <h1 className="mt-7 text-black-800 text-[20px]">Review & Rating</h1>
+          </button>
+          <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
+            <InputField
+              control={control}
+              errors={errors}
+              name="Name"
+              label="Name"
+              placeholder="Name"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="Rating"
+              label="Rating"
+              type="text"
+              placeholder="******"
               options={mediumOptions}
             />
             <InputField
               control={control}
               errors={errors}
-              name="weightDiscount"
-              label="Discount"
-              type="text"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="mrpPrice"
-              label="Price"
-              type="text"
-            />
-
-            <InputField
-              control={control}
-              errors={errors}
-              name="Price"
-              label="E-Book"
-              type="number"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="paperBoo"
-              label="E-Book(MRP)"
-              type="number"
+              name="description"
+              label="Description"
+              type="description"
+              placeholder="Description"
             />
           </div>
-          <Button type="submit" className=" mt-5  primary-gradient mb-5">
-            Update
+          <Button type="submit" className="primary-gradient mt-4 mb-4">
+            Submit
           </Button>
-          <hr />  <hr />
-          <div className="flex mt-5 justify-between items-center ">
-            <h2 className=" text-black-800 text-[20px]">
-              Book Reviews & Rating Section
-            </h2>
-            <EditModal />
-          </div>
-          <Reviews />
         </form>
       </div>
     </PageCont>

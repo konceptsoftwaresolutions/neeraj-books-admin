@@ -6,6 +6,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logoutThunkMiddleware } from "../redux/features/user";
 import { persistor } from "../redux/store";
+import LogoModal from "./LogoModal";
 
 const SidebarContext = createContext();
 
@@ -15,6 +16,7 @@ export default function Sidebar({ children }) {
 
   const [expanded, setExpanded] = useState(true);
   const [mobileBtnClicked, setMobileBtnClicked] = useState(false);
+  const [showLogoModal, setShowLogoModal] = useState(false);
 
   const logoutHandler = () => {
     dispatch(logoutThunkMiddleware(persistor, navigate));
@@ -31,8 +33,9 @@ export default function Sidebar({ children }) {
           <div className="sticky top-0">
             <div className="p-4 pb-2 flex justify-between items-center">
               <img
+              onClick={ () => setShowLogoModal(!showLogoModal) }
                 src={logo}
-                className={`overflow-hidden transition-all ${
+                className={`overflow-hidden transition-all cursor-pointer ${
                   expanded ? "w-12" : "w-0"
                 }`}
               />
@@ -45,7 +48,7 @@ export default function Sidebar({ children }) {
             </div>
 
             <SidebarContext.Provider value={{ expanded }}>
-              <ul className="flex-1 px-3">{children}</ul>
+              <ul className="flex-1 px-3 h-[66vh] overflow-y-scroll">{children}</ul>
             </SidebarContext.Provider>
           </div>
 
@@ -88,6 +91,10 @@ export default function Sidebar({ children }) {
           <Menu />
         </button>
       </div>
+      <LogoModal
+        showLogoModal={showLogoModal}
+        setShowLogoModal={setShowLogoModal}
+      />
     </>
   );
 }

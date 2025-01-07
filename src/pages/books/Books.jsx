@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PageCont from "../../components/PageCont";
 import { Plus } from "lucide-react";
 import Heading from "../../components/Heading";
@@ -8,11 +8,19 @@ import usePath from "../../hooks/usePath";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
 import { allBooksColumns } from "../../constant/tableColumns";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { MdDelete } from "react-icons/md";
+import { getAllBooks } from "../../redux/features/books";
 
 const Books = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const path = usePath();
+
+  useEffect(() => {
+    dispatch(getAllBooks());
+  }, []);
+
   const { role } = useSelector((state) => state.auth);
 
   const booksData = [
@@ -68,11 +76,12 @@ const Books = () => {
         <div className="flex justify-center items-center gap-3">
           <Heading text="All Books" />
         </div>
+
         <Button
           type="submit"
           variant="filled"
           className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue"
-          onClick={()=>path.changeEndPoint("addbook")}
+          onClick={() => path.changeEndPoint("addbook")}
         >
           <Plus className="pr-1" />
           Add Book

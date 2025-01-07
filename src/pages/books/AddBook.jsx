@@ -5,9 +5,19 @@ import { useForm } from "react-hook-form";
 import InputField from "../../common/fields/InputField";
 import { mediumOptions } from "../../constant/options";
 import { Button } from "@material-tailwind/react";
+import { useDispatch } from "react-redux";
+import { addBook } from "../../redux/features/books";
+import ImageField from "../../common/fields/ImageField";
 // import EditModal from "./EditModal";
 
 const AddBook = () => {
+  const dispatch = useDispatch();
+
+  const categoryOptions = [
+    { label: "I.G.N.O.U", value: "ignou" },
+    { label: "N.I.O.S", value: "nios" },
+  ];
+
   const {
     handleSubmit,
     formState: { errors },
@@ -17,6 +27,7 @@ const AddBook = () => {
 
   const onSubmit = (data) => {
     console.log(data);
+    dispatch(addBook(data));
   };
 
   return (
@@ -64,7 +75,7 @@ const AddBook = () => {
             <InputField
               control={control}
               errors={errors}
-              name="paperBookPrice"
+              name="price"
               label="Paperback Book Price"
               type="number"
             />
@@ -80,7 +91,7 @@ const AddBook = () => {
             <InputField
               control={control}
               errors={errors}
-              name="shortDescription"
+              name="description"
               label="Short Description"
               type="description"
             />
@@ -93,13 +104,13 @@ const AddBook = () => {
             />
           </div>
           <div className="grid grid-cols-2 gap-3 mt-3">
-            <InputField
+            {/* <InputField
               control={control}
               errors={errors}
               name="bookCover"
               label="Book Cover"
               type="file"
-            />
+            /> */}
             <InputField
               control={control}
               errors={errors}
@@ -107,53 +118,64 @@ const AddBook = () => {
               label="Preview PDF"
               type="file"
             />
-          </div>
-          <div className="mt-3">
             <InputField
               control={control}
               errors={errors}
-              name="suggestedBooks"
-              label="Suggested Books"
+              name="category"
+              label="Select Category"
+              options={categoryOptions}
               type="select"
+              // mode="single"
             />
           </div>
+          {/* <div className="mt-3 ">
+            <InputField
+              control={control}
+              errors={errors}
+              name="category"
+              label="Select Category"
+              options={categoryOptions}
+              type="select"
+              mode="single"
+            />
+          </div> */}
 
           <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <InputField
               control={control}
               errors={errors}
-              name="bookName"
-              label="weight"
+              name="weight"
+              label="Weight"
             />
             <InputField
               control={control}
               errors={errors}
-              name="mediumStock"
+              name="stock"
               label="Stock"
-              // type="option"
-              options={mediumOptions}
+              type="number"
+              
             />
             <InputField
               control={control}
               errors={errors}
-              name="editionDiscount"
+              name="discount"
               label="Discount"
-              type="text"
+              type="number"
             />
-            <InputField
+            {/* <InputField
               control={control}
               errors={errors}
               name="price"
               label="MRP"
               type="text"
-            />
+            /> */}
 
             <InputField
               control={control}
               errors={errors}
-              name="ebookBook"
+              name="ebook"
               label="E-Book"
-              type="number"
+              type="file"
             />
             <InputField
               control={control}
@@ -163,11 +185,21 @@ const AddBook = () => {
               type="number"
             />
           </div>
+          <div>
+            <ImageField
+              control={control}
+              errors={errors}
+              name={"adhaarImg"}
+              maxFiles={5}
+              label="Upload Book Images (530px X 700px)"
+            />
+          </div>
           <Button type="submit" className="primary-gradient mt-4 mb-4">
             Add
           </Button>
 
-          <hr /><hr />
+          <hr />
+          <hr />
           <button>
             <h1 className="mt-7 text-black-800 text-[20px]">Review & Rating</h1>
           </button>

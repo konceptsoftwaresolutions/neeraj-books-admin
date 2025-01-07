@@ -15,7 +15,7 @@ import EditOrders from "../pages/orders/EditOrders";
 import AddOrders from "../pages/orders/AddOrders";
 import TeamMembers from "../pages/TeamMembers/TeamMembers";
 import EditMembers from "../pages/TeamMembers/EditMembers";
-import AddMembers from "../pages/TeamMembers/AddMembers"
+import AddMembers from "../pages/TeamMembers/AddMembers";
 import Categori from "../pages/Categori/Categori";
 import EditCategori from "../pages/Categori/EditCategori";
 import Customer from "../pages/customer/Customer";
@@ -24,7 +24,11 @@ import Promotions from "../pages/Promotions/Promotions";
 import Banners from "../pages/Banners/Banners";
 import AddBanners from "../pages/Banners/AddBanners";
 import BestSeller from "../pages/BestSeller/BestSeller";
-import User from "../pages/User/User"
+import User from "../pages/User/User";
+import Combos from "../pages/combos/Combos";
+import CreateCombo from "../pages/combos/CreateCombo";
+import EditCombo from "../pages/combos/EditCombo";
+
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
 
@@ -87,8 +91,9 @@ const Routes = () => {
         { path: "/:type/addbanners", element: <AddBanners /> },
         { path: "/:type/bestseller", element: <BestSeller /> },
         { path: "/:type/user", element: <User /> },
-
-
+        { path: "/:type/combos", element: <Combos /> },
+        { path: "/:type/createcombo", element: <CreateCombo /> },
+        { path: "/:type/editcombo", element: <EditCombo /> },
         { path: "*", element: <Navigate to="/" replace /> }, // Redirects to /home
       ],
     },

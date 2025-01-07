@@ -2,11 +2,19 @@ import React from "react";
 import { useSelector } from "react-redux";
 import Sidebar, { SidebarItem } from "./Sidebar";
 import { LayoutDashboard, User, Bed } from "lucide-react";
-import { FaBook, FaBitbucket, FaFlag , FaStickyNote, FaSellsy, FaList , FaHeadset , FaUser , FaStar } from "react-icons/fa";
-import { MdDiscount } from 'react-icons/md';
-import { RiTeamFill } from 'react-icons/ri';
-
-
+import {
+  FaBook,
+  FaBitbucket,
+  FaFlag,
+  FaStickyNote,
+  FaSellsy,
+  FaList,
+  FaHeadset,
+  FaUser,
+  FaStar,
+} from "react-icons/fa";
+import { MdDiscount } from "react-icons/md";
+import { RiTeamFill } from "react-icons/ri";
 
 const Navbar = () => {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
@@ -15,7 +23,7 @@ const Navbar = () => {
   const getRoute = (path) => (role ? `/${role}${path}` : path);
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen sticky top-0">
       <Sidebar>
         <SidebarItem
           icon={<LayoutDashboard size={20} />}
@@ -26,6 +34,11 @@ const Navbar = () => {
           icon={<FaBook size={20} />}
           text="Books"
           to={getRoute("/books")}
+        />
+        <SidebarItem
+          icon={<MdDiscount size={20} />}
+          text="Combo Offers"
+          to={getRoute("/combos")}
         />
         <SidebarItem
           icon={<FaBitbucket size={20} />}
@@ -42,13 +55,13 @@ const Navbar = () => {
           text="Team Members"
           to={getRoute("/teamMembers")}
         />
-        <SidebarItem
+        {/* <SidebarItem
           icon={<Bed size={20} />}
           text="Discount Management"
           to={getRoute("/discountmanagement")}
-        />
+        /> */}
         <SidebarItem
-          icon={<FaFlag  size={20} />}
+          icon={<FaFlag size={20} />}
           text="Banners"
           to={getRoute("/banners")}
         />
@@ -63,18 +76,18 @@ const Navbar = () => {
           to={getRoute("/bestseller")}
         />
         <SidebarItem
-          icon={<FaStar  size={20} />}
+          icon={<FaStar size={20} />}
           text="Reviews & Rating"
           to={getRoute("/reviews-rating")}
         />
-        <SidebarItem
+        {/* <SidebarItem
           icon={<Bed size={20} />}
           text="Catelogue Management"
           to={getRoute("/cateloguemanagement")}
-        />
+        /> */}
         <SidebarItem
           icon={<FaList size={20} />}
-          text="Categori"
+          text="Category"
           to={getRoute("/categori")}
         />
         <SidebarItem

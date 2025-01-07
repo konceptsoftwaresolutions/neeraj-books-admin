@@ -23,8 +23,8 @@ export const columns = [
     wrap: true,
     selector: (row) => row.email || "N/A",
     style: {
-      padding: "10px"
-    }
+      padding: "10px",
+    },
   },
   {
     name: "Address",
@@ -32,8 +32,8 @@ export const columns = [
     wrap: true,
     selector: (row) => row.address || "N/A",
     style: {
-      padding: "10px"
-    }
+      padding: "10px",
+    },
   },
   {
     name: "Phone",
@@ -41,8 +41,8 @@ export const columns = [
     wrap: true,
     selector: (row) => row.phone || "N/A",
     style: {
-      padding: "10px"
-    }
+      padding: "10px",
+    },
   },
   {
     name: "Profile",
@@ -50,83 +50,83 @@ export const columns = [
     wrap: true,
     selector: (row) => row.profile || "N/A",
     style: {
-      padding: "10px"
-    }
-  }
+      padding: "10px",
+    },
+  },
 ];
 
 export const allPatientsColumn = [
   {
-    name: 'S.No.',
+    name: "S.No.",
     width: "80px",
-    selector: ((row, index) => index + 1),
+    selector: (row, index) => index + 1,
     style: {
       padding: "10px 10px 10px 20px",
     },
   },
   {
-    name: 'Patient ID',
+    name: "Patient ID",
     width: "150px",
     wrap: true,
-    selector: ((row, index) => row.patientId),
+    selector: (row, index) => row.patientId,
     style: {
       padding: "10px 10px 10px 20px",
     },
   },
   {
-    name: 'Date',
+    name: "Date",
     width: "150px",
-    selector: ((row, index) => row.date),
+    selector: (row, index) => row.date,
     style: {
       padding: "10px 10px 10px 20px",
     },
   },
   {
-    name: 'Name',
+    name: "Name",
     width: "180px",
     wrap: true,
-    selector: ((row, index) => row.name),
+    selector: (row, index) => row.name,
     style: {
       padding: "10px 10px 10px 20px",
     },
   },
   {
-    name: 'Email',
+    name: "Email",
     width: "250px",
     wrap: true,
-    selector: ((row, index) => row.email),
+    selector: (row, index) => row.email,
     style: {
       padding: "10px 10px 10px 20px",
     },
   },
   {
-    name: 'Address',
+    name: "Address",
     width: "300px",
     wrap: true,
-    selector: ((row, index) => row.address),
+    selector: (row, index) => row.address,
     style: {
       padding: "10px 10px 10px 20px",
     },
   },
   {
-    name: 'Phone',
+    name: "Phone",
     width: "150px",
     wrap: true,
-    selector: ((row, index) => row.phone),
+    selector: (row, index) => row.phone,
     style: {
       padding: "10px 10px 10px 20px",
     },
   },
   {
-    name: 'Ward',
+    name: "Ward",
     width: "150px",
     wrap: true,
-    selector: ((row, index) => row.ward),
+    selector: (row, index) => row.ward,
     style: {
       padding: "10px 10px 10px 20px",
     },
-  }
-]
+  },
+];
 
 export const allBooksColumns = [
   {
@@ -270,15 +270,15 @@ export const allMembers = [
       padding: "10px 10px 10px 20px",
     },
   },
-  {
-    name: "Id",
-    width: "130px",
-    wrap: true,
-    selector: (row) => row.id || "N/A",
-    style: {
-      padding: "10px",
-    },
-  },
+  // {
+  //   name: "Id",
+  //   width: "130px",
+  //   wrap: true,
+  //   selector: (row) => row.id || "N/A",
+  //   style: {
+  //     padding: "10px",
+  //   },
+  // },
   {
     name: "Name",
     width: "180px",
@@ -292,7 +292,7 @@ export const allMembers = [
     name: "Role",
     width: "150px",
     wrap: true,
-    selector: (row) => row.role || "N/A",
+    selector: (row) => row.profile || "N/A",
     style: {
       padding: "10px",
     },
@@ -310,30 +310,30 @@ export const allMembers = [
     name: "Phone",
     width: "150px",
     wrap: true,
-    selector: (row) => `₹${row.phone}` || "N/A",
+    selector: (row) => row.mobile || "N/A",
     style: {
       padding: "10px",
     },
   },
-  {
-    name: "Status",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.Status}` || "N/A",
-    style: {
-      padding: "10px",
-    },
-  },
-  {
-    name: "JoiningDate",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.joiningDate}` || "N/A",
-    style: {
-      padding: "10px",
-    },
-  },
-]
+  // {
+  //   name: "Status",
+  //   width: "150px",
+  //   wrap: true,
+  //   selector: (row) => `₹${row.Status}` || "N/A",
+  //   style: {
+  //     padding: "10px",
+  //   },
+  // },
+  // {
+  //   name: "JoiningDate",
+  //   width: "150px",
+  //   wrap: true,
+  //   selector: (row) => `₹${row.joiningDate}` || "N/A",
+  //   style: {
+  //     padding: "10px",
+  //   },
+  // },
+];
 
 export const allCustomer = [
   {
@@ -399,7 +399,7 @@ export const allCustomer = [
       padding: "10px",
     },
   },
-]
+];
 
 export const allPromotions = [
   {
@@ -438,8 +438,7 @@ export const allPromotions = [
       padding: "10px",
     },
   },
-
-]
+];
 export const allSeller = [
   {
     name: "S.No.",
@@ -494,10 +493,8 @@ export const allSeller = [
     style: {
       padding: "10px",
     },
-    
   },
-
-]
+];
 export const allReviews = [
   {
     name: "S.No.",
@@ -535,4 +532,4 @@ export const allReviews = [
       padding: "10px",
     },
   },
-]
+];
