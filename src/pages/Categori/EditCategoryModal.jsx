@@ -1,0 +1,170 @@
+import React, { useEffect, useState } from "react";
+import { Modal } from "antd";
+import { useForm } from "react-hook-form";
+import ImageField from "../../common/fields/ImageField";
+import InputField from "../../common/fields/InputField";
+import { useDispatch } from "react-redux";
+import {
+  deleteCategory,
+  editCategory,
+  getCategoryImage,
+} from "../../redux/features/category";
+import { Button } from "@material-tailwind/react";
+import { MdDelete } from "react-icons/md";
+import { categorySchema, editCategorySchema } from "../../constant/validations";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const EditCategoryModal = ({ visible, onClose, category }) => {
+  const [imageUrl, setImageUrl] = useState();
+  const [isEditable, setIsEditable] = useState(false);
+  const dispatch = useDispatch();
+  // console.log("2222222222", category);
+
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+  } = useForm({
+    resolver: yupResolver(editCategorySchema),
+  });
+
+  useEffect(() => {
+    reset({
+      name: category?.name,
+      description1: category?.description1,
+      description2: category?.description2,
+      sort: category?.sort,
+    });
+    if (category?.name) {
+      const payload = {
+        name: category?.name,
+      };
+      dispatch(
+        getCategoryImage(payload, (imageUrl) => {
+          if (imageUrl) {
+            console.log(imageUrl);
+            setImageUrl(imageUrl);
+          }
+        })
+      );
+    }
+  }, [category]);
+
+  const onSubmit = (data) => {
+    console.log(data);
+
+    const { name, description1, description2, categoryFile } = data;
+
+    const slug = name.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
+
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("description1", description1);
+    formData.append("description2", description2);
+    formData.append("categoryId", category._id);
+    formData.append("slug", slug);
+    if (categoryFile) {
+      const imageFile = categoryFile[0]?.file;
+      formData.append("categoryFile", imageFile);
+    }
+    formData.append("parent", category.parent);
+
+    dispatch(editCategory(formData));
+    reset(); // Reset the form after submission
+    onClose();
+    setIsEditable(false);
+  };
+
+  const handleDelete = () => {
+    console.log(category._id);
+    const id = category?._id;
+    dispatch(deleteCategory(id));
+    onClose();
+  };
+
+  return (
+    <Modal
+      //   title="Edit Category"
+      open={visible}
+      onCancel={() => {
+        onClose();
+        setIsEditable(false);
+      }}
+      footer={null}
+    >
+      <div>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div>
+            <img src={imageUrl} />
+            {isEditable && (
+              <ImageField
+                control={control}
+                errors={errors}
+                name="categoryFile"
+                maxFiles={1}
+                label="Category Image (330px X 150px)"
+              />
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <InputField
+                control={control}
+                errors={errors}
+                name="name"
+                label="Category Name"
+                type="text"
+                disabled={!isEditable}
+              />
+              <InputField
+                control={control}
+                errors={errors}
+                name="description1"
+                label="Description1"
+                type="description"
+                disabled={!isEditable}
+              />
+              <InputField
+                control={control}
+                errors={errors}
+                name="description2"
+                label="Description2"
+                type="description"
+                disabled={!isEditable}
+              />
+              {/* <InputField
+                control={control}
+                errors={errors}
+                name="sort"
+                label="Order"
+                type="numeric"
+                disabled={!isEditable}
+              /> */}
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button type="submit" className="primary-gradient mt-4 text-white">
+              Save
+            </Button>
+
+            <Button
+              type="button"
+              className="primary-gradient mt-4 text-white"
+              onClick={() => setIsEditable(!isEditable)}
+            >
+              Edit
+            </Button>
+            <Button
+              type="button"
+              className="primary-gradient mt-4 text-white"
+              onClick={handleDelete}
+            >
+              <MdDelete size={20} />
+            </Button>
+          </div>
+        </form>
+      </div>
+    </Modal>
+  );
+};
+
+export default EditCategoryModal;

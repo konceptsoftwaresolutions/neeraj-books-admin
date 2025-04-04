@@ -4,17 +4,36 @@ import Heading from "../../components/Heading";
 import { useForm } from "react-hook-form";
 import InputField from "../../common/fields/InputField";
 import { Button } from "@material-tailwind/react";
+import { testimonialSchema } from "../../constant/validations";
+import { yupResolver } from "@hookform/resolvers/yup";
+import toast from "react-hot-toast";
+import { addTestimonial } from "../../redux/features/testimonials";
+import { useDispatch } from "react-redux";
 
 const AddTestimonial = () => {
+  const dispatch = useDispatch();
   const {
     handleSubmit,
     formState: { errors },
     control,
     reset,
-  } = useForm();
-
+  } = useForm({
+    resolver: yupResolver(testimonialSchema),
+  });
   const onSubmit = (data) => {
-    console.log(data);
+    const formData = new FormData();
+    if (!data?.testimonialUserImg || !data?.testimonialUserImg[0]) {
+      toast.error("Image Required");
+      return;
+    }
+
+    formData.append("file", data?.testimonialUserImg[0]);
+    formData.append("name", data?.name);
+    formData.append("designation", data?.course);
+    formData.append("rating", data?.rating);
+    formData.append("paragraph", data?.review);
+
+    dispatch(addTestimonial({ formData }));
   };
 
   return (
@@ -26,28 +45,36 @@ const AddTestimonial = () => {
             <InputField
               control={control}
               errors={errors}
-              name="stdName"
+              name="name"
               label="Name"
             />
             <InputField
               control={control}
               errors={errors}
-              name="stdCourse"
+              name="course"
               label="Course Name"
             />
             <InputField
               control={control}
               errors={errors}
-              name="stdReview"
+              name="review"
               label="Detailed Review"
               type="description"
             />
             <InputField
               control={control}
               errors={errors}
-              name="stdImg"
+              name="testimonialUserImg"
               label="Student Image"
               type="file"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="rating"
+              label="Rating"
+              type="numeric"
+              max={5}
             />
           </div>
           <Button type="submit" className="primary-gradient">

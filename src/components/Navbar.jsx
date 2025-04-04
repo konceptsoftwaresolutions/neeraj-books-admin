@@ -13,8 +13,13 @@ import {
   FaUser,
   FaStar,
 } from "react-icons/fa";
+import { BiSolidCoupon } from "react-icons/bi";
+
 import { MdDiscount } from "react-icons/md";
 import { RiTeamFill } from "react-icons/ri";
+import { PiShoppingCartSimpleFill } from "react-icons/pi";
+
+import { MdQuiz } from "react-icons/md";
 
 const Navbar = () => {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
@@ -25,15 +30,40 @@ const Navbar = () => {
   return (
     <div className="flex h-screen sticky top-0">
       <Sidebar>
-        <SidebarItem
-          icon={<LayoutDashboard size={20} />}
-          text="Dashboard"
-          to={getRoute("/dashboard")}
-        />
+        {role === "user" ? null : (
+          <>
+            <SidebarItem
+              icon={<LayoutDashboard size={20} />}
+              text="Dashboard"
+              to={getRoute("/dashboard")}
+            />
+          </>
+        )}
+
         <SidebarItem
           icon={<FaBook size={20} />}
           text="Books"
           to={getRoute("/books")}
+        />
+        <SidebarItem
+          icon={<FaList size={20} />}
+          text="Category"
+          to={getRoute("/categori")}
+        />
+        <SidebarItem
+          icon={<FaUser size={20} />}
+          text="Sliders"
+          to={getRoute("/sliders")}
+        />
+        <SidebarItem
+          icon={<MdDiscount size={20} />}
+          text="PopUps"
+          to={getRoute("/popups")}
+        />
+        <SidebarItem
+          icon={<MdQuiz size={20} />}
+          text="Quiz"
+          to={getRoute("/quiz")}
         />
         <SidebarItem
           icon={<MdDiscount size={20} />}
@@ -44,6 +74,16 @@ const Navbar = () => {
           icon={<FaBitbucket size={20} />}
           text="Orders"
           to={getRoute("/orders")}
+        />
+        <SidebarItem
+          icon={<BiSolidCoupon size={20} />}
+          text="Coupons"
+          to={getRoute("/coupons")}
+        />
+        <SidebarItem
+          icon={<PiShoppingCartSimpleFill size={20} />}
+          text="Abandoned Cart"
+          to={getRoute("/abandonedcart")}
         />
         <SidebarItem
           icon={<MdDiscount size={20} />}
@@ -85,11 +125,7 @@ const Navbar = () => {
           text="Catelogue Management"
           to={getRoute("/cateloguemanagement")}
         /> */}
-        <SidebarItem
-          icon={<FaList size={20} />}
-          text="Category"
-          to={getRoute("/categori")}
-        />
+
         <SidebarItem
           icon={<FaHeadset size={20} />}
           text="Customer"
@@ -100,6 +136,7 @@ const Navbar = () => {
           text="User"
           to={getRoute("/user")}
         />
+
         <hr className="my-3" />
       </Sidebar>
     </div>

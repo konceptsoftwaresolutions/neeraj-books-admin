@@ -84,7 +84,7 @@ export const editBookDetails = (payload) => {
     return async (dispatch) => {
         try {
 
-            const response = await axiosInstance.post("/product/update", payload);
+            const response = await axiosInstance.post("/product/updat", payload);
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Book added successfully!";

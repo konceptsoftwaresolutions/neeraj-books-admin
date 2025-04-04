@@ -13,6 +13,10 @@ import UploadsField from "./UploadsField";
 import NumericField from "./NumericField";
 import TextareaField from "./TextareaField";
 import RichTextEditor from "./TextEditor";
+import FileUploadField from "./FileUploadField";
+import VideoUploadField from "./VideoUpload";
+import InputTagField from "./InputTagField";
+import MonthRangePicker from "./MonthRangePicker";
 
 /**
  * @typedef {'text' | 'email' | 'password' | 'option' | 'select' | 'date' | 'file' | 'upload' | 'description' | 'desc' | 'number' | 'time' | 'datelocal-time' } InputType
@@ -45,6 +49,7 @@ import RichTextEditor from "./TextEditor";
  * @param {number} [props.max] - The maximum allowable value in number.
  */
 const InputField = ({
+  required,
   control,
   rows,
   errors,
@@ -71,6 +76,7 @@ const InputField = ({
   picker = "date",
 }) => {
   const props = {
+    required,
     value,
     control,
     errors,
@@ -101,6 +107,8 @@ const InputField = ({
     switch (type) {
       case "text":
         return <TextField {...props} />;
+      case "monthRange":
+        return <MonthRangePicker {...props} />;
       case "numeric":
         return <NumericField {...props} />;
       case "email":
@@ -117,12 +125,18 @@ const InputField = ({
         return <UploadField {...props} />;
       case "upload":
         return <UploadsField {...props} />;
+      case "uploadFiles":
+        return <FileUploadField {...props} />;
+      case "videos":
+        return <VideoUploadField {...props} />;
       case "description":
         return <TextareaField {...props} />;
       case "desc":
         return <DescriptionField {...props} />;
       case "textEditor":
         return <RichTextEditor {...props} />;
+      case "tags":
+        return <InputTagField {...props} />;
       default:
         return <TextField {...props} />;
     }

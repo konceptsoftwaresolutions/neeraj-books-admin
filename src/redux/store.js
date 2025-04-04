@@ -7,8 +7,17 @@ import authReducer from "./features/auth";
 import dashboardReducer from "./features/dashboard";
 import userReducer from "./features/user";
 import teamMemberReducer from './features/teamMembers'
-import bookReducer from "./features/books"
+import bookReducer from './features/books'
 import orderReducer from './features/orders'
+import categoryReducer from './features/category'
+import dummyCatReducer from './features/dummyCat'
+import dummyBookReducer from './features/dummyBook'
+import sliderReducer from './features/sliders'
+import allBooksReducer from './features/allBooks'
+import quizReducer from './features/quiz'
+import testimonialReducer from './features/testimonials'
+import couponReducer from './features/coupons'
+import allUserReducer from './features/allUsers'
 
 import { thunk } from "redux-thunk";
 
@@ -17,14 +26,23 @@ const rootReducer = combineReducers({
   dashboard: dashboardReducer,
   user: userReducer,
   team: teamMemberReducer,
-  book: bookReducer,
+  books: bookReducer,
   order: orderReducer,
+  category: categoryReducer,
+  dummy: dummyCatReducer,
+  dummyBook: dummyBookReducer,
+  slider: sliderReducer,
+  allBooks: allBooksReducer,
+  quiz: quizReducer,
+  testimonial: testimonialReducer,
+  coupons: couponReducer,
+  allUsers: allUserReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "dashboard", "user", "team", "book" , "order"],
+  whitelist: ["auth", "allUsers", "coupons", "testimonial", "dashboard", "user", "team", "order", "category", "slider", "books", "dummy", "dummyBook", "allBooks", "quiz"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

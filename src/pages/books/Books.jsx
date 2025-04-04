@@ -1,73 +1,153 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageCont from "../../components/PageCont";
 import { Plus } from "lucide-react";
 import Heading from "../../components/Heading";
 import { Button } from "@material-tailwind/react";
+import { Input } from "antd";
 import { useNavigate } from "react-router-dom";
 import usePath from "../../hooks/usePath";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
 import { allBooksColumns } from "../../constant/tableColumns";
 import { useDispatch, useSelector } from "react-redux";
-import { MdDelete } from "react-icons/md";
-import { getAllBooks } from "../../redux/features/books";
+import { FaFileExcel } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
+
+import { getAllBooks, handleBookOrder } from "../../redux/features/books";
+import { useForm } from "react-hook-form";
+import EbookPriceModal from "./EbookPriceModal";
+import { getAllCategories } from "../../redux/features/category";
+import useCategoryName from "../../hooks/useCategoryName";
+import UploadExcel from "../../components/UploadExcel";
 
 const Books = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  // const getCategoryName = useCategoryName;
   const path = usePath();
 
   useEffect(() => {
     dispatch(getAllBooks());
+    dispatch(getAllCategories());
   }, []);
 
+  const {
+    handleSubmit,
+    formState: { errors },
+    control,
+    reset,
+  } = useForm();
+
   const { role } = useSelector((state) => state.auth);
+  const { allBooks } = useSelector((state) => state.books);
+  const { allCategory } = useSelector((state) => state.category);
 
-  const booksData = [
-    {
-      bookName: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      medium: "English",
-      edition: "2nd",
-      ebookPrice: "299",
-      paperBookPrice: "599",
-    },
-    {
-      bookName: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      medium: "English",
-      edition: "1st",
-      ebookPrice: "199",
-      paperBookPrice: "399",
-    },
-    {
-      bookName: "1984",
-      author: "George Orwell",
-      medium: "English",
-      edition: "3rd",
-      ebookPrice: "249",
-      paperBookPrice: "449",
-    },
-    {
-      bookName: "Pride and Prejudice",
-      author: "Jane Austen",
-      medium: "English",
-      edition: "5th",
-      ebookPrice: "299",
-      paperBookPrice: "699",
-    },
-    {
-      bookName: "The Catcher in the Rye",
-      author: "J.D. Salinger",
-      medium: "English",
-      edition: "4th",
-      ebookPrice: "229",
-      paperBookPrice: "529",
-    },
-  ];
+  const [ebookModal, setEbookModal] = useState(false);
+  const [excelModal, setExcelModal] = useState(false);
+  const [searchText, setSearchText] = useState(""); // Search input state
+  const [filteredBooks, setFilteredBooks] = useState([]);
 
-  const handleRowClick = (data) => {
-    navigate(`/${role}/editbook`);
+  const transformData = (books) => {
+    let rows = [];
+    books?.forEach((book) => {
+      if (book.english) {
+        rows.push({
+          _id: book._id + "-en",
+          title: book.english.title,
+          description: book.english.description,
+          paperBackPrice: book.english.paperBackOriginalPrice,
+          eBookPrice: book.english.eBookOriginalPrice,
+          averageRating: book.english.averageRating,
+          medium: "English",
+          bookDetail: book.english,
+          sort: book.english.sort,
+          outerId: book._id,
+          localisedId: book.english._id,
+          categories: book.english.categories,
+          stock: book.english.stock,
+        });
+      }
+      if (book.hindi) {
+        rows.push({
+          _id: book._id + "-hi",
+          title: book.hindi.title,
+          description: book.hindi.description,
+          paperBackPrice: book.hindi.paperBackOriginalPrice,
+          eBookPrice: book.hindi.eBookOriginalPrice,
+          averageRating: book.hindi.averageRating,
+          medium: "Hindi",
+          bookDetail: book.hindi,
+          sort: book.hindi.sort,
+          outerId: book._id,
+          localisedId: book.hindi._id,
+          categories: book.hindi.categories,
+          stock: book.hindi.stock,
+        });
+      }
+    });
+    return rows;
+  };
+
+  const tableData = transformData(allBooks);
+
+  const normalizeText = (text) => text.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  useEffect(() => {
+    if (searchText.trim() === "") {
+      setFilteredBooks(tableData);
+    } else {
+      const normalizedSearch = normalizeText(searchText);
+      setFilteredBooks(
+        tableData.filter((book) =>
+          normalizeText(book.title).includes(normalizedSearch)
+        )
+      );
+    }
+  }, [searchText, allBooks]);
+
+  const handleRowClick = (row) => {
+    navigate(`/${role}/updatebook`, {
+      state: {
+        bookData: row.bookDetail,
+        medium: row.medium,
+        outerId: row.outerId,
+      },
+    });
+  };
+
+  const handleBookSort = (productId, localizedId, sort) => {
+    const payload = {
+      productId,
+      localizedId,
+      sort,
+    };
+    dispatch(handleBookOrder(payload));
+  };
+
+  const handleUploadExcel = (data) => {
+    console.log(data);
+  };
+
+  // Function to create a lookup object for categories
+  const getCategoryName = (categoryIds, allCategory) => {
+    // Flatten the category tree
+    const categoryLookup = {};
+
+    const flattenCategories = (categories) => {
+      categories?.forEach((category) => {
+        categoryLookup[category._id] = category.name;
+        if (category.subcategories && category.subcategories.length) {
+          flattenCategories(category.subcategories);
+        }
+      });
+    };
+
+    flattenCategories(allCategory);
+
+    // Map category IDs to names
+    return categoryIds
+      .map((id) => categoryLookup[id] || "Unknown Category")
+      .join(", ");
   };
 
   return (
@@ -77,24 +157,76 @@ const Books = () => {
           <Heading text="All Books" />
         </div>
 
-        <Button
-          type="submit"
-          variant="filled"
-          className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue"
-          onClick={() => path.changeEndPoint("addbook")}
-        >
-          <Plus className="pr-1" />
-          Add Book
-        </Button>
-      </div>{" "}
-      <div className="mt-4">
-        <DataTable
-          data={booksData}
-          columns={allBooksColumns}
-          customStyles={tableStyle}
-          onRowClicked={handleRowClick}
+        <div className="flex gap-1">
+          <Button
+            type="submit"
+            variant="filled"
+            className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
+            onClick={() => setEbookModal(!ebookModal)}
+          >
+            Set Brand
+          </Button>
+
+          <Button
+            type="submit"
+            variant="filled"
+            className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
+            onClick={() => path.changeEndPoint("createbook")}
+          >
+            <Plus className="pr-1" />
+            Add Book
+          </Button>
+
+          <Button
+            type="submit"
+            variant="filled"
+            className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
+            onClick={() => setExcelModal(!excelModal)}
+          >
+            <FaFileExcel className="pr-1" />
+            Bulk Upload
+          </Button>
+        </div>
+      </div>
+
+      {/* Search Input */}
+      <div className="mt-4 relative">
+        <FaSearch className="absolute top-3 left-2 z-20 text-cstm-blue" />
+
+        <Input
+          type="text"
+          placeholder="Search by name..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          className="w-full px-4 py-2 pl-7 border rounded-md shadow-sm focus:outline-none focus:ring-2 border-cstm-blue "
         />
       </div>
+
+      {/* DataTable */}
+      <div className="mt-4">
+        <DataTable
+          data={filteredBooks}
+          columns={allBooksColumns(
+            handleRowClick,
+            getCategoryName,
+            allCategory,
+            handleBookSort
+          )}
+          customStyles={tableStyle}
+          pagination
+          paginationPerPage={12}
+          paginationRowsPerPageOptions={[10, 25, 50]}
+        />
+      </div>
+
+      <EbookPriceModal showModal={ebookModal} setShowModal={setEbookModal} />
+      <UploadExcel
+        isOpen={excelModal}
+        setIsOpen={setExcelModal}
+        handleSave={handleUploadExcel}
+        templateName="allProductTemplate"
+        template={[]}
+      />
     </PageCont>
   );
 };

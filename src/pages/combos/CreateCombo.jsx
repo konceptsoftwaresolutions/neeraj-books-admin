@@ -37,19 +37,19 @@ const CreateCombo = () => {
       </div>
       <div className="mt-4">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          <div className="w-full grid  gap-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             <InputField
               control={control}
               errors={errors}
               name="comboTitle"
               label="Combo Title"
             />
-            <InputField
+            {/* <InputField
               control={control}
               errors={errors}
               name="subInfo"
               label="Sub Info"
-            />
+            /> */}
             <InputField
               control={control}
               errors={errors}
@@ -58,20 +58,7 @@ const CreateCombo = () => {
               options={mediumOptions}
               label="Medium"
             />
-            <InputField
-              control={control}
-              errors={errors}
-              name="paperBackMRP"
-              label="Paperback (MRP)"
-              type="number"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="paperBackSalePrice"
-              label="Paperback (Sale Price)"
-              type="number"
-            />
+
             <InputField
               control={control}
               errors={errors}
@@ -80,13 +67,36 @@ const CreateCombo = () => {
               type="number"
             />
           </div>
-          <div>
+          <div className="mt-3">
             <InputField
               control={control}
               errors={errors}
               name="medium"
               type="select"
               label="Select Books"
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-3">
+            <InputField
+              control={control}
+              errors={errors}
+              name="totalPrice"
+              label="Total Price"
+              type="number"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="comboPrice"
+              label="Combo Price"
+              type="number"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="percentageOff"
+              label="Percentage Off"
+              type="number"
             />
           </div>
           <div className="mt-3">

@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { setToken } from "../auth";
 import createAxiosInstance from "../../../config/axiosConfig";
-import { setBooks } from "../books";
+// import { setBooks } from "../books";
 import { setTeamMembers } from "../teamMembers";
 import { setOrder } from "../orders";
 
@@ -47,7 +47,7 @@ export const logoutThunkMiddleware = (persistor, navigate) => {
         })
       );
       dispatch(setUser({ user: null }));
-      dispatch(setBooks({ allBooks: null }))
+      // dispatch(setBooks({ allBooks: null }))
       dispatch(setTeamMembers({ allUsers: null }))
       dispatch(setOrder({ allOrders: null }))
       navigate("/");

@@ -1,67 +1,67 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
 import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import usePath from "../../hooks/usePath";
-// import { DndContext } from "react-dnd";
-import { DndContext, closestCorners } from "@dnd-kit/core";
-import TestimonialCol from "./TestimonialCol";
-import DragAndDrop from "./DragandDrop";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  deleteTestimonial,
+  getAllTestimonials,
+} from "../../redux/features/testimonials";
+import axios from "axios"; // Import Axios for API requests
+import createAxiosInstance from "../../config/axiosConfig";
+import { Star } from "lucide-react"; // Import Star icon
+import { MdDelete } from "react-icons/md";
 
 const Testimonials = () => {
+  const axiosInstance = createAxiosInstance();
+
+  const dispatch = useDispatch();
   const path = usePath();
   const navigate = useNavigate();
 
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      review: "this is the first title ",
-      name: "Dinesh",
-      course: "BA HONS",
-      rating: 5,
-      imgLink: "https://www.neerajbooks.com/assets-new/img/testimonials/1.jpg",
-    },
-    {
-      id: 2,
-      review: "this is the second title ",
-      name: "User 2",
-      course: "BA HONS",
-      rating: 4,
-      imgLink: "https://www.neerajbooks.com/assets-new/img/testimonials/2.jpg",
-    },
-    {
-      id: 3,
-      review: "this is the third title ",
-      name: "User 3",
-      course: "BA HONS",
-      rating: 3,
-      imgLink:
-        "https://www.neerajbooks.com/assets-new/img/testimonials/24ded6aa4f398469e57e00b94ba1cd82.png",
-    },
-    {
-      id: 4,
-      review: "this is the fourth title ",
-      name: "User 4",
-      course: "BA HONS",
-      rating: 2,
-      imgLink:
-        "https://www.neerajbooks.com/assets-new/img/testimonials/943d399e1a32861f191ab1a431e18435.png",
-    },
-    {
-      id: 5,
-      review: "this is the fifth title ",
-      name: "User 5",
-      course: "BA HONS",
-      rating: 1,
-      imgLink:
-        "https://www.neerajbooks.com/assets-new/img/testimonials/bb872a0f8b00a92f57c2d45597f4fcfd.png",
-    },
-  ]);
+  const [images, setImages] = useState({}); // Store images for each testimonial
 
-  const handleSaveSequence = () => {
-    console.log("Updated Sequence:", tasks);
+  useEffect(() => {
+    dispatch(getAllTestimonials());
+  }, [dispatch]);
+
+  const { allTestimonials } = useSelector((state) => state.testimonial);
+
+  // Fetch images for each testimonial
+  useEffect(() => {
+    const fetchImages = async () => {
+      const newImages = {};
+      await Promise.all(
+        allTestimonials.map(async (item) => {
+          try {
+            const response = await axiosInstance.post(
+              "/testimonial/getImage",
+              { testimonialId: item._id },
+              { responseType: "blob" } // Fetch as blob to handle images
+            );
+            newImages[item._id] = URL.createObjectURL(response.data); // Convert blob to URL
+          } catch (error) {
+            console.error("Error fetching image for", item._id, error);
+          }
+        })
+      );
+      setImages(newImages);
+    };
+
+    if (allTestimonials?.length > 0) {
+      fetchImages();
+    }
+  }, [allTestimonials]);
+
+  const handleTestimonialDelete = (data) => {
+    console.log(data);
+    const payload = {
+      _id: data,
+    };
+    dispatch(deleteTestimonial(payload));
   };
 
   return (
@@ -76,14 +76,47 @@ const Testimonials = () => {
           Add New
         </Button>
       </div>
+
       <div className="mt-4">
-        <DragAndDrop data={tasks} onUpdate={setTasks} />
-        <Button
-          className="bg-cstm-blue flex justify-center items-center mt-3"
-          onClick={handleSaveSequence}
-        >
-          Save Sequence
-        </Button>
+        {allTestimonials?.map((item) => (
+          <div
+            key={item._id}
+            className="w-full flex justify-between border p-3 mb-3"
+          >
+            <div className="flex items-center">
+              {/* Image */}
+              <img
+                src={images[item._id] || "/default-image.jpg"} // Show fetched image or default
+                alt={item.name}
+                className="w-16 h-16 rounded-full object-cover mr-3"
+              />
+              <div>
+                <div className="flex items-center">
+                  <span className="text-sm font-semibold">{item.name}</span>
+                  <span className="text-sm ml-3">{item.designation}</span>
+                  <div className="flex ml-3">
+                    {Array.from({ length: item.rating }, (_, index) => (
+                      <Star
+                        key={index}
+                        size={16}
+                        fill="currentColor"
+                        color="#fbc02d"
+                      />
+                    ))}
+                  </div>
+                </div>
+                <div>{item.paragraph}</div>
+              </div>
+            </div>
+            <div className="cursor-pointer">
+              <MdDelete
+                size={20}
+                color="red"
+                onClick={() => handleTestimonialDelete(item._id)}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </PageCont>
   );

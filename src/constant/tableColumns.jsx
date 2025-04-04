@@ -1,3 +1,11 @@
+import { Button } from "@material-tailwind/react";
+import { Tooltip } from "antd";
+import { CiEdit } from "react-icons/ci";
+import { MdSimCardDownload } from "react-icons/md";
+import useCategoryName from "../hooks/useCategoryName";
+import { format } from "date-fns-tz";
+import { FiEye } from "react-icons/fi";
+
 export const columns = [
   {
     name: "S.No.",
@@ -128,71 +136,177 @@ export const allPatientsColumn = [
   },
 ];
 
-export const allBooksColumns = [
-  {
-    name: "S.No.",
-    width: "80px",
-    wrap: true,
-    selector: (row, index) => index + 1,
-    style: {
-      padding: "10px 10px 10px 20px",
+export const allBooksColumns = (
+  handleRowClick,
+
+  getCategoryName,
+  allCategory,
+  handleBookSort
+) => {
+  return [
+    {
+      name: "S.No.",
+      width: "80px",
+      wrap: true,
+      selector: (row, index) => index + 1,
     },
-  },
-  {
-    name: "Book Name",
-    width: "250px",
-    wrap: true,
-    selector: (row) => row.bookName || "N/A",
-    style: {
-      padding: "10px",
+    {
+      name: "Action",
+      width: "80px",
+      selector: (row) => (
+        <div className="flex justify-center items-center gap-x-2">
+          <Tooltip title="Edit Book">
+            <Button
+              className="primary-gradient rounded-md py-2 px-3 text-white"
+              onClick={() => handleRowClick(row)}
+            >
+              <CiEdit size={18} />
+            </Button>
+          </Tooltip>
+        </div>
+      ),
     },
-  },
-  {
-    name: "Author",
-    width: "200px",
-    wrap: true,
-    selector: (row) => row.author || "N/A",
-    style: {
-      padding: "10px",
+    {
+      name: "Book Name",
+      width: "250px",
+      wrap: true,
+      selector: (row) => row.title || "N/A",
     },
-  },
-  {
-    name: "Medium",
-    width: "150px",
-    wrap: true,
-    selector: (row) => row.medium || "N/A",
-    style: {
-      padding: "10px",
+    {
+      name: "Category",
+      selector: (row) =>
+        row.categories?.length
+          ? getCategoryName(row.categories, allCategory)
+          : "N/A",
     },
-  },
-  {
-    name: "Edition",
-    width: "120px",
-    wrap: true,
-    selector: (row) => row.edition || "N/A",
-    style: {
-      padding: "10px",
+    {
+      name: "Stock",
+      width: "130px",
+      wrap: true,
+      selector: (row) => row.stock || "N/A",
     },
-  },
-  {
-    name: "E-Book Price",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.ebookPrice}` || "N/A",
-    style: {
-      padding: "10px",
+    {
+      name: "Medium",
+      width: "120px",
+      wrap: true,
+      selector: (row) => row.medium || "N/A",
     },
-  },
-  {
-    name: "Paperback Price",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.paperBookPrice}` || "N/A",
-    style: {
-      padding: "10px",
+
+    {
+      name: "Paperback Price",
+      width: "170px",
+      wrap: true,
+      selector: (row) => `₹${row.paperBackPrice}` || "N/A",
+      // style: {
+      //   padding: "10px",
+      // },
     },
-  },
-];
+    {
+      name: "E-Book Price",
+      width: "150px",
+      wrap: true,
+      selector: (row) => `₹${row.eBookPrice}` || "N/A",
+    },
+    {
+      name: "Order",
+      width: "150px",
+      selector: (row) => (
+        <div className="">
+          <input
+            type="number"
+            className="border-[1px] border-black p-1 w-full text-center max-w-[80px]"
+            defaultValue={row.sort}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleBookSort(row.outerId, row.localisedId, e.target.value);
+              }
+            }}
+          />
+        </div>
+      ),
+    },
+
+    // {
+    //   name: "E-Book Discounted Price",
+    //   width: "270px",
+    //   wrap: true,
+    //   selector: (row) => `₹${row.eBookDiscountedPrice}` || "N/A",
+    //   style: {
+    //     padding: "10px",
+    //   },
+    // },
+  ];
+};
+
+export const allCategoryColumns = (handleRowClick, handleCategorySort) => {
+  return [
+    {
+      name: "S.No.",
+      width: "80px",
+      wrap: true,
+      selector: (row, index) => index + 1,
+      style: {
+        padding: "10px 10px 10px 20px",
+      },
+    },
+    {
+      name: "Action",
+      width: "100px",
+      selector: (row) => (
+        <div className="flex justify-center items-center ">
+          <Tooltip title="Edit Category">
+            <Button
+              className="primary-gradient rounded-md py-2 px-3 text-white"
+              onClick={() => handleRowClick(row)}
+            >
+              <CiEdit size={18} />
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
+    {
+      name: "Parent Category Name",
+      selector: (row) => row.name,
+      style: {
+        padding: "10px 10px 10px 20px",
+      },
+      width: "300px",
+    },
+    {
+      name: "Description",
+      selector: (row) => row.description1,
+      style: {
+        padding: "10px 10px 10px 20px",
+      },
+      width: "300px",
+    },
+    {
+      name: "Order",
+      width: "150px",
+      selector: (row) => (
+        <div className="">
+          <input
+            type="number"
+            className="border-[1px] border-black p-1 w-full text-center max-w-[80px]"
+            defaultValue={row.sort}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleCategorySort(row._id, e.target.value);
+              }
+            }}
+          />
+        </div>
+      ),
+    },
+
+    // {
+    //   name: 'Parent Category',
+    //   selector: row => row.parentId || 'None', // Display parent ID or 'None' if no parent
+    //   sortable: true,
+    // },
+  ];
+};
 
 export const allOrders = [
   {
@@ -200,21 +314,49 @@ export const allOrders = [
     width: "80px",
     wrap: true,
     selector: (row, index) => index + 1,
-    style: {
-      padding: "10px 10px 10px 20px",
-    },
   },
   {
     name: "OrderId",
-    width: "170px",
+    width: "100px",
     wrap: true,
     selector: (row) => row.orderId || "N/A",
-    style: {
-      padding: "10px",
-    },
+  },
+
+  {
+    name: "Order Date",
+    width: "120px",
+    wrap: true,
+    selector: (row) => row.orderDate || "N/A",
+    // style: {
+    //   padding: "10px",
+    // },
   },
   {
-    name: "CustomerName",
+    name: "Status",
+    width: "120px",
+    wrap: true,
+    selector: (row) => row.status || "N/A",
+  },
+  {
+    name: "TotalAmount",
+    width: "150px",
+    wrap: true,
+    selector: (row) => `₹${row.totalAmount}` || "N/A",
+  },
+  {
+    name: "Total Items",
+    width: "150px",
+    wrap: true,
+    selector: (row) => `₹${row.items}` || "N/A",
+  },
+  {
+    name: "Customer Name",
+    width: "200px",
+    wrap: true,
+    selector: (row) => row.customerName || "N/A",
+  },
+  {
+    name: "Address",
     width: "200px",
     wrap: true,
     selector: (row) => row.customerName || "N/A",
@@ -223,40 +365,14 @@ export const allOrders = [
     },
   },
   {
-    name: "OrderDate",
+    name: "Action",
     width: "150px",
     wrap: true,
-    selector: (row) => row.orderDate || "N/A",
-    style: {
-      padding: "10px",
-    },
-  },
-  {
-    name: "Status",
-    width: "120px",
-    wrap: true,
-    selector: (row) => row.status || "N/A",
-    style: {
-      padding: "10px",
-    },
-  },
-  {
-    name: "TotalAmount",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.totalAmount}` || "N/A",
-    style: {
-      padding: "10px",
-    },
-  },
-  {
-    name: "Items",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.items}` || "N/A",
-    style: {
-      padding: "10px",
-    },
+    cell: (row) => (
+      <button className=" text-white px-3 py-1 rounded primary-gradient transition m-3">
+        <FiEye size={17} />
+      </button>
+    ),
   },
 ];
 
@@ -528,6 +644,143 @@ export const allReviews = [
     width: "230px",
     wrap: true,
     selector: (row) => row.Description || "N/A",
+    style: {
+      padding: "10px",
+    },
+  },
+];
+
+export const abandonedColumns = (handleRowClick) => {
+  return [
+    {
+      name: "S.No.",
+      width: "80px",
+      wrap: true,
+      selector: (row, index) => index + 1,
+      style: {
+        padding: "10px 10px 10px 20px",
+      },
+    },
+    {
+      name: "Action",
+      width: "200px",
+      wrap: true,
+      cell: (row) => (
+        <button
+          onClick={() => handleRowClick(row)}
+          className=" text-white px-3 py-1 rounded primary-gradient transition"
+        >
+          View Cart Products
+        </button>
+      ),
+      style: {
+        padding: "10px",
+      },
+    },
+
+    {
+      name: "Customer Name",
+      width: "200px",
+      wrap: true,
+      selector: (row) => row.name || "N/A",
+      style: {
+        padding: "10px",
+      },
+    },
+    {
+      name: "Registered At",
+      width: "200px",
+      wrap: true,
+      selector: (row, index) =>
+        format(new Date(row.createdAt), "dd MMM yyyy, hh:mm a"),
+      style: {
+        padding: "10px 10px 10px 20px",
+      },
+    },
+    {
+      name: "Email",
+      width: "300px",
+      wrap: true,
+      selector: (row) => row.email || "N/A",
+      style: {
+        padding: "10px",
+      },
+    },
+    {
+      name: "Mobile",
+      width: "200px",
+      wrap: true,
+      selector: (row) => row.mobile || "N/A",
+      style: {
+        padding: "10px",
+      },
+    },
+    {
+      name: "Remark",
+      width: "200px",
+      wrap: true,
+      selector: (row) => row.abondonedRemark || "N/A",
+      style: {
+        padding: "10px",
+      },
+    },
+  ];
+};
+
+export const couponColumns = [
+  {
+    name: "S.No.",
+    width: "80px",
+    wrap: true,
+    selector: (row, index) => index + 1,
+    style: {
+      padding: "10px 10px 10px 20px",
+    },
+  },
+  {
+    name: "Title",
+    width: "200px",
+    wrap: true,
+    selector: (row) => row.title || "N/A",
+    style: {
+      padding: "10px",
+    },
+  },
+  {
+    name: "Discount",
+    width: "190px",
+    wrap: true,
+    selector: (row) => (row.discount ? `${row.discount}%` : "N/A"),
+    style: {
+      padding: "10px",
+    },
+  },
+
+  {
+    name: "Coupon Code",
+    width: "180px",
+    wrap: true,
+    selector: (row) => row.couponCode || "N/A",
+    style: {
+      padding: "10px",
+    },
+  },
+
+  {
+    name: "Total Uses",
+    width: "180px",
+    wrap: true,
+    selector: (row) => row.totalUses || "N/A",
+    style: {
+      padding: "10px",
+    },
+  },
+
+  {
+    name: "Expiry Date",
+    width: "180px",
+    wrap: true,
+    selector: (row) => row.expiryDate || "N/A",
     style: {
       padding: "10px",
     },

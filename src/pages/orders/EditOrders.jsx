@@ -5,7 +5,76 @@ import { useForm } from "react-hook-form";
 import InputField from "../../common/fields/InputField";
 import { mediumOptions } from "../../constant/options";
 import { Button } from "@material-tailwind/react";
+import { IoCalendarOutline } from "react-icons/io5";
+import { IoPrintOutline } from "react-icons/io5";
+import { Dropdown, Space } from "antd";
+import { DownOutlined, SmileOutlined } from "@ant-design/icons";
+import { IoClipboardOutline } from "react-icons/io5";
+import { MdOutlineCancel } from "react-icons/md";
+import { BiArchiveIn } from "react-icons/bi";
+import { CiEdit } from "react-icons/ci";
+import CustomerCard from "./CustomerCard";
+import SummaryCard from "./SummaryCard";
+import ShippingCard from "./ShippingCard";
+import CancelOrder from "./CancelOrder";
 
+const items = [
+  {
+    key: "1",
+    label: (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://www.antgroup.com"
+        className="text-[#677788] text-[11px] flex items-center gap-1"
+      >
+        <IoClipboardOutline />
+        Duplicate
+      </a>
+    ),
+  },
+  {
+    key: "2",
+    label: (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://www.antgroup.com"
+        className="text-[#677788] text-[11px] flex items-center gap-1"
+      >
+        <MdOutlineCancel />
+        Cancel Order
+      </a>
+    ),
+  },
+  {
+    key: "3",
+    label: (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://www.antgroup.com"
+        className="text-[#677788] text-[11px] flex items-center gap-1"
+      >
+        <BiArchiveIn /> Archive
+      </a>
+    ),
+  },
+  {
+    key: "4",
+    label: (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        href="https://www.antgroup.com"
+        className="text-[#677788] text-[11px] flex items-center gap-1"
+      >
+        <CiEdit />
+        Edit Order
+      </a>
+    ),
+  },
+];
 
 const EditOrders = () => {
   const {
@@ -23,141 +92,67 @@ const EditOrders = () => {
     <PageCont>
       <Heading text="Orders Details" />
       <div className="mt-4">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <InputField
-              control={control}
-              errors={errors}
-              name="bookName"
-              label="Name"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="medium"
-              label="Medium"
-              type="option"
-              options={mediumOptions}
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="edition"
-              label="Edition"
-              type="text"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="subInfo"
-              label="Sub Info"
-              type="text"
-            />
+        <div>
+          <div className="flex justify-start items-center gap-4">
+            <span className="text-xl font-medium">Order #32453</span>
+            <span className="bg-[#00c9a71a] text-[#00c9a7] px-3 text-[12px] rounded-md">
+              Paid
+            </span>
+            <span className="flex items-center gap-2 text-[12px]">
+              <IoCalendarOutline size={18} />
+              Aug 17, 2020, 5:48 (ET)
+            </span>
+          </div>
+          <div className="flex justify-start items-center gap-2 mt-2">
+            <p className="flex items-center  text-sm gap-1 text-[#677788] cursor-pointer">
+              <IoPrintOutline size={18} /> Print Order
+            </p>
+            {/* <Dropdown menu={{ items }}>
+              <a
+                onClick={(e) => e.preventDefault()}
+                className="text-[#677788] text-sm cursor-pointer"
+              >
+                More Options
+                <DownOutlined />
+              </a>
+            </Dropdown> */}
+          </div>
+        </div>
+      </div>
 
-            <InputField
-              control={control}
-              errors={errors}
-              name="ebookPrice"
-              label="E-Book Price"
-              type="number"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="paperBookPrice"
-              label="Paperback Book Price"
-              type="number"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="paperBookOldPrice"
-              label="Paperback Book Old Price"
-              type="number"
-            />
+      <div className="border-t-[1px] border-solid border-gray-200 mt-5 pt-5">
+        <div className="flex justify-center items-start gap-5">
+          <div className="w-[65%] border-[1px] border-solid border-gray-200 rounded-md ">
+            <p className="border-b-[1px] p-3 border-solid border-gray-200">
+              Order Details
+            </p>
+            <div className="px-5">
+              <SummaryCard />
+            </div>
           </div>
-          <div className="flex flex-col gap-3">
-            <InputField
-              control={control}
-              errors={errors}
-              name="shortDescription"
-              label="Short Description"
-              type="description"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="bookDescription"
-              label="Book Description"
-              type="textEditor"
-            />
+          <div className="w-[35%] border border-gray-200 rounded-md sticky top-5 h-fit ">
+            <div>
+              <p className="border-b-[1px] p-3 border-solid border-gray-200">
+                Customer Details
+              </p>
+              <div className="px-5">
+                <CustomerCard />
+              </div>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 mt-3">
-            <InputField
-              control={control}
-              errors={errors}
-              name="bookCover"
-              label="Book Cover"
-              type="file"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="previewPdf"
-              label="Preview PDF"
-              type="file"
-            />
-          </div>
-          <div className="mt-3">
-            <InputField
-              control={control}
-              errors={errors}
-              name="suggestedBooks"
-              label="Suggested Books"
-              type="select"
-            />
-          </div>
-          <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <InputField
-              control={control}
-              errors={errors}
-              name="userUser"
-              label="User"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="orderProducts"
-              label="Products"
-              // type="opti"
-              options={mediumOptions}
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="orderTotalAmount"
-              label="TotalAmount"
-              type="text"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="orderShippingDetails"
-              label="ShippingDetails"
-              type="text"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="orderPaymentDetails"
-              label="PaymentDetails"
-              type="text"
-            />
-          </div>
-          <Button type="submit" className="primary-gradient mt-4">
-            Edit Orders
-          </Button>
-        </form>
+        </div>
+      </div>
+      <div className="flex justify-start items-start gap-5 ">
+        <div className="w-[65%] border-[1px] border-solid border-gray-200 rounded-md mt-9">
+          <ShippingCard />
+        </div>
+        <div className="w-[35%] "></div>
+      </div>
+      <div className="flex justify-start items-start gap-5 ">
+        <div className="w-[65%] border-[1px] border-solid border-gray-200 rounded-md mt-9">
+          <CancelOrder />
+        </div>
+        <div className="w-[35%] "></div>
       </div>
     </PageCont>
   );

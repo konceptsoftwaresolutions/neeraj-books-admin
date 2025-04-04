@@ -8,10 +8,10 @@ const DashLayout = () => {
   return (
     <>
       <div className="flex">
-        <div className="test border-r "  >
+        <div className="test border-r ">
           <Navbar />
         </div>
-        <div className="w-full overflow-auto">
+        <div className="w-full overflow-auto ">
           <Outlet />
         </div>
       </div>

@@ -19,7 +19,6 @@ module.exports = withMT({
     extend: {
       colors: {
         'cstm-blue': '#1f437f',
-
       },
     },
   },

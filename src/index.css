@@ -12,7 +12,6 @@
 
 .ql-container.ql-snow {
   border: none;
-  
 }
 
 .testimonial-item {
@@ -29,3 +28,37 @@
         left: -200px;
     }
   } */
+
+/* Targeting the scrollbar for ul with class sideul */
+.sideul {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #888 #f1f1f1; /* Thumb color and track color */
+}
+
+/* For WebKit browsers (Chrome, Edge, Safari) */
+.sideul::-webkit-scrollbar {
+  width: 10px; /* Width of the scrollbar */
+}
+
+.sideul::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Background of the track */
+}
+
+.sideul::-webkit-scrollbar-thumb {
+  background: #888; /* Color of the scrollbar thumb */
+  border-radius: 5px; /* Rounded corners */
+}
+
+.sideul::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color when hovering over the scrollbar thumb */
+}
+
+.testing .ant-select-selector {
+  border: 1px solid black !important;
+  border-radius: 0;
+  min-height: 40px;
+  max-height: max-content;
+  background-color: transparent !important;
+}
+
+/* .ant-dropdown-test  */

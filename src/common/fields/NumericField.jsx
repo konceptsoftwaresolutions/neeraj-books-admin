@@ -14,8 +14,7 @@ const NumericField = ({ control, errors,defaultValue , max, name, type="text", p
                     render={({ field }) => (
                         <input
                             id={name}
-                            max={max}
-                            min='0'
+                            min='1'
                             type='number'
                             placeholder={placeholder}
                             {...field}
