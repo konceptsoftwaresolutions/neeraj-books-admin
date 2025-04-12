@@ -18,7 +18,7 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
   const [imageUrl, setImageUrl] = useState();
   const [isEditable, setIsEditable] = useState(false);
   const dispatch = useDispatch();
-  // console.log("2222222222", category);
+  console.log("2222222222", category);
 
   const {
     handleSubmit,
@@ -35,6 +35,8 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
       description1: category?.description1,
       description2: category?.description2,
       sort: category?.sort,
+      discountPercentage: category?.discountPercentage,
+      amount: category?.mrpValue,
     });
     if (category?.name) {
       const payload = {
@@ -54,7 +56,14 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
   const onSubmit = (data) => {
     console.log(data);
 
-    const { name, description1, description2, categoryFile } = data;
+    const {
+      name,
+      description1,
+      description2,
+      categoryFile,
+      discountPercentage,
+      amount,
+    } = data;
 
     const slug = name.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
@@ -64,6 +73,10 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
     formData.append("description2", description2);
     formData.append("categoryId", category._id);
     formData.append("slug", slug);
+    if (!category?.parent) {
+      formData.append("discountPercentage", discountPercentage);
+      formData.append("amount", amount);
+    }
     if (categoryFile) {
       const imageFile = categoryFile[0]?.file;
       formData.append("categoryFile", imageFile);
@@ -139,6 +152,26 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
                 type="numeric"
                 disabled={!isEditable}
               /> */}
+              {!category?.parent && (
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="discountPercentage"
+                  label="Discount Percentage"
+                  type="numeric"
+                  disabled={!isEditable}
+                />
+              )}
+              {!category?.parent && (
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="amount"
+                  label="Amount"
+                  type="numeric"
+                  disabled={!isEditable}
+                />
+              )}
             </div>
           </div>
           <div className="flex gap-3">

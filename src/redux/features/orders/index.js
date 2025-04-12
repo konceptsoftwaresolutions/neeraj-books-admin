@@ -6,6 +6,8 @@ const axiosInstance = createAxiosInstance();
 
 const initialState = {
     allOrders: null,
+    shipNowBtnLoader: false,
+    generateLabelLoder: false
 };
 
 const orderSlice = createSlice({
@@ -23,17 +25,60 @@ const orderSlice = createSlice({
 export const { setOrder } = orderSlice.actions;
 export default orderSlice.reducer;
 
-export const getAllOrders = () => {
-    return async(dispatch) => {
-        try{
-            const response = await axiosInstance.get('/order/getAll');
-            if(response.status === 200) {
-                const data = response?.data;
-                dispatch(setOrder({allOrders:data}))
+export const getAllOrders = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post('/order/getAllOrders', payload);
+            if (response.status === 200) {
+                const data = response?.data?.orders;
+                console.log(response)
+                dispatch(setOrder({ allOrders: data }))
+                callback(true, data)
             }
-        } catch(error){
+        } catch (error) {
             let message = "ERROR";
-            if(error?.hasOwnProperty("response")){
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+
+export const getFilteredOrders = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post('/order/getOrdersFiltered', payload);
+            if (response.status === 200) {
+                const data = response?.data?.orders;
+                console.log(response)
+                dispatch(setOrder({ allOrders: data }))
+                callback(true, data)
+            }
+        } catch (error) {
+            let message = "ERROR";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+export const getOrderById = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post('/order/getOrderById', { id: payload });
+            if (response.status === 200) {
+                const data = response?.data?.order;
+                console.log(response)
+
+                callback(true, response?.data)
+            }
+        } catch (error) {
+            let message = "ERROR";
+            if (error?.hasOwnProperty("response")) {
                 message = error?.response?.data
             }
             toast.error(message)
@@ -104,6 +149,92 @@ export const deleteOrder = (payload) => {
             toast.error(message);
         } finally {
 
+        }
+    };
+};
+
+export const createShippingOrder = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            dispatch(setOrder({ shipNowBtnLoader: true }))
+            const response = await axiosInstance.post("/order/create-shipping-order", payload);
+            if (response.status === 200) {
+                dispatch(setOrder({ shipNowBtnLoader: false }))
+                console.log("response is ", response)
+                const message = response.data?.message || "Successfull !";
+                callback(true)
+                toast.success(message);
+            }
+        } catch (error) {
+            console.log(error)
+            dispatch(setOrder({ shipNowBtnLoader: false }))
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data;
+            }
+            // callback(error);
+            toast.error(message);
+        } finally {
+            dispatch(setOrder({ shipNowBtnLoader: false }))
+        }
+    };
+};
+
+
+export const generateLabelShiprocket = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            dispatch(setOrder({ generateLabelLoder: true }))
+            const response = await axiosInstance.post("/order/generate-label", payload);
+            if (response.status === 200) {
+                dispatch(setOrder({ generateLabelLoder: false }))
+                const link = response.data
+                console.log(link)
+                window.open(link, "_blank");
+
+            }
+        } catch (error) {
+            console.log(error)
+            dispatch(setOrder({ generateLabelLoder: false }))
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data;
+            }
+            // callback(error);
+            toast.error(message);
+        } finally {
+            dispatch(setOrder({ generateLabelLoder: false }))
+        }
+    };
+};
+
+
+
+
+
+export const getTrackingOrder = (code, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            dispatch(setOrder({ generateLabelLoder: true }))
+            const response = await axiosInstance.post(`/order/track-shipping-awb/${code}`);
+            if (response.status === 200) {
+                dispatch(setOrder({ generateLabelLoder: false }))
+                const link = response.data
+                console.log(link)
+                window.open(link, "_blank");
+
+            }
+        } catch (error) {
+            console.log(error)
+            dispatch(setOrder({ generateLabelLoder: false }))
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data;
+            }
+            // callback(error);
+            toast.error(message);
+        } finally {
+            dispatch(setOrder({ generateLabelLoder: false }))
         }
     };
 };

@@ -264,6 +264,7 @@ const UpdateBook = () => {
         solvedSamplePapers: rowData?.solvedSamplePapers?.samplePapers || "",
         isbn: rowData?.isbn || "",
         brand: rowData?.brand || "",
+        eBookIsDownloadable: rowData?.eBookIsDownloadable || "",
         addEbookPrice: rowData?.addEbookPrice || "",
         order: rowData?.order || "",
         isBestSeller: rowData?.isBestSeller || "",
@@ -464,6 +465,7 @@ const UpdateBook = () => {
     const slug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
     const bookData = {
+      eBookIsDownloadable: data?.eBookIsDownloadable,
       isDownloadableEngSolvedPaper: data?.isDownloadableEngSolvedPaper,
       engSolvedPaperImg: data?.engSolvedPaperImg,
       engSolvedPaperPrice: data?.engSolvedPaperPrice,
@@ -1165,6 +1167,17 @@ const UpdateBook = () => {
                 />
               )}
             </div>
+            <div className="grid grid-cols-3">
+              <InputField
+                control={control}
+                errors={errors}
+                name="eBookIsDownloadable"
+                label="Is Ebook Downloadable"
+                type="option"
+                options={discountOptions}
+                required={true}
+              />
+            </div>
             {/* <InputField
               type="textEditor"
               control={control}
@@ -1172,7 +1185,7 @@ const UpdateBook = () => {
               label="What book includes"
               name="whatYouGetInBook"
             /> */}
-            <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md mt-4">
+            <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md mt-8">
               <p className="font-semibold">About The Book</p>
               <Tooltip title="Add More Content" placement="left">
                 <Button

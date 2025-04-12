@@ -1,137 +1,46 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import PageCont from "../../components/PageCont";
-import { ChevronsLeft, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Heading from "../../components/Heading";
-import { Button, ButtonGroup } from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
-import usePath from "../../hooks/usePath";
+import { Button } from "@material-tailwind/react";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
 import { useDispatch, useSelector } from "react-redux";
 import { allPromotions } from "../../constant/tableColumns";
-import Modal from "./Modal";
-import ImageField from "../../common/fields/ImageField";
+
 import { useForm } from "react-hook-form";
-import InputField from "../../common/fields/InputField";
 import {
-  createDiscountPopUp,
-  createHomePopUp,
-} from "../../redux/features/sliders";
+  getAllAffiliates,
+  updateTheAffiliatePaymnet,
+} from "../../redux/features/affiliates";
+import { useNavigate } from "react-router-dom";
 
 function Promotions(props) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const path = usePath();
+
+  const { allAffiliates } = useSelector((state) => state.affiliate);
   const { role } = useSelector((state) => state.auth);
 
-  const [popupType, setPopupType] = useState("image");
-  const [active, setActive] = useState("image");
+  useEffect(() => {
+    dispatch(getAllAffiliates());
+  }, [dispatch]);
 
-  const Promotions = [
-    {
-      active: "Active",
-      discount: "#250302",
-      medium: "English",
-      status: "From Dec 10",
-    },
-    {
-      active: "Active",
-      discount: "#250302",
-      medium: "English",
-      status: "From Dec 10",
-    },
-    {
-      active: "Active",
-      discount: "#250302",
-      medium: "English",
-      status: "From Dec 10",
-    },
-    {
-      active: "Active",
-      discount: "#250302",
-      medium: "English",
-      status: "From Dec 10",
-    },
-    {
-      active: "Active",
-      discount: "#250302",
-      medium: "English",
-      status: "From Dec 10",
-    },
-    {
-      active: "Active",
-      discount: "#250302",
-      medium: "English",
-      status: "From Dec 10",
-    },
-  ];
-
-  const {
-    handleSubmit,
-    formState: { errors },
-    control,
-    reset,
-  } = useForm();
-
-  const {
-    handleSubmit: handleAppDiscountSubmit,
-    formState: { errors: errorsAppDiscount },
-    control: controlAppDiscount,
-    reset: appReset,
-  } = useForm();
-
-  const {
-    handleSubmit: handleDiscountPopSubmit,
-    formState: { errors: errorsDiscountPopup },
-    control: controlDiscountPopup,
-    reset: discountPopUpReset,
-  } = useForm();
-
-  const convertToPlainText = (htmlString) => {
-    const tempElement = document.createElement("div");
-    tempElement.innerHTML = htmlString;
-    const plainText = tempElement.textContent || tempElement.innerText || "";
-
-    // Get the first word after trimming any leading/trailing spaces
-    const firstWord = plainText.trim().split(" ")[0];
-    return firstWord;
-  };
-
-  const onsubmit = (data) => {
-    reset();
-    console.log(data);
-    const normalTitle = convertToPlainText(data.tagTitle);
-    const formData = new FormData();
-    formData.append("title", normalTitle);
-    formData.append("tagTitle", data.tagTitle);
-    if (popupType === "image") {
-      formData.append("file", data.popUpBanner[0].file);
-      formData.append("type", popupType);
+  const handleStatusChange = (data, status) => {
+    if (status === "approve") {
+      navigate(`/${role}/affiliateDetails`, { state: { data } });
+    } else {
+      console.log(data, status);
+      const payload = {
+        id: data._id,
+        approved: false,
+      };
+      dispatch(updateTheAffiliatePaymnet(payload));
     }
-    if (popupType === "video") {
-      formData.append("youtubeLink", data.youtubeLink);
-      formData.append("type", popupType);
-    }
-    dispatch(createHomePopUp({ formData }));
   };
 
-  const appDiscountSubmit = (data) => {
-    console.log(data);
-    appReset({
-      appDiscount: "", // Resetting fields explicitly
-    });
-  };
-
-  const disountPopUpSubmit = (data) => {
-    console.log(data);
-
-    dispatch(createDiscountPopUp(data));
-
-    discountPopUpReset({
-      title: "",
-      heading1: "",
-      heading2: "",
-    });
+  const handleRowClick = (data) => {
+    navigate(`/${role}/affiliateDetails`, { state: { data } });
   };
 
   return (
@@ -139,9 +48,9 @@ function Promotions(props) {
       <PageCont>
         <div className="flex justify-between items-center">
           <div className="flex justify-center items-center gap-3">
-            <Heading text="Discounts" />
+            <Heading text="All Affiliates" />
           </div>
-          <Button
+          {/* <Button
             type="submit"
             variant="filled"
             className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue "
@@ -149,13 +58,14 @@ function Promotions(props) {
           >
             <Plus className="pr-1" />
             create discounts
-          </Button>
+          </Button> */}
         </div>{" "}
         <div className="mt-4 mb-8">
           <DataTable
-            data={Promotions}
-            columns={allPromotions}
+            data={allAffiliates ? allAffiliates : []}
+            columns={allPromotions(handleRowClick)}
             customStyles={tableStyle}
+            onRowClicked={(row) => handleRowClick(row)}
           />
         </div>
         {/* <div className="">

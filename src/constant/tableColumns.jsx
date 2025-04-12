@@ -5,6 +5,8 @@ import { MdSimCardDownload } from "react-icons/md";
 import useCategoryName from "../hooks/useCategoryName";
 import { format } from "date-fns-tz";
 import { FiEye } from "react-icons/fi";
+import { IoEye } from "react-icons/io5";
+import { IoIosDocument } from "react-icons/io";
 
 export const columns = [
   {
@@ -308,73 +310,103 @@ export const allCategoryColumns = (handleRowClick, handleCategorySort) => {
   ];
 };
 
-export const allOrders = [
-  {
-    name: "S.No.",
-    width: "80px",
-    wrap: true,
-    selector: (row, index) => index + 1,
-  },
-  {
-    name: "OrderId",
-    width: "100px",
-    wrap: true,
-    selector: (row) => row.orderId || "N/A",
-  },
-
-  {
-    name: "Order Date",
-    width: "120px",
-    wrap: true,
-    selector: (row) => row.orderDate || "N/A",
-    // style: {
-    //   padding: "10px",
-    // },
-  },
-  {
-    name: "Status",
-    width: "120px",
-    wrap: true,
-    selector: (row) => row.status || "N/A",
-  },
-  {
-    name: "TotalAmount",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.totalAmount}` || "N/A",
-  },
-  {
-    name: "Total Items",
-    width: "150px",
-    wrap: true,
-    selector: (row) => `₹${row.items}` || "N/A",
-  },
-  {
-    name: "Customer Name",
-    width: "200px",
-    wrap: true,
-    selector: (row) => row.customerName || "N/A",
-  },
-  {
-    name: "Address",
-    width: "200px",
-    wrap: true,
-    selector: (row) => row.customerName || "N/A",
-    style: {
-      padding: "10px",
+export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
+  return [
+    {
+      name: "S.No.",
+      width: "80px",
+      wrap: true,
+      selector: (row, index) => index + 1,
     },
-  },
-  {
-    name: "Action",
-    width: "150px",
-    wrap: true,
-    cell: (row) => (
-      <button className=" text-white px-3 py-1 rounded primary-gradient transition m-3">
-        <FiEye size={17} />
-      </button>
-    ),
-  },
-];
+    {
+      name: "OrderId",
+      width: "150px",
+      wrap: true,
+      selector: (row) => row.orderId || "N/A",
+    },
+
+    {
+      name: "Order Date",
+      width: "120px",
+      wrap: true,
+      selector: (row) =>
+        row.createdAt ? format(new Date(row.createdAt), "dd MMM yyyy") : "N/A",
+      // style: {
+      //   padding: "10px",
+      // },
+    },
+    {
+      name: "Client ",
+      width: "200px",
+      wrap: true,
+      selector: (row) =>
+        row.shippingAddress.firstName + " " + row.shippingAddress.lastName ||
+        "N/A",
+      style: {
+        padding: "10px",
+      },
+    },
+    {
+      name: "State",
+      width: "150px",
+      wrap: true,
+      selector: (row) => row.shippingAddress.state || "N/A",
+    },
+    {
+      name: "Order Total",
+      width: "150px",
+      wrap: true,
+      selector: (row) => `₹${row.totalAmount}` || "N/A",
+    },
+    {
+      name: "Order Status",
+      width: "150px",
+      wrap: true,
+      selector: (row) => row.orderStatus || "N/A",
+    },
+    // {
+    //   name: "Payment Mode",
+    //   width: "150px",
+    //   wrap: true,
+    //   selector: (row) => row.paymentMode || "N/A",
+    // },
+    // {
+    //   name: "Payment Status",
+    //   width: "200px",
+    //   wrap: true,
+    //   selector: (row) => row.paymentStatus || "N/A",
+    // },
+
+    // {
+    //   name: "Total Items",
+    //   width: "150px",
+    //   wrap: true,
+    //   selector: (row) => row.items.length || "N/A",
+    // },
+
+    {
+      name: "Action",
+      width: "300px",
+      wrap: true,
+      cell: (row) => (
+        <div className="flex justify-start items-center">
+          <button
+            className=" text-white px-3 py-2 rounded primary-gradient transition m-3 w-[80px] flex items-center gap-2"
+            onClick={() => handleRowClick(row)}
+          >
+            <IoEye size={17} /> View
+          </button>
+          <button
+            className=" text-white px-3 py-2 rounded primary-gradient transition m-3 w-[100px] flex items-center gap-2"
+            onClick={() => handleInvoiceClick(row)}
+          >
+            <IoIosDocument size={17} /> Invoice
+          </button>
+        </div>
+      ),
+    },
+  ];
+};
 
 export const allMembers = [
   {
@@ -517,44 +549,156 @@ export const allCustomer = [
   },
 ];
 
-export const allPromotions = [
-  {
-    name: "S.No.",
-    width: "250px",
-    wrap: true,
-    selector: (row, index) => index + 1,
-    style: {
-      padding: "10px 10px 10px 20px",
+export const allPromotions = (handleRowClick) => {
+  return [
+    {
+      name: "Action",
+      width: "120px",
+      cell: (row) => (
+        <button
+          onClick={() => handleRowClick(row)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm"
+        >
+          View
+        </button>
+      ),
+
+      button: true,
     },
+    {
+      name: "Name",
+      selector: (row) => `${row.firstName} ${row.lastName}`,
+      sortable: true,
+    },
+    {
+      name: "Email",
+      selector: (row) => row.email,
+      sortable: true,
+    },
+    {
+      name: "Mobile",
+      selector: (row) => row.mobile,
+      sortable: true,
+    },
+    {
+      name: "Country",
+      selector: (row) => row.country,
+    },
+    {
+      name: "State",
+      selector: (row) => row.state,
+    },
+    {
+      name: "City",
+      selector: (row) => row.city,
+    },
+    {
+      name: "Institution",
+      selector: (row) => row.institutionName,
+    },
+    {
+      name: "Approved",
+      selector: (row) => (row.approved ? "Yes" : "No"),
+      sortable: true,
+    },
+    {
+      name: "Created At",
+      selector: (row) =>
+        row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
+      sortable: true,
+    },
+    // {
+    //   name: "Payment QR",
+    //   cell: (row) =>
+    //     row.paymentPicture ? (
+    //       <img
+    //         src={row.paymentPicture}
+    //         alt="QR"
+    //         className="w-10 h-10 object-cover rounded"
+    //       />
+    //     ) : (
+    //       "N/A"
+    //     ),
+    // },
+  ];
+};
+
+export const affiliateOrderColumns = [
+  // {
+  //   name: "Order ID",
+  //   selector: (row) => row.orderId,
+  //   sortable: true,
+  // },
+  {
+    name: "User",
+    selector: (row) => row.user,
+    sortable: true,
   },
   {
-    name: "Discount Code",
-    width: "230px",
-    wrap: true,
-    selector: (row) => row.discount || "N/A",
-    style: {
-      padding: "10px",
-    },
+    name: "Total Amount",
+    selector: (row) => `₹${row.totalAmount}`,
+    sortable: true,
+    right: true,
   },
   {
-    name: "Active",
-    width: "210px",
-    wrap: true,
-    selector: (row) => row.active || "N/A",
-    style: {
-      padding: "10px",
-    },
+    name: "Order Status",
+    selector: (row) => row.orderStatus,
+    cell: (row) => (
+      <span
+        className={`px-2 py-1 rounded text-white text-xs font-medium ${
+          row.orderStatus === "Canceled"
+            ? "bg-red-500"
+            : row.orderStatus === "Shipped"
+            ? "bg-green-500"
+            : "bg-yellow-500 !text-green-500"
+        }`}
+      >
+        {row.orderStatus}
+      </span>
+    ),
   },
   {
-    name: "Status",
-    width: "200px",
-    wrap: true,
-    selector: (row) => row.status || "N/A",
-    style: {
-      padding: "10px",
-    },
+    name: "Created At",
+    selector: (row) => new Date(row.createdAt).toLocaleString(),
+    sortable: true,
   },
 ];
+
+export const affiliatePaymentColumns = [
+  // {
+  //   name: "Affiliate User ID",
+  //   selector: (row) => row.affiliateUser,
+  //   sortable: true,
+  //   wrap: true,
+  // },
+  {
+    name: "Amount",
+    selector: (row) => row.amount,
+    sortable: true,
+    // right: true,
+  },
+  {
+    name: "Payment Mode",
+    selector: (row) => row.paymentMode,
+    sortable: true,
+  },
+  {
+    name: "Reference Number",
+    selector: (row) => row.referenceNumber,
+    sortable: true,
+  },
+  {
+    name: "Comment",
+    selector: (row) => row.comment,
+    wrap: true,
+  },
+  {
+    name: "Created At",
+    selector: (row) => new Date(row.createdAt).toLocaleString(),
+    sortable: true,
+  },
+];
+
 export const allSeller = [
   {
     name: "S.No.",

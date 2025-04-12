@@ -42,6 +42,10 @@ import UpdateBook from "../pages/books/UpdateBook";
 import AbandonedCart from "../pages/abandoned/AbandonedCart";
 import AbandonedDetail from "../pages/abandoned/AbandonedDetail";
 import AllCoupons from "../pages/coupons/AllCoupons";
+import ShipmentPdf from "../pages/pdf/ShipmentPdf";
+import ViewAffiliate from "../pages/Promotions/ViewAffiliate";
+import AffiliateOrder from "../pages/Promotions/AffiliateOrder";
+import AffiliatePayment from "../pages/Promotions/AffiliatePayment";
 
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
@@ -104,6 +108,7 @@ const Routes = () => {
         { path: "/:type/testimonials", element: <Testimonials /> },
         { path: "/:type/addtestimonial", element: <AddTestimonial /> },
         { path: "/:type/orders", element: <Orders /> },
+        { path: "/:type/invoice", element: <ShipmentPdf /> },
         { path: "/:type/editOrders", element: <EditOrders /> },
         { path: "/:type/addOrders", element: <AddOrders /> },
         { path: "/:type/teamMembers", element: <TeamMembers /> },
@@ -115,6 +120,9 @@ const Routes = () => {
         { path: "/:type/customer", element: <Customer /> },
         { path: "/:type/editcustomer", element: <EditCustomer /> },
         { path: "/:type/promotions", element: <Promotions /> },
+        { path: "/:type/affiliateDetails", element: <ViewAffiliate /> },
+        { path: "/:type/affiliateorders", element: <AffiliateOrder /> },
+        { path: "/:type/affiliatepayments", element: <AffiliatePayment /> },
         { path: "/:type/popups", element: <AllPopups /> },
         { path: "/:type/banners", element: <Banners /> },
         { path: "/:type/addbanners", element: <AddBanners /> },

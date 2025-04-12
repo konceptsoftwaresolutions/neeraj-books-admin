@@ -46,7 +46,7 @@ const createAxiosInstance = (dispatch, config = {}) => {
           dispatch(logoutThunkMiddleware());
         }
       } else if (hasForbiddenErrorOccurred) {
-        return new Promise(() => {});
+        return new Promise(() => { });
       }
 
       return Promise.reject(error);

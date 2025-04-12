@@ -331,6 +331,7 @@ const CreateBook = () => {
       const englishSlug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
       payload.english = {
+        eBookIsDownloadable: data?.eBookEngIsDownloadable,
         isDownloadableEngSolvedPaper: data?.isDownloadableEngSolvedPaper,
         engSolvedPaperImg: data?.engSolvedPaperImg,
         engSolvedPaperPrice: data?.engSolvedPaperPrice,
@@ -396,6 +397,7 @@ const CreateBook = () => {
       const hindiSlug = data.hTitle.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
       payload.hindi = {
+        eBookIsDownloadable: data?.eBookHindiIsDownloadable,
         isDownloadableEngSolvedPaper: data?.isDownloadableHindiSolvedPaper,
         engSolvedPaperImg: data?.hindiSolvedPaperImg,
         engSolvedPaperPrice: data?.hindiSolvedPaperPrice,
@@ -783,6 +785,7 @@ const CreateBook = () => {
                     type="uploadFiles"
                   />
                 )}
+
                 {selectedMedium?.includes("English") && (
                   <ImageField
                     control={control}
@@ -790,6 +793,17 @@ const CreateBook = () => {
                     name={"image"}
                     maxFiles={10}
                     label="Upload English Book Images (530px X 700px)"
+                  />
+                )}
+                {selectedMedium?.includes("English") && (
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="eBookEngIsDownloadable"
+                    label="Is Ebook Downloadable"
+                    type="option"
+                    options={discountOptions}
+                    required={true}
                   />
                 )}
               </div>
@@ -1378,6 +1392,17 @@ const CreateBook = () => {
                       name={"hindiImage"}
                       maxFiles={10}
                       label="Upload Hindi Book Images (530px X 700px)"
+                    />
+                  )}
+                  {selectedMedium?.includes("English") && (
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="eBookHindiIsDownloadable"
+                      label="Is Ebook Downloadable"
+                      type="option"
+                      options={discountOptions}
+                      required={true}
                     />
                   )}
                 </div>

@@ -35,7 +35,14 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
   };
 
   const onSubmit = (data) => {
-    const { name, description1, description2, categoryFile } = data;
+    const {
+      name,
+      description1,
+      description2,
+      categoryFile,
+      discountPercentage,
+      amount,
+    } = data;
     console.log(data);
 
     const imageFile = categoryFile[0].file;
@@ -48,6 +55,8 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
     formData.append("categoryFile", imageFile);
     formData.append("parent", null);
     formData.append("slug", slug);
+    formData.append("discountPercentage", discountPercentage);
+    formData.append("amount", amount);
     const payload = {
       ...data,
       parent: null,
@@ -61,6 +70,8 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
       description1: "",
       description2: "",
       imageFile: "",
+      discountPercentage: "",
+      amount: "",
     });
     setShowParentModal(false);
   };
@@ -121,6 +132,20 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
               errors={errors}
               name="order"
               label="Order"
+              type="numeric"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="discountPercentage"
+              label="Discount Percentage"
+              type="numeric"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="amount"
+              label="Amount"
               type="numeric"
             />
           </div>

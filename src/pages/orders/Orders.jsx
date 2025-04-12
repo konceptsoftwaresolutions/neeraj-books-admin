@@ -1,70 +1,89 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
 import { useNavigate } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
 import { useDispatch, useSelector } from "react-redux";
-import { allOrders } from "../../constant/tableColumns";
+import { allOrdersColumn } from "../../constant/tableColumns";
 import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
 import usePath from "../../hooks/usePath";
-import { getAllOrders } from "../../redux/features/orders";
+import { getAllOrders, getFilteredOrders } from "../../redux/features/orders";
+import ShipmentPdf from "../pdf/ShipmentPdf";
+import { pdf } from "@react-pdf/renderer";
+
+// Import the FilterDrawer component
+import FilterDrawer from "./FilterDrawer"; // 🆕 Import the Drawer component
 
 const Orders = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const path = usePath();
 
-  useEffect(() => {
-    dispatch(getAllOrders());
-  }, [dispatch]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false); // Drawer visibility state
+  const [filters, setFilters] = useState({}); // Applied filters state
+  const [ordersData, setOrdersData] = useState();
 
   const { role } = useSelector((state) => state.auth);
+  const { allOrders } = useSelector((state) => state.order);
 
-  const Orders = [
-    {
-      orderId: "ORD001",
-      customerName: "John Doe",
-      orderDate: "2024-12-25",
-      status: "Pending",
-      totalAmount: "129.99",
-      items: [
-        { name: "Product A", quantity: 2, price: 50.0 },
-        { name: "Product B", quantity: 1, price: 29.99 },
-      ],
-    },
-    {
-      orderId: "ORD002",
-      customerName: "Jane Smith",
-      orderDate: "2024-12-24",
-      status: "Shipped",
-      totalAmount: "79.50",
-      items: [
-        { name: "Product C", quantity: 1, price: 40.0 },
-        { name: "Product D", quantity: 2, price: 19.75 },
-      ],
-    },
-    {
-      orderId: "ORD003",
-      customerName: "Alice Johnson",
-      orderDate: "2024-12-23",
-      status: "Delivered",
-      totalAmount: "200.00",
-      items: [{ name: "Product E", quantity: 4, price: 50.0 }],
-    },
-    {
-      orderId: "ORD004",
-      customerName: "Bob Brown",
-      orderDate: "2024-12-22",
-      status: "Cancelled",
-      totalAmount: "45.00",
-      items: [{ name: "Product F", quantity: 3, price: 15.0 }],
-    },
-  ];
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage, page) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  useEffect(() => {
+    const payload = {
+      page: currentPage,
+      limit: rowsPerPage,
+      ...filters,
+    };
+
+    const isFilterApplied = Object.keys(filters).length > 0;
+
+    const fetchData = isFilterApplied ? getFilteredOrders : getAllOrders;
+
+    dispatch(
+      fetchData(payload, (success, data) => {
+        setOrdersData(data);
+      })
+    );
+  }, [dispatch, currentPage, rowsPerPage, filters]);
 
   const handleRowClick = (data) => {
-    navigate(`/${role}/editOrders`);
+    navigate(`/${role}/editOrders`, { state: { data } });
+  };
+
+  const handleInvoiceClick = async (data) => {
+    try {
+      const blob = await pdf(<ShipmentPdf data={data} />).toBlob();
+      const blobUrl = URL.createObjectURL(blob);
+      window.open(blobUrl, "_blank");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  const showDrawer = () => setIsDrawerVisible(true);
+  const closeDrawer = () => {
+    setIsDrawerVisible(false);
+  };
+
+  const onCancelFilter = () => {
+    setFilters({}); // Reset filters
+    closeDrawer(); // Close the drawer
+  };
+
+  // Handle filter changes
+  const onApplyFilter = (filterPayload) => {
+    setFilters(filterPayload);
   };
 
   return (
@@ -73,24 +92,53 @@ const Orders = () => {
         <div className="flex justify-center items-center gap-3">
           <Heading text="All Orders" />
         </div>
-        <Button
-          type="submit"
-          variant="filled"
-          className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue "
-          onClick={() => path.changeEndPoint("addOrders")}
-        >
-          <Plus className="pr-1" />
-          Add Orders
-        </Button>
-      </div>{" "}
+        <div className="flex gap-3">
+          <Button
+            variant="filled"
+            className="bg-gray-700 text-white px-4 py-2 rounded-md font-semibold"
+            onClick={showDrawer}
+          >
+            Filter
+          </Button>
+          <Button
+            type="submit"
+            variant="filled"
+            className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue "
+            onClick={() => path.changeEndPoint("addOrders")}
+          >
+            <Plus className="pr-1" />
+            Add Orders
+          </Button>
+        </div>
+      </div>
+
       <div className="mt-4">
+        {Object.values(filters).some((val) => val) && (
+          <p className="bg-red-300 text-white w-max p-2 rounded-md mb-3">
+            Filter is active
+          </p>
+        )}
+
         <DataTable
-          data={Orders}
-          columns={allOrders}
+          data={ordersData ? ordersData : []}
+          columns={allOrdersColumn(handleInvoiceClick, handleRowClick)}
           customStyles={tableStyle}
           onRowClicked={handleRowClick}
+          pagination
+          paginationPerPage={rowsPerPage}
+          paginationDefaultPage={currentPage}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePerRowsChange}
         />
       </div>
+
+      {/* 🆕 Filter Drawer Component */}
+      <FilterDrawer
+        isVisible={isDrawerVisible}
+        onClose={closeDrawer}
+        onApplyFilter={onApplyFilter}
+        onCancelFilter={onCancelFilter} // 🆕 pass down
+      />
     </PageCont>
   );
 };
