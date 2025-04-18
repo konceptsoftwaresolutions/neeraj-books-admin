@@ -129,6 +129,12 @@ const Orders = () => {
           paginationDefaultPage={currentPage}
           onChangePage={handlePageChange}
           onChangeRowsPerPage={handlePerRowsChange}
+          paginationServer
+          paginationTotalRows={
+            ordersData?.length === rowsPerPage
+              ? currentPage * rowsPerPage + 1
+              : currentPage * rowsPerPage
+          }
         />
       </div>
 

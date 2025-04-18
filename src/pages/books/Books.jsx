@@ -13,12 +13,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { FaFileExcel } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
 
-import { getAllBooks, handleBookOrder } from "../../redux/features/books";
+import {
+  getAllBooks,
+  handleBookOrder,
+  uploadBulkUploadExcel,
+} from "../../redux/features/books";
 import { useForm } from "react-hook-form";
 import EbookPriceModal from "./EbookPriceModal";
 import { getAllCategories } from "../../redux/features/category";
 import useCategoryName from "../../hooks/useCategoryName";
 import UploadExcel from "../../components/UploadExcel";
+import TestPdf from "../pdf/TestPdf";
 
 const Books = () => {
   const dispatch = useDispatch();
@@ -54,6 +59,8 @@ const Books = () => {
         rows.push({
           _id: book._id + "-en",
           title: book.english.title,
+          bookCode: book.english.bookCode,
+          categoriesArray: book.english.categories,
           description: book.english.description,
           paperBackPrice: book.english.paperBackOriginalPrice,
           eBookPrice: book.english.eBookOriginalPrice,
@@ -71,6 +78,8 @@ const Books = () => {
         rows.push({
           _id: book._id + "-hi",
           title: book.hindi.title,
+          bookCode: book.hindi.bookCode,
+          categoriesArray: book.hindi.categories,
           description: book.hindi.description,
           paperBackPrice: book.hindi.paperBackOriginalPrice,
           eBookPrice: book.hindi.eBookOriginalPrice,
@@ -126,6 +135,9 @@ const Books = () => {
 
   const handleUploadExcel = (data) => {
     console.log(data);
+    const formData = new FormData();
+    formData.append("file", data); // 👈 "excel" should match backend field key
+    dispatch(uploadBulkUploadExcel(formData));
   };
 
   // Function to create a lookup object for categories
@@ -149,6 +161,39 @@ const Books = () => {
       .map((id) => categoryLookup[id] || "Unknown Category")
       .join(", ");
   };
+
+  const template = [
+    {
+      medium: "",
+      category1: "",
+      category2: "",
+      category3: "",
+      bookCode: "",
+      title: "",
+      paperbackOriginalPrice: "",
+      paperbackDiscountedPrice: "",
+      ebookOriginalPrice: "",
+      ebookDiscountedPrice: "",
+      ebookAdditionPrice: "",
+      active: "",
+      weight: "",
+      isbn: "",
+      brand: "",
+      forSession: "",
+      commonLine: "",
+      stock: "",
+      bestSeller: "",
+      isEbookDownloadable: "",
+      title1: "",
+      description1: "",
+      title2: "",
+      description2: "",
+      title3: "",
+      description3: "",
+      title4: "",
+      description4: "",
+    },
+  ];
 
   return (
     <PageCont>
@@ -225,7 +270,7 @@ const Books = () => {
         setIsOpen={setExcelModal}
         handleSave={handleUploadExcel}
         templateName="allProductTemplate"
-        template={[]}
+        template={template}
       />
     </PageCont>
   );

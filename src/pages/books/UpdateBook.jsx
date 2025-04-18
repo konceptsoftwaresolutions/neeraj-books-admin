@@ -740,7 +740,7 @@ const UpdateBook = () => {
           className="primary-gradient mt-4 mb-4 capitalize"
           onClick={handleWholeBookDelete}
         >
-          Delete Book
+          Delete English + Hindi Book
         </Button>
       </div>
       <div className="mt-4">
@@ -882,7 +882,7 @@ const UpdateBook = () => {
                 name="addEbookPrice"
                 label="E-book Addition Price"
                 type="number"
-                required={true}
+                // required={true}
               />
 
               <InputField
@@ -949,7 +949,7 @@ const UpdateBook = () => {
                 control={control}
                 errors={errors}
                 name="edition"
-                label="Edition"
+                label="For Session"
                 type="text"
                 disabled={!isEditable}
               />
@@ -1175,7 +1175,7 @@ const UpdateBook = () => {
                 label="Is Ebook Downloadable"
                 type="option"
                 options={discountOptions}
-                required={true}
+                // required={true}
               />
             </div>
             {/* <InputField

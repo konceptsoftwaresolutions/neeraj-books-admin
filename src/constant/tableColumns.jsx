@@ -169,17 +169,17 @@ export const allBooksColumns = (
       ),
     },
     {
-      name: "Book Name",
+      name: "Book Code",
       width: "250px",
       wrap: true,
-      selector: (row) => row.title || "N/A",
+      selector: (row) => row.bookCode || "N/A",
     },
     {
       name: "Category",
       selector: (row) =>
         row.categories?.length
-          ? getCategoryName(row.categories, allCategory)
-          : "N/A",
+          ? row.categories?.map((item) => item.name).join(", ")
+          : "NA",
     },
     {
       name: "Stock",

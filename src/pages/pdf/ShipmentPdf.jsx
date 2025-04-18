@@ -9,7 +9,9 @@ import {
   Image,
 } from "@react-pdf/renderer";
 
+import logo from "../../assets/pdf_logo.jpeg";
 import { PDFViewer } from "@react-pdf/renderer";
+import { format } from "date-fns";
 
 // Define styles
 const styles = StyleSheet.create({
@@ -228,6 +230,7 @@ const ShipmentPdf = ({ data = {} }) => {
     shippingAmount,
     totalAmount,
     user,
+    appliedCoupon,
     _id,
     additionalDiscount,
   } = data;
@@ -363,7 +366,7 @@ const ShipmentPdf = ({ data = {} }) => {
             Email: info@neerajbooks.com | Mobile: 8510009872, 8510009878
           </Text>
         </View>
-        <View
+        {/* <View
           style={{
             flexDirection: "row",
             justifyContent: "center",
@@ -386,7 +389,7 @@ const ShipmentPdf = ({ data = {} }) => {
           >
             {orderId}
           </Text>
-        </View>
+        </View> */}
 
         <View
           style={{
@@ -399,52 +402,132 @@ const ShipmentPdf = ({ data = {} }) => {
         >
           <View
             style={{
+              paddingVertical: 8,
+              paddingHorizontal: 5,
+              backgroundColor: "#efefef",
+            }}
+          >
+            <Text style={{ fontSize: 12 }}>Order Details</Text>
+          </View>
+          <View
+            style={{
               width: "100%",
               display: "flex",
               flexDirection: "row",
               justifyContent: "space-between",
+              paddingHorizontal: 5,
+              borderLeft: 1,
+              borderBottom: 1,
+              borderRight: 1,
+              marginTop: "-5px",
+              borderColor: "#efefef",
               gap: 10,
             }}
           >
             {/* Left: Address Section */}
-            <View style={{ width: "60%" }}>
-              <Text style={{ fontSize: "9px", marginBottom: 2 }}>Ship To</Text>
-              <Text style={{ fontSize: "9px" }}>
-                {shippingAddress?.firstName} {shippingAddress?.lastName}
+            <View
+              style={{
+                width: "35%",
+                borderRight: 1,
+                borderColor: "#efefef",
+                paddingVertical: 5,
+              }}
+            >
+              <Text style={{ fontSize: "15px", marginBottom: 2, color: "red" }}>
+                {orderId}
               </Text>
               <Text style={{ fontSize: "9px" }}>
-                {shippingAddress?.addressLine1}
+                Payment Mode - {paymentMode}
               </Text>
-              <Text style={{ fontSize: "9px" }}>
-                {shippingAddress?.addressLine2}
+              <Text style={{ fontSize: "9px", paddingTop: "3px" }}>
+                Date -{" "}
+                {createdAt ? format(new Date(createdAt), "dd/MM/yyyy") : ""}
               </Text>
-              <Text style={{ fontSize: "9px" }}>
-                {shippingAddress?.city} {shippingAddress?.state}{" "}
-                {shippingAddress?.pincode}
+              <Text style={{ fontSize: "9px", paddingTop: "3px" }}>
+                Coupon - {appliedCoupon}
               </Text>
-              <Text style={{ fontSize: "9px" }}>
-                {shippingAddress?.country}
-              </Text>
-              <Text style={{ fontSize: "9px" }}>{shippingAddress?.mobile}</Text>
+              {/* <Text style={{ fontSize: "9px" }}>
+                  {shippingAddress?.city} {shippingAddress?.state}{" "}
+                  {shippingAddress?.pincode}
+                </Text>
+                <Text style={{ fontSize: "9px" }}>
+                  {shippingAddress?.country}
+                </Text> */}
+              {/* <Text style={{ fontSize: "9px" }}>
+                  {shippingAddress?.mobile}
+                </Text> */}
               {/* <Text style={{ fontSize: "9px" }}>1234567890</Text> */}
             </View>
 
             {/* Right: Order Info */}
-            <View style={{ width: "35%" }}>
-              <Text
-                style={{ fontSize: "9px", marginBottom: 2, textAlign: "right" }}
+            <View
+              style={{
+                width: "65%",
+                paddingVertical: 5,
+                display: "flex",
+                flexDirection: "row",
+                gap: 10,
+              }}
+            >
+              <View style={{ width: "80%" }}>
+                <Text
+                  style={{
+                    fontSize: "9px",
+                    marginBottom: 2,
+                    textAlign: "left",
+                  }}
+                >
+                  {shippingAddress?.firstName} {shippingAddress?.lastName}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    textAlign: "left",
+                    paddingTop: 3,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  {[
+                    shippingAddress?.addressLine1,
+                    shippingAddress?.addressLine2,
+                    shippingAddress?.city,
+                    shippingAddress?.state,
+                    shippingAddress?.pincode,
+                    shippingAddress?.country,
+                  ]
+                    .filter(Boolean) // removes falsy values like null, undefined, ''
+                    .join(", ")}
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: "9px",
+                    textAlign: "left",
+                    paddingTop: "2px",
+                  }}
+                >
+                  Mobile - {shippingAddress?.mobile}
+                </Text>
+              </View>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "flex-start",
+                  alignItems: "flex-end",
+                  width: "20%",
+                }}
               >
-                Order Info
-              </Text>
-              <Text style={{ fontSize: "9px", textAlign: "right" }}>
-                Order Date: {createdAt}
-              </Text>
-              <Text style={{ fontSize: "9px", textAlign: "right" }}>
-                Mode: {paymentMode}
-              </Text>
-              <Text style={{ fontSize: "9px", textAlign: "right" }}>
-                Status: {paymentStatus}
-              </Text>
+                <Image
+                  src={logo}
+                  style={{
+                    width: 50,
+                    height: 50, // add height to maintain aspect ratio or size
+                    borderRadius: 25, // use a numeric value for circular shape (half of width/height)
+                    border: "1 solid black", // border format for react-pdf (no "px", no CSS-style string)
+                  }}
+                />
+              </View>
             </View>
           </View>
 
@@ -476,7 +559,7 @@ const ShipmentPdf = ({ data = {} }) => {
             </Text>
           </View>
 
-          {items.map((product) => {
+          {items?.map((product) => {
             const medium = product.language;
             const bookTitle = product?.productId?.[medium]?.title;
             const sellingPrice = parseFloat(
@@ -559,22 +642,38 @@ const ShipmentPdf = ({ data = {} }) => {
                       {bookTitle} x ({medium})
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "10%", textAlign: "center" }}
+                      style={{
+                        fontSize: 9,
+                        width: "10%",
+                        textAlign: "center",
+                      }}
                     >
                       {product?.quantity}
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "15%", textAlign: "center" }}
+                      style={{
+                        fontSize: 9,
+                        width: "15%",
+                        textAlign: "center",
+                      }}
                     >
                       {originalSellingPrice}
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "15%", textAlign: "center" }}
+                      style={{
+                        fontSize: 9,
+                        width: "15%",
+                        textAlign: "center",
+                      }}
                     >
                       {product?.hsn}
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "15%", textAlign: "right" }}
+                      style={{
+                        fontSize: 9,
+                        width: "15%",
+                        textAlign: "right",
+                      }}
                     >
                       {originalSellingPrice * quantity}
                     </Text>
@@ -594,22 +693,38 @@ const ShipmentPdf = ({ data = {} }) => {
                       {bookTitle} x ({medium}) - E-book
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "10%", textAlign: "center" }}
+                      style={{
+                        fontSize: 9,
+                        width: "10%",
+                        textAlign: "center",
+                      }}
                     >
                       1
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "15%", textAlign: "center" }}
+                      style={{
+                        fontSize: 9,
+                        width: "15%",
+                        textAlign: "center",
+                      }}
                     >
                       {ebookPrice}
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "15%", textAlign: "center" }}
+                      style={{
+                        fontSize: 9,
+                        width: "15%",
+                        textAlign: "center",
+                      }}
                     >
                       {product?.hsn}
                     </Text>
                     <Text
-                      style={{ fontSize: 9, width: "15%", textAlign: "right" }}
+                      style={{
+                        fontSize: 9,
+                        width: "15%",
+                        textAlign: "right",
+                      }}
                     >
                       {ebookPrice * 1}
                     </Text>
@@ -760,6 +875,22 @@ const ShipmentPdf = ({ data = {} }) => {
                 </Text>
               </View>
             )}
+
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "7px",
+              }}
+            >
+              <Text style={{ fontSize: "9px" }}>Total -</Text>
+              <Text style={{ fontSize: "9px" }}>
+                Rs. {couponDiscountCalculated} /-
+              </Text>
+            </View>
 
             <View
               style={{

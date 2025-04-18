@@ -16,7 +16,7 @@ import useDocument from "../hooks/useDocument";
 const UploadExcel = ({
   isOpen,
   setIsOpen,
-  template = [],
+  template,
   templateName = "",
   handleSave = function () {},
 }) => {

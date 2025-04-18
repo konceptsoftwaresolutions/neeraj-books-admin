@@ -145,6 +145,32 @@ export const deleteBook = (payload) => {
     };
 };
 
+export const uploadBulkUploadExcel = (formData) => {
+    return async (dispatch) => {
+        try {
+
+            const response = await axiosInstance.postForm("/product/importExcel", formData);
+            if (response.status === 201) {
+                console.log("response is ", response)
+                const message = response.data?.message || "Uploaded successfully!";
+
+                dispatch(getAllBooks());
+                toast.success(message);
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data?.message;
+            }
+            // callback(error);
+            toast.error(message);
+        } finally {
+
+        }
+    };
+};
+
 export const getSamplePaperCover = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
@@ -166,7 +192,7 @@ export const getSamplePaperCover = (payload, callback = () => { }) => {
                 message = error?.response?.data?.message;
             }
             // callback(error);
-            toast.error(message);
+            // toast.error(message);
         } finally {
 
         }
@@ -235,7 +261,7 @@ export const getSamplePaperData = (payload, callback = () => { }) => {
             if (error?.hasOwnProperty("response")) {
                 message = error?.response?.data?.message;
             }
-            toast.error(message);
+            // toast.error(message);
         } finally {
 
         }
@@ -405,7 +431,7 @@ export const getEngProductImagesName = (title, callback = () => { }) => {
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
         }
     }
 }
@@ -426,7 +452,7 @@ export const getHindiProductImagesName = (title, callback = () => { }) => {
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
         }
     }
 }
@@ -502,7 +528,7 @@ export const getEnglishAssignment = (title, callback = () => { }) => {
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
         }
     }
 }
@@ -526,7 +552,7 @@ export const getHindiAssignment = (title, callback = () => { }) => {
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
         }
     }
 }
@@ -553,7 +579,7 @@ export const getEnglishEbook = (title, callback = () => { }) => {
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
         }
     };
 };
@@ -579,7 +605,7 @@ export const getHindiEbook = (title, callback = () => { }) => {
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
         }
     };
 };

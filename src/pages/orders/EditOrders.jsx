@@ -127,7 +127,7 @@ const EditOrders = () => {
 
   console.log(orderdata);
 
-  const originalAmountCalculate = orderdata?.items.reduce((total, product) => {
+  const originalAmountCalculate = orderdata?.items?.reduce((total, product) => {
     const medium = product.language;
     const bookTitle = product?.productId?.[medium]?.title;
     const originalSellingPrice = parseFloat(
@@ -151,7 +151,7 @@ const EditOrders = () => {
     return total + originalAmount;
   }, 0);
 
-  const discountedAmountCalculate = orderdata?.items.reduce(
+  const discountedAmountCalculate = orderdata?.items?.reduce(
     (total, product) => {
       const medium = product.language;
       const bookTitle = product?.productId?.[medium]?.title;
@@ -181,31 +181,19 @@ const EditOrders = () => {
     0
   );
 
+  const amountAfterAdditionalDiscount =
+    discountedAmountCalculate - orderdata?.additionalDiscount;
+
   const couponDiscountOff =
-    (Number(discountedAmountCalculate || 0) *
+    (Number(amountAfterAdditionalDiscount || 0) *
       Number(orderdata?.appliedCouponDiscount || 0)) /
     100;
 
   const couponDiscountCalculated =
-    discountedAmountCalculate - couponDiscountOff;
+    amountAfterAdditionalDiscount - couponDiscountOff;
 
-  let additionalDiscountOff;
-
-  if (orderdata?.appliedCouponDiscount) {
-    additionalDiscountOff = couponDiscountCalculated * 0.15;
-  } else {
-    additionalDiscountOff = discountedAmountCalculate * 0.15;
-  }
-
-  let additionalDiscountCalculated;
-
-  if (orderdata?.appliedCouponDiscount) {
-    additionalDiscountCalculated =
-      couponDiscountCalculated - additionalDiscountOff;
-  } else {
-    additionalDiscountCalculated =
-      discountedAmountCalculate - additionalDiscountOff;
-  }
+  const grandTotalCalculated =
+    Number(couponDiscountCalculated) + Number(orderdata?.shippingAmount);
 
   const totalBooks = orderdata?.items?.reduce((total, item) => {
     const isOnlyEbook = item.onlyEbookSelected;
@@ -701,23 +689,25 @@ const EditOrders = () => {
                     <p> Sub-Total </p>
                     <p>₹{discountedAmountCalculate}/- </p>
                   </div>
+                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
+                    <p>Additional Discount </p>
+                    <p>₹{orderdata?.additionalDiscount || 0}/- </p>
+                  </div>
+                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
+                    <p>Sub-Total </p>
+                    <p>₹{amountAfterAdditionalDiscount}/- </p>
+                  </div>
                   {orderdata?.appliedCouponDiscount && (
                     <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                      <p>
-                        Coupon Discount - ({orderdata?.appliedCouponDiscount}%)
-                      </p>
-                      <p>₹{couponDiscountOff}/- </p>
+                      <p>Coupon Discount </p>
+                      <p>{orderdata?.appliedCouponDiscount}% </p>
                     </div>
                   )}
+                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
+                    <p>Total </p>
+                    <p>₹{couponDiscountCalculated}/- </p>
+                  </div>
 
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Additional Discount -(15%) </p>
-                    <p>₹{additionalDiscountOff}/- </p>
-                  </div>
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p> Sub-Total </p>
-                    <p>₹{additionalDiscountCalculated}/-</p>
-                  </div>
                   <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
                     <p>Shipping </p>
                     <p>₹{orderdata?.shippingAmount}/- </p>
@@ -725,10 +715,7 @@ const EditOrders = () => {
                   <div className="flex justify-between p-3 text-lg">
                     <p className="text-red-400 text-xl">Grand-Total</p>
                     <p className="text-red-400 text-xl">
-                      ₹
-                      {Number(additionalDiscountCalculated) +
-                        Number(orderdata?.shippingAmount)}{" "}
-                      /-
+                      ₹{grandTotalCalculated} /-
                     </p>
                   </div>
                 </div>

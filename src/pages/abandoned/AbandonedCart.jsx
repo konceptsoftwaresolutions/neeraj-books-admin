@@ -59,9 +59,11 @@ const dataTable = [
 
 const AbandonedCart = () => {
   const dispatch = useDispatch();
+
   useEffect(() => {
     dispatch(getAllUsers());
   }, []);
+
   const { role } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 

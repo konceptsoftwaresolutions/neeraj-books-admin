@@ -72,8 +72,10 @@ const CreateBook = () => {
       // solvedPapers: [
       //   { solvedPaperTitle: "", solvedPaperFile: null }, // Default single field
       // ],
-      addDiscount: "yes",
-      haddDiscount: "yes",
+      addDiscount: "no",
+      haddDiscount: "no",
+      addEngEbookDiscount: "no",
+      addHEbookDiscount: "no",
       theoreticalExplanationOfChapters: [
         { title: "", content: null }, // Default single field
       ],
@@ -544,16 +546,16 @@ const CreateBook = () => {
                 <InputField
                   control={control}
                   errors={errors}
-                  name="title"
-                  label="Title"
+                  name="bookCode"
+                  label="Book Code"
+                  type="text"
                   required={true}
                 />
                 <InputField
                   control={control}
                   errors={errors}
-                  name="bookCode"
-                  label="Book Code"
-                  type="text"
+                  name="title"
+                  label="Title"
                   required={true}
                 />
                 <InputField
@@ -707,7 +709,7 @@ const CreateBook = () => {
                   control={control}
                   errors={errors}
                   name="edition"
-                  label="Edition"
+                  label="For Session"
                   type="text"
                   required={true}
                 />
@@ -763,6 +765,7 @@ const CreateBook = () => {
                     label="Best Seller"
                     options={bestSellerOptions}
                     type="select"
+                    mode="single"
                   />
                 )}
                 {/* {selectedMedium?.includes("English") && (
@@ -775,7 +778,7 @@ const CreateBook = () => {
                   />
                 )} */}
               </div>
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 gap-3 pt-2">
                 {selectedMedium?.includes("English") && (
                   <InputField
                     control={control}
@@ -787,13 +790,18 @@ const CreateBook = () => {
                 )}
 
                 {selectedMedium?.includes("English") && (
-                  <ImageField
-                    control={control}
-                    errors={errors}
-                    name={"image"}
-                    maxFiles={10}
-                    label="Upload English Book Images (530px X 700px)"
-                  />
+                  <>
+                    <ImageField
+                      control={control}
+                      errors={errors}
+                      name={"image"}
+                      maxFiles={10}
+                      label="Upload English Book Images (530px X 700px)"
+                    />
+                    <p className="mt-[-10px] text-center">
+                      (The Book Image Upload Is Mandatory...)
+                    </p>
+                  </>
                 )}
                 {selectedMedium?.includes("English") && (
                   <InputField
@@ -803,7 +811,7 @@ const CreateBook = () => {
                     label="Is Ebook Downloadable"
                     type="option"
                     options={discountOptions}
-                    required={true}
+                    // required={true}
                   />
                 )}
               </div>
@@ -1110,16 +1118,6 @@ const CreateBook = () => {
                     />
                   </div>
 
-                  {selectedMedium?.includes("Hindi") && (
-                    <InputField
-                      control={control}
-                      errors={errors}
-                      name="hTitle"
-                      label="Title"
-                      required={true}
-                    />
-                  )}
-
                   <InputField
                     control={control}
                     errors={errors}
@@ -1128,6 +1126,15 @@ const CreateBook = () => {
                     type="text"
                     required={true}
                   />
+
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="hTitle"
+                    label="Title"
+                    required={true}
+                  />
+
                   {selectedMedium?.includes("Hindi") && (
                     <InputField
                       control={control}
@@ -1223,7 +1230,7 @@ const CreateBook = () => {
                       name="heBookDiscountedPrice"
                       label="E-Book Discounted Price"
                       type="number"
-                      required={true}
+                      // required={true}
                     />
                   )}
 
@@ -1312,7 +1319,7 @@ const CreateBook = () => {
                       control={control}
                       errors={errors}
                       name="hedition"
-                      label="Edition"
+                      label="For Session"
                       type="text"
                       required={true}
                     />
@@ -1364,6 +1371,7 @@ const CreateBook = () => {
                     label="Best Seller"
                     options={bestSellerOptions}
                     type="select"
+                    mode="single"
                   />
                   {/* {selectedMedium?.includes("Hindi") && (
                     <InputField
@@ -1375,7 +1383,7 @@ const CreateBook = () => {
                     />
                   )} */}
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   {selectedMedium?.includes("Hindi") && (
                     <InputField
                       control={control}
@@ -1386,13 +1394,18 @@ const CreateBook = () => {
                     />
                   )}
                   {selectedMedium?.includes("Hindi") && (
-                    <ImageField
-                      control={control}
-                      errors={errors}
-                      name={"hindiImage"}
-                      maxFiles={10}
-                      label="Upload Hindi Book Images (530px X 700px)"
-                    />
+                    <>
+                      <ImageField
+                        control={control}
+                        errors={errors}
+                        name={"hindiImage"}
+                        maxFiles={10}
+                        label="Upload Hindi Book Images (530px X 700px)"
+                      />
+                      <p className="mt-[-10px] text-center">
+                        (The Book Image Upload Is Mandatory...)
+                      </p>
+                    </>
                   )}
                   {selectedMedium?.includes("English") && (
                     <InputField
@@ -1402,7 +1415,7 @@ const CreateBook = () => {
                       label="Is Ebook Downloadable"
                       type="option"
                       options={discountOptions}
-                      required={true}
+                      // required={true}
                     />
                   )}
                 </div>

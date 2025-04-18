@@ -42,6 +42,7 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
       categoryFile,
       discountPercentage,
       amount,
+      order,
     } = data;
     console.log(data);
 
@@ -51,6 +52,7 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description1", description1);
+    formData.append("order", order);
     formData.append("description2", description2);
     formData.append("categoryFile", imageFile);
     formData.append("parent", null);
