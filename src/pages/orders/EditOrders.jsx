@@ -248,7 +248,7 @@ const EditOrders = () => {
       billing_email: orderdata?.shippingAddress?.email,
       billing_phone: orderdata?.shippingAddress?.mobile,
       payment_method: orderdata?.paymentMode,
-      sub_total: additionalDiscountCalculated,
+      sub_total: couponDiscountCalculated,
       length: data.length,
       breadth: data.breadth,
       height: data.height,

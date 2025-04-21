@@ -23,7 +23,6 @@ import EbookPriceModal from "./EbookPriceModal";
 import { getAllCategories } from "../../redux/features/category";
 import useCategoryName from "../../hooks/useCategoryName";
 import UploadExcel from "../../components/UploadExcel";
-import TestPdf from "../pdf/TestPdf";
 
 const Books = () => {
   const dispatch = useDispatch();

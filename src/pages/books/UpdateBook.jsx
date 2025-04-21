@@ -118,7 +118,7 @@ const UpdateBook = () => {
   useEffect(() => {
     if (rowData?.title) {
       const title = rowData?.title;
-      const videoUrl = `https://m.neerajbooksonline.com/neeraj/product/findProductVideoByTitle/${title}`;
+      const videoUrl = `https://test.neerajbooks.com/api/neeraj/product/findProductVideoByTitle/${title}`;
       setVideoSrc(videoUrl); // Set the video URL dynamically
     }
   }, [rowData]);
