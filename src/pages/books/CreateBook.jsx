@@ -23,6 +23,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import CustomTreeSelect from "../../components/CustomTreeSelect";
 import { DatePicker } from "antd";
+import { getSubcategoryOptionsByIds } from "../../constant/utilityfunction";
 const { RangePicker } = DatePicker;
 
 const CreateBook = () => {
@@ -44,7 +45,7 @@ const CreateBook = () => {
     value: item,
   }));
 
-  const categoryOptions = allCategory?.map((category, index) => {
+  const parentCategoryOptions = allCategory?.map((category, index) => {
     return {
       label: category.name,
       value: category._id,
@@ -72,6 +73,8 @@ const CreateBook = () => {
       // solvedPapers: [
       //   { solvedPaperTitle: "", solvedPaperFile: null }, // Default single field
       // ],
+      eBookEngIsDownloadable: "no",
+      eBookHindiIsDownloadable: "no",
       addDiscount: "no",
       haddDiscount: "no",
       addEngEbookDiscount: "no",
@@ -217,6 +220,11 @@ const CreateBook = () => {
   const [engCalcEbookPrice, setEngCalcEbookPrice] = useState(null);
   const [hindiPaperPrice, setHindiPaperPrice] = useState(null);
   const [hindiCalcEbookPrice, setHindiCalcEbookPrice] = useState(null);
+  const [subCategoryOptions, setSubCategoryOptions] = useState();
+  const [subSubCategoryOptions, setSubSubCategoryOptions] = useState();
+  const [hindiSubCategoryOptions, setHindiSubCategoryOptions] = useState();
+  const [hindiSubSubCategoryOptions, setHindiSubSubCategoryOptions] =
+    useState();
 
   const selectedDiscountedPercentage = watch("discountedPercentage");
   const selectedMedium = watch("medium");
@@ -224,18 +232,58 @@ const CreateBook = () => {
   const engEbookDiscountSelected = watch("addEngEbookDiscount");
   const hindiDiscountSelected = watch("haddDiscount");
   const hindiEbookDiscountSelected = watch("addHEbookDiscount");
-
   const engBookPrice = watch("paperBackOriginalPrice");
   const englishPaperPercentage = watch("paperDiscount");
-
   const engEbookPrice = watch("eBookOriginalPrice");
   const engEbookPercentage = watch("ebookDiscount");
-
   const hindiBookPrice = watch("hpaperBackOriginalPrice");
   const hindiPaperPercentage = watch("hpaperDiscount");
-
   const hindiEbookPrice = watch("heBookOriginalPrice");
   const hindiEbookPercentage = watch("hEbookDiscount");
+  const engSelectedParent = watch("engParentCategory");
+  const engSelectedSubCategory = watch("engSubCategory");
+
+  const hindiSelectedParent = watch("hindiParentCategory");
+  const hindiSelectedSubCategory = watch("hindiSubCategory");
+
+  useEffect(() => {
+    if (engSelectedParent) {
+      const result = getSubcategoryOptionsByIds(allCategory, engSelectedParent);
+      setSubCategoryOptions(result);
+    }
+  }, [engSelectedParent]);
+
+  useEffect(() => {
+    if (hindiSelectedParent) {
+      const result = getSubcategoryOptionsByIds(
+        allCategory,
+        hindiSelectedParent
+      );
+      setHindiSubCategoryOptions(result);
+    }
+  }, [hindiSelectedParent]);
+
+  useEffect(() => {
+    if (engSelectedSubCategory) {
+      const result = getSubcategoryOptionsByIds(
+        allCategory,
+        engSelectedSubCategory
+      );
+      console.log(result);
+      setSubSubCategoryOptions(result);
+    }
+  }, [engSelectedSubCategory]);
+
+  useEffect(() => {
+    if (hindiSelectedSubCategory) {
+      const result = getSubcategoryOptionsByIds(
+        allCategory,
+        hindiSelectedSubCategory
+      );
+      console.log(result);
+      setHindiSubSubCategoryOptions(result);
+    }
+  }, [hindiSelectedSubCategory]);
 
   useEffect(() => {
     const price =
@@ -326,13 +374,20 @@ const CreateBook = () => {
     setAddLoader(true);
     console.log(data);
 
-    // Initialize payload
     const payload = {};
 
     if (data.medium?.includes("English")) {
       const englishSlug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
       payload.english = {
+        viewParentCategory: data?.engParentCategory,
+        viewSubCategory: data?.engSubCategory,
+        viewSubSubCategory: data?.engSubSubCategory,
+        categories: data?.engSubSubCategory
+          ? data.engSubSubCategory
+          : data?.engSubCategory
+          ? data.engSubCategory
+          : data?.engParentCategory,
         eBookIsDownloadable: data?.eBookEngIsDownloadable,
         isDownloadableEngSolvedPaper: data?.isDownloadableEngSolvedPaper,
         engSolvedPaperImg: data?.engSolvedPaperImg,
@@ -370,7 +425,6 @@ const CreateBook = () => {
         // description: data?.description,
         bookCode: data?.bookCode,
         edition: data?.edition,
-        categories: data?.categories,
         commonLine: data?.commonLine,
         videoPreview: data?.videoPreview,
         // descriptionPara: data?.descriptionPara,
@@ -399,6 +453,14 @@ const CreateBook = () => {
       const hindiSlug = data.hTitle.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
       payload.hindi = {
+        viewParentCategory: data?.hindiParentCategory,
+        viewSubCategory: data?.hindiSubCategory,
+        viewSubSubCategory: data?.hindiSubSubCategory,
+        categories: data?.hindiSubSubCategory
+          ? data.hindiSubSubCategory
+          : data?.hindiSubCategory
+          ? data.hindiSubCategory
+          : data?.hindiParentCategory,
         eBookIsDownloadable: data?.eBookHindiIsDownloadable,
         isDownloadableEngSolvedPaper: data?.isDownloadableHindiSolvedPaper,
         engSolvedPaperImg: data?.hindiSolvedPaperImg,
@@ -435,7 +497,7 @@ const CreateBook = () => {
         // description: data?.hdescription,
         bookCode: data?.hbookCode,
         edition: data?.hedition,
-        categories: data?.hcategories,
+        // categories: data?.hcategories,
         commonLine: data?.hcommonLine,
         videoPreview: data?.hVideoPreview,
         // descriptionPara: data?.hdescriptionPara,
@@ -465,7 +527,6 @@ const CreateBook = () => {
     console.log(payload);
 
     const formData = convertToFormData(payload);
-    // To verify the result
     for (const pair of formData.entries()) {
       console.log(pair[0], pair[1]);
     }
@@ -496,39 +557,6 @@ const CreateBook = () => {
               options={mediumOptions}
               defaultValue="English"
             />
-
-            {/* <InputField
-              control={control}
-              errors={errors}
-              name="discountedPercentage"
-              label="Discounted percentage"
-              type="option"
-              options={discountedPercentageOptions}
-            /> */}
-
-            {/* Conditional rendering based on the selected value */}
-            {/* {selectedDiscountedPercentage === "yes" && (
-              <>
-                {" "}
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="paperBackDiscountedPercent"
-                  label="Paperback Discount Off"
-                  type="number"
-                />{" "}
-              </>
-            )}
-
-            {selectedDiscountedPercentage === "no" && <></>} */}
-
-            {/* <InputField
-              control={control}
-              errors={errors}
-              name="course"
-              label="Course"
-              type="text"
-            /> */}
           </div>
           {selectedMedium?.includes("English") && (
             <div className=" rounded-lg bg-gray-100  p-4 mt-6">
@@ -536,13 +564,42 @@ const CreateBook = () => {
                 English Book Fields
               </p>
               <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
-                <div>
+                <InputField
+                  control={control}
+                  errors={errors}
+                  label="Parent Category"
+                  name="engParentCategory"
+                  type="option"
+                  mode="single"
+                  options={parentCategoryOptions}
+                />
+                {subCategoryOptions?.length > 0 && (
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    label="Sub Category"
+                    name="engSubCategory"
+                    type="select"
+                    options={subCategoryOptions}
+                  />
+                )}
+                {subSubCategoryOptions?.length > 0 && (
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    label="Sub-Sub Category"
+                    name="engSubSubCategory"
+                    type="select"
+                    options={subSubCategoryOptions}
+                  />
+                )}
+                {/* <div>
                   <CustomTreeSelect
                     data={allCategory}
                     control={control}
                     name="categories"
                   />
-                </div>
+                </div> */}
                 <InputField
                   control={control}
                   errors={errors}
@@ -562,7 +619,7 @@ const CreateBook = () => {
                   control={control}
                   errors={errors}
                   name="paperBackOriginalPrice"
-                  label="Paperback Original Price"
+                  label="MRP / Printed Price"
                   type="number"
                   required={true}
                 />
@@ -695,6 +752,7 @@ const CreateBook = () => {
                   label="Brand"
                   type="option"
                   options={brandNameOptions}
+                  required={true}
                 />
                 {/* {selectedMedium?.includes("English") && (
                   <InputField
@@ -803,17 +861,16 @@ const CreateBook = () => {
                     </p>
                   </>
                 )}
-                {selectedMedium?.includes("English") && (
-                  <InputField
-                    control={control}
-                    errors={errors}
-                    name="eBookEngIsDownloadable"
-                    label="Is Ebook Downloadable"
-                    type="option"
-                    options={discountOptions}
-                    // required={true}
-                  />
-                )}
+              </div>
+              <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="eBookEngIsDownloadable"
+                  label="Is Ebook Downloadable"
+                  type="option"
+                  options={discountOptions}
+                />
               </div>
               {/* <div>
                 <InputField
@@ -1110,6 +1167,35 @@ const CreateBook = () => {
                   Hindi Book Fields
                 </p>
                 <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    label="Parent Category"
+                    name="hindiParentCategory"
+                    type="option"
+                    mode="single"
+                    options={parentCategoryOptions}
+                  />
+                  {hindiSubCategoryOptions?.length > 0 && (
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      label="Sub Category"
+                      name="hindiSubCategory"
+                      type="select"
+                      options={hindiSubCategoryOptions}
+                    />
+                  )}
+                  {hindiSubSubCategoryOptions?.length > 0 && (
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      label="Sub-Sub Category"
+                      name="hindiSubSubCategory"
+                      type="select"
+                      options={hindiSubSubCategoryOptions}
+                    />
+                  )}
                   <div>
                     <CustomTreeSelect
                       data={allCategory}
@@ -1407,7 +1493,7 @@ const CreateBook = () => {
                       </p>
                     </>
                   )}
-                  {selectedMedium?.includes("English") && (
+                  <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3">
                     <InputField
                       control={control}
                       errors={errors}
@@ -1415,9 +1501,8 @@ const CreateBook = () => {
                       label="Is Ebook Downloadable"
                       type="option"
                       options={discountOptions}
-                      // required={true}
                     />
-                  )}
+                  </div>
                 </div>
 
                 {/* <InputField

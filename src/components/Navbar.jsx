@@ -20,6 +20,7 @@ import { RiTeamFill } from "react-icons/ri";
 import { PiShoppingCartSimpleFill } from "react-icons/pi";
 
 import { MdQuiz } from "react-icons/md";
+import { IoSettings } from "react-icons/io5";
 
 const Navbar = () => {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
@@ -39,6 +40,11 @@ const Navbar = () => {
             />
           </>
         )}
+        <SidebarItem
+          icon={<FaList size={20} />}
+          text="Category"
+          to={getRoute("/categori")}
+        />
 
         <SidebarItem
           icon={<FaBook size={20} />}
@@ -46,20 +52,21 @@ const Navbar = () => {
           to={getRoute("/books")}
         />
         <SidebarItem
-          icon={<FaList size={20} />}
-          text="Category"
-          to={getRoute("/categori")}
+          icon={<FaBitbucket size={20} />}
+          text="Orders"
+          to={getRoute("/orders")}
         />
         <SidebarItem
+          icon={<IoSettings size={20} />}
+          text="Website Settings"
+          to={getRoute("/popups")}
+        />
+        {/* <SidebarItem
           icon={<FaUser size={20} />}
           text="Sliders"
           to={getRoute("/sliders")}
-        />
-        <SidebarItem
-          icon={<MdDiscount size={20} />}
-          text="PopUps"
-          to={getRoute("/popups")}
-        />
+        /> */}
+
         <SidebarItem
           icon={<MdQuiz size={20} />}
           text="Quiz"
@@ -70,11 +77,7 @@ const Navbar = () => {
           text="Combo Offers"
           to={getRoute("/combos")}
         />
-        <SidebarItem
-          icon={<FaBitbucket size={20} />}
-          text="Orders"
-          to={getRoute("/orders")}
-        />
+
         <SidebarItem
           icon={<BiSolidCoupon size={20} />}
           text="Coupons"

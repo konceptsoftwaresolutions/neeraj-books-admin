@@ -99,7 +99,7 @@ const EditOrders = () => {
   const [orderdata, setOrderData] = useState();
 
   const location = useLocation();
-  console.log(location.state.data);
+  console.log(location?.state?.data);
 
   const { shipNowBtnLoader, generateLabelLoder } = useSelector(
     (state) => state.order
@@ -125,7 +125,13 @@ const EditOrders = () => {
     }
   }, [orderInitial]);
 
-  console.log(orderdata);
+  function calculateDiscountPercentage(totalAmount, discountAmount) {
+    if (totalAmount <= 0) {
+      return "Total amount must be greater than zero.";
+    }
+    let discountPercentage = (discountAmount / totalAmount) * 100;
+    return discountPercentage; // returns a string with 2 decimal places
+  }
 
   const originalAmountCalculate = orderdata?.items?.reduce((total, product) => {
     const medium = product.language;
@@ -181,6 +187,11 @@ const EditOrders = () => {
     0
   );
 
+  let discountPercent = calculateDiscountPercentage(
+    originalAmountCalculate,
+    originalAmountCalculate - discountedAmountCalculate
+  );
+
   const amountAfterAdditionalDiscount =
     discountedAmountCalculate - orderdata?.additionalDiscount;
 
@@ -192,8 +203,9 @@ const EditOrders = () => {
   const couponDiscountCalculated =
     amountAfterAdditionalDiscount - couponDiscountOff;
 
-  const grandTotalCalculated =
-    Number(couponDiscountCalculated) + Number(orderdata?.shippingAmount);
+  const grandTotalCalculated = Math.round(
+    Number(couponDiscountCalculated) + Number(orderdata?.shippingAmount)
+  );
 
   const totalBooks = orderdata?.items?.reduce((total, item) => {
     const isOnlyEbook = item.onlyEbookSelected;
@@ -205,6 +217,7 @@ const EditOrders = () => {
 
     return total;
   }, 0);
+  console.log(totalBooks);
 
   const totalWeight = orderdata?.items?.reduce((total, item) => {
     const isOnlyEbook = item.onlyEbookSelected;
@@ -221,6 +234,8 @@ const EditOrders = () => {
 
     return total;
   }, 0);
+
+  console.log(totalWeight);
 
   useEffect(() => {
     if (totalBooks && totalWeight) {
@@ -380,6 +395,9 @@ const EditOrders = () => {
                   Genereate label
                 </Button>
               )}
+              {orderdata?.orderStatus === "Pending" && (
+                <Button className="bg-red-400">Cancel Order</Button>
+              )}
               {orderdata?.orderStatus === "Shipped" && (
                 <Button onClick={handleOrderTracking}>Track Order</Button>
               )}
@@ -393,6 +411,7 @@ const EditOrders = () => {
                     {orderdata?.shippingAddress?.lastName}
                   </li>
                   <li>{orderdata?.shippingAddress?.mobile}</li>
+                  <li>{orderdata?.shippingAddress?.email}</li>
                   <li>{orderdata?.shippingAddress?.addressLine1}</li>
                   {orderdata?.shippingAddress?.addressline2 && (
                     <li>{orderdata?.shippingAddress?.addressline2}</li>
@@ -658,15 +677,17 @@ const EditOrders = () => {
                       label="Weight (in kg)"
                       type="number"
                     />
-                    <div className="w-full flex justify-end mt-3">
-                      <Button
-                        className="capitalize"
-                        type="submit"
-                        loading={shipNowBtnLoader}
-                      >
-                        Ship Now
-                      </Button>
-                    </div>
+                    {orderdata?.orderStatus === "Pending" && (
+                      <div className="w-full flex justify-end mt-3">
+                        <Button
+                          className="capitalize"
+                          type="submit"
+                          loading={shipNowBtnLoader}
+                        >
+                          Ship Now
+                        </Button>
+                      </div>
+                    )}
                   </form>
                 </div>
               </div>
@@ -680,23 +701,28 @@ const EditOrders = () => {
                     <p>₹{originalAmountCalculate}/-</p>
                   </div>
                   <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Discount </p>
+                    <p>Discount ({discountPercent}%)</p>
                     <p>
                       ₹{originalAmountCalculate - discountedAmountCalculate}/-
                     </p>
                   </div>
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p> Sub-Total </p>
-                    <p>₹{discountedAmountCalculate}/- </p>
-                  </div>
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Additional Discount </p>
-                    <p>₹{orderdata?.additionalDiscount || 0}/- </p>
-                  </div>
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Sub-Total </p>
-                    <p>₹{amountAfterAdditionalDiscount}/- </p>
-                  </div>
+                  {orderdata?.additionalDiscount > 0 && (
+                    <>
+                      <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
+                        <p> Sub-Total </p>
+                        <p>₹{discountedAmountCalculate}/- </p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
+                        <p>Additional Discount </p>
+                        <p>₹{orderdata?.additionalDiscount || 0}/- </p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
+                        <p>Sub-Total </p>
+                        <p>₹{amountAfterAdditionalDiscount}/- </p>
+                      </div>
+                    </>
+                  )}
+
                   {orderdata?.appliedCouponDiscount && (
                     <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
                       <p>Coupon Discount </p>
@@ -709,7 +735,7 @@ const EditOrders = () => {
                   </div>
 
                   <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Shipping </p>
+                    <p>Shipping & Handling Charges </p>
                     <p>₹{orderdata?.shippingAmount}/- </p>
                   </div>
                   <div className="flex justify-between p-3 text-lg">

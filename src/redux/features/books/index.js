@@ -99,6 +99,7 @@ export const updateBook = ({ formData }, callback = () => { }) => {
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Book added successfully!";
+
                 callback(true);
 
                 toast.success(message);
@@ -110,7 +111,7 @@ export const updateBook = ({ formData }, callback = () => { }) => {
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            // callback(error);
+            callback(false);
             toast.error(message);
         } finally {
 
@@ -863,7 +864,7 @@ export const getAssignmentImage = (payload, callback = () => { }) => {
 export const getAssignmentFile = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
-            const response = await axiosInstance.post("/product/get-assignment-file ", payload, {
+            const response = await axiosInstance.post("/product/get-assignment-file", payload, {
                 responseType: 'blob', // Ensure you're expecting a blob response
             });
 

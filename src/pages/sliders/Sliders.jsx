@@ -148,15 +148,15 @@ const Sliders = () => {
   };
 
   return (
-    <PageCont>
-      <div className="flex justify-between items-center">
+    <>
+      <div className="flex justify-between items-center mt-10">
         <div className="flex justify-center items-center gap-3">
-          <Heading text="All Sliders" />
+          <Heading text="All Sliders" backIcon="false" />
         </div>
         <Button
           type="submit"
           variant="filled"
-          className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue"
+          className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center capitalize bg-cstm-blue"
           onClick={() => path.changeEndPoint("addslider")}
         >
           <Plus className="pr-1" />
@@ -229,7 +229,7 @@ const Sliders = () => {
           </form>
         </div>
       </div>
-    </PageCont>
+    </>
   );
 };
 

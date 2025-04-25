@@ -23,6 +23,7 @@ import EbookPriceModal from "./EbookPriceModal";
 import { getAllCategories } from "../../redux/features/category";
 import useCategoryName from "../../hooks/useCategoryName";
 import UploadExcel from "../../components/UploadExcel";
+import ImageUpload from "./ImageUpload";
 
 const Books = () => {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ const Books = () => {
   const { allCategory } = useSelector((state) => state.category);
 
   const [ebookModal, setEbookModal] = useState(false);
+  const [imageModal, setImageModal] = useState(false);
   const [excelModal, setExcelModal] = useState(false);
   const [searchText, setSearchText] = useState(""); // Search input state
   const [filteredBooks, setFilteredBooks] = useState([]);
@@ -114,12 +116,11 @@ const Books = () => {
   }, [searchText, allBooks]);
 
   const handleRowClick = (row) => {
-    navigate(`/${role}/updatebook`, {
-      state: {
-        bookData: row.bookDetail,
-        medium: row.medium,
-        outerId: row.outerId,
-      },
+    const bookId = row.bookDetail._id;
+    const medium = row.medium;
+    const outerId = row.outerId;
+    navigate(`/${role}/updatebook/${bookId}/${medium}/${outerId}`, {
+      state: { data: { bookId, outerId } },
     });
   };
 
@@ -206,6 +207,14 @@ const Books = () => {
             type="submit"
             variant="filled"
             className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
+            onClick={() => setImageModal(!imageModal)}
+          >
+            Bulk Images
+          </Button>
+          <Button
+            type="submit"
+            variant="filled"
+            className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
             onClick={() => setEbookModal(!ebookModal)}
           >
             Set Brand
@@ -264,6 +273,8 @@ const Books = () => {
       </div>
 
       <EbookPriceModal showModal={ebookModal} setShowModal={setEbookModal} />
+      <ImageUpload showModal={imageModal} setShowModal={setImageModal} />
+
       <UploadExcel
         isOpen={excelModal}
         setIsOpen={setExcelModal}

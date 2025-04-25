@@ -109,7 +109,7 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
       <div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
-            <img src={imageUrl} />
+            {imageUrl && <img src={imageUrl} />}
             {isEditable && (
               <ImageField
                 control={control}
@@ -144,6 +144,16 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
                 type="description"
                 disabled={!isEditable}
               />
+              {!category?.parent && (
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="tagline"
+                  label="Tagline"
+                  type="description"
+                  disabled={!isEditable}
+                />
+              )}
               {/* <InputField
                 control={control}
                 errors={errors}

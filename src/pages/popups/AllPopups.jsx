@@ -21,6 +21,7 @@ import {
   createYoutubePopUp,
 } from "../../redux/features/sliders";
 import HeroSection from "./HeroSection";
+import Sliders from "../sliders/Sliders";
 
 function AllPopups(props) {
   const navigate = useNavigate();
@@ -457,6 +458,7 @@ function AllPopups(props) {
           </div>
         </div>
         <HeroSection />
+        <Sliders />
       </PageCont>
     </div>
   );

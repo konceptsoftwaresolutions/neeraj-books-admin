@@ -377,23 +377,11 @@ export const createHeroSection = (payload) => {
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Added successfully!";
-                // callback(null);
-
                 toast.success(message);
-                callback(true);
-
-                // dispatch(getAllLeads());
             }
         } catch (error) {
-            console.log(error)
-            let message = "error";
-            if (error?.hasOwnProperty("message")) {
-                message = error?.message;
-            }
-            // callback(error);
-            callback(false);
-
-            toast.error(message);
+            // console.log(error)
+            toast.error(error?.response?.data?.message);
         }
     }
 }

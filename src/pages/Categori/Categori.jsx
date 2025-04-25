@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
 import { Button } from "@material-tailwind/react";
@@ -17,46 +17,13 @@ import { FaFileExcel, FaSearch } from "react-icons/fa";
 import UploadExcel from "../../components/UploadExcel";
 import { Input } from "antd";
 
-const columns = [
-  {
-    name: "S.No.",
-    width: "80px",
-    wrap: true,
-    selector: (row, index) => index + 1,
-    style: {
-      padding: "10px 10px 10px 20px",
-    },
-  },
-  {
-    name: "Parent Category Name",
-    selector: (row) => row.name,
-    style: {
-      padding: "10px 10px 10px 20px",
-    },
-    width: "300px",
-  },
-  {
-    name: "Description",
-    selector: (row) => row.description1,
-    style: {
-      padding: "10px 10px 10px 20px",
-    },
-    width: "300px",
-  },
-  // {
-  //   name: 'Parent Category',
-  //   selector: row => row.parentId || 'None', // Display parent ID or 'None' if no parent
-  //   sortable: true,
-  // },
-];
-
-function Categori(props) {
+function Categori() {
   const dispatch = useDispatch();
   const { allParentCategory } = useSelector((state) => state.dummy);
   const { allCategory } = useSelector((state) => state.category);
   const [excelModal, setExcelModal] = useState(false);
 
-  const [searchText, setSearchText] = useState(""); // Search input state
+  const [searchText, setSearchText] = useState("");
   const [filteredCategory, setFilteredCategory] = useState([]);
 
   const navigate = useNavigate();
@@ -75,13 +42,11 @@ function Categori(props) {
     let flattenedData = [];
 
     const flatten = (category, parentId = null) => {
-      // Add the category to the flattened data
       flattenedData.push({
         ...category,
-        parentId, // Reference to parent category, if any
+        parentId,
       });
 
-      // Recursively add subcategories
       category.subcategories.forEach((subcat) => flatten(subcat, category._id));
     };
 
@@ -92,19 +57,15 @@ function Categori(props) {
 
   const flatData = flattenCategories(allParentCategory);
 
-  console.log(flatData);
-
-  const parentLevelCategories = allCategory?.map(
-    ({ subcategories, products, ...rest }) => rest
-  );
-  console.log(parentLevelCategories);
+  const parentLevelCategories = useMemo(() => {
+    return allCategory?.map(({ subcategories, products, ...rest }) => rest);
+  }, [allCategory]);
 
   const handleCategorySort = (categoryId, sort) => {
     const payload = {
       categoryId,
       sort,
     };
-    console.log(payload);
     dispatch(handleCategoryOrder(payload));
   };
 
@@ -145,7 +106,7 @@ function Categori(props) {
     } else {
       const normalizedSearch = normalizeText(searchText);
       setFilteredCategory(
-        parentLevelCategories.filter((category) =>
+        parentLevelCategories?.filter((category) =>
           normalizeText(category.name).includes(normalizedSearch)
         )
       );
@@ -178,10 +139,10 @@ function Categori(props) {
             Bulk Upload
           </Button>
         </div>
-      </div>{" "}
+      </div>
+
       <div className="mt-4 relative">
         <FaSearch className="absolute top-3 left-2 z-20 text-cstm-blue" />
-
         <Input
           type="text"
           placeholder="Search by name..."
@@ -190,14 +151,15 @@ function Categori(props) {
           className="w-full px-4 py-2 pl-7 border rounded-md shadow-sm focus:outline-none focus:ring-2 border-cstm-blue "
         />
       </div>
+
       <div className="mt-4">
         <DataTable
           data={filteredCategory ? filteredCategory : []}
           columns={allCategoryColumns(handleRowClick, handleCategorySort)}
           customStyles={tableStyle}
-          // onRowClicked={handleRowClick}
         />
       </div>
+
       <UploadExcel
         isOpen={excelModal}
         setIsOpen={setExcelModal}

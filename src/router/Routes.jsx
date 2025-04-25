@@ -103,7 +103,10 @@ const Routes = () => {
         { path: "/:type/:parent/editquiz", element: <EditQuiz /> },
         { path: "/:type/addbook", element: <AddBook /> },
         { path: "/:type/createbook", element: <CreateBook /> },
-        { path: "/:type/updatebook", element: <UpdateBook /> },
+        {
+          path: "/:type/updatebook/:bookId/:medium/:outerId",
+          element: <UpdateBook />,
+        },
         { path: "/:type/editbook", element: <EditBook /> },
         { path: "/:type/testimonials", element: <Testimonials /> },
         { path: "/:type/addtestimonial", element: <AddTestimonial /> },

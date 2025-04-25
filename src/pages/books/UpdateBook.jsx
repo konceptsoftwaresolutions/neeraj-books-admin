@@ -49,19 +49,23 @@ import { Tooltip } from "antd";
 import { v4 as uuidv4 } from "uuid";
 import { setDummyBooks } from "../../redux/features/dummyBook";
 import toast from "react-hot-toast";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import CustomTreeSelect from "../../components/CustomTreeSelect";
 import { useEffect, useState } from "react";
 import { FaFileImage, FaFilePdf, FaLink } from "react-icons/fa";
 import { editBookDetails } from "../../redux/features/teamMembers";
+import { getSubcategoryOptionsByIds } from "../../constant/utilityfunction";
 
 const UpdateBook = () => {
   const { allCategory } = useSelector((state) => state.category);
   const dispatch = useDispatch();
   const location = useLocation();
-  const { bookData, medium, outerId } = location.state || {};
-  console.log(bookData, medium, outerId);
-  const categoryOptions = allCategory?.map((category, index) => {
+  console.log(location.state, " location is this");
+  // const { bookData, medium, outerId } = location.state || {};
+
+  const { bookId: bookData, medium, outerId } = useParams();
+
+  const parentCategoryOptions = allCategory?.map((category, index) => {
     return {
       label: category.name,
       value: category._id,
@@ -75,6 +79,7 @@ const UpdateBook = () => {
   const [videoSrc, setVideoSrc] = useState("");
   const [isVideoValid, setIsVideoValid] = useState(null);
   const [imgLoading, setImgLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [assignmentUrl, setAssignmentUrl] = useState();
   const [productImages, setProductImages] = useState([]);
   const [productImageUrls, setProductImageUrls] = useState([]);
@@ -98,7 +103,7 @@ const UpdateBook = () => {
 
   const fetchSingleBookData = (bookData, outerId) => {
     const payload = {
-      localizedId: bookData._id,
+      localizedId: bookData,
       _id: outerId,
     };
     dispatch(
@@ -258,6 +263,9 @@ const UpdateBook = () => {
     if (rowData) {
       console.log(rowData);
       reset({
+        viewParentCategory: rowData?.viewParentCategory,
+        viewSubCategory: rowData?.viewSubCategory,
+        viewSubSubCategory: rowData?.viewSubSubCategory,
         isDownloadableEngSolvedPaper:
           rowData?.solvedSamplePapers?.[0]?.isDownloadable || "",
         engSolvedPaperPrice: rowData?.solvedSamplePapers?.[0]?.price || "",
@@ -333,6 +341,33 @@ const UpdateBook = () => {
   //     });
   //   }
   // }, [solvedSamplePaperData, reset]);
+
+  const [subCategoryOptions, setSubCategoryOptions] = useState();
+  const [subSubCategoryOptions, setSubSubCategoryOptions] = useState();
+
+  const selectedParentCategory = watch("viewParentCategory");
+  const selectedSubCategory = watch("viewSubCategory");
+
+  useEffect(() => {
+    if (selectedParentCategory) {
+      const result = getSubcategoryOptionsByIds(
+        allCategory,
+        selectedParentCategory
+      );
+      setSubCategoryOptions(result);
+    }
+  }, [selectedParentCategory]);
+
+  useEffect(() => {
+    if (selectedSubCategory) {
+      const result = getSubcategoryOptionsByIds(
+        allCategory,
+        selectedSubCategory
+      );
+      console.log(result);
+      setSubSubCategoryOptions(result);
+    }
+  }, [selectedSubCategory]);
 
   useEffect(() => {
     const payload = {
@@ -458,13 +493,23 @@ const UpdateBook = () => {
   }
 
   const onSubmit = (data) => {
-    console.log(data);
+    setIsLoading(true);
+    // console.log(data);
 
     // Initialize payload
 
     const slug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
     const bookData = {
+      viewParentCategory: data?.viewParentCategory,
+      viewSubCategory: data?.viewSubCategory,
+      viewSubSubCategory: data?.viewSubSubCategory,
+      // categories: data?.categories,
+      categories: data?.viewSubSubCategory
+        ? data.viewSubSubCategory
+        : data?.viewSubCategory
+        ? data.viewSubCategory
+        : data?.viewParentCategory,
       eBookIsDownloadable: data?.eBookIsDownloadable,
       isDownloadableEngSolvedPaper: data?.isDownloadableEngSolvedPaper,
       engSolvedPaperImg: data?.engSolvedPaperImg,
@@ -492,7 +537,6 @@ const UpdateBook = () => {
       description: data?.description,
       bookCode: data?.bookCode,
       edition: data?.edition,
-      categories: data?.categories,
       commonLine: data?.commonLine,
       descriptionPara: data?.descriptionPara,
       whatYouGetInBook: data?.whatYouGetInBook,
@@ -517,11 +561,9 @@ const UpdateBook = () => {
     };
 
     const payload = {
-      [selectedMedium.toLowerCase()]: bookData,
+      [selectedMedium?.toLowerCase()]: bookData,
       _id: outerId,
     };
-
-    console.log(payload);
 
     const formData = convertToFormData(payload);
     // To verify the result
@@ -530,10 +572,18 @@ const UpdateBook = () => {
     }
 
     dispatch(
-      updateBook({ formData: formData }, (success) => {
-        // if (success) {
-        //   window.location.reload();
-        // }
+      updateBook({ formData: formData }, (success, data) => {
+        if (success) {
+          setIsLoading(false);
+          // console.log(data, location, "final");
+          // window.location.reload();
+          fetchSingleBookData(
+            location?.state?.data?.bookId,
+            location?.state?.data?.outerId
+          );
+        } else {
+          setIsLoading(false);
+        }
       })
     );
   };
@@ -743,21 +793,23 @@ const UpdateBook = () => {
           Delete English + Hindi Book
         </Button>
       </div>
-      <div className="mt-4">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-4 gap-3">
-            <InputField
-              control={control}
-              errors={errors}
-              name="medium"
-              label="Select Medium"
-              type="select"
-              options={mediumOptions}
-              defaultValue="English"
-              disabled={!isEditable}
-            />
+      {rowData ? (
+        <>
+          <div className="mt-4">
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="grid grid-cols-4 gap-3">
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="medium"
+                  label="Select Medium"
+                  type="select"
+                  options={mediumOptions}
+                  defaultValue="English"
+                  disabled={!isEditable}
+                />
 
-            {/* <InputField
+                {/* <InputField
           control={control}
           errors={errors}
           name="discountedPercentage"
@@ -766,24 +818,24 @@ const UpdateBook = () => {
           options={discountedPercentageOptions}
         /> */}
 
-            {/* Conditional rendering based on the selected value */}
-            {selectedDiscountedPercentage === "yes" && (
-              <>
-                {" "}
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="paperBackDiscountedPercent"
-                  label="Paperback Discount Off"
-                  type="number"
-                  disabled={!isEditable}
-                />{" "}
-              </>
-            )}
+                {/* Conditional rendering based on the selected value */}
+                {selectedDiscountedPercentage === "yes" && (
+                  <>
+                    {" "}
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="paperBackDiscountedPercent"
+                      label="Paperback Discount Off"
+                      type="number"
+                      disabled={!isEditable}
+                    />{" "}
+                  </>
+                )}
 
-            {selectedDiscountedPercentage === "no" && <></>}
+                {selectedDiscountedPercentage === "no" && <></>}
 
-            {/* <InputField
+                {/* <InputField
               control={control}
               errors={errors}
               name="course"
@@ -791,110 +843,138 @@ const UpdateBook = () => {
               type="text"
               disabled={!isEditable}
             /> */}
-          </div>
+              </div>
 
-          <div className=" rounded-lg bg-gray-100  p-4 mt-6">
-            {/* <p className="border-b-2 border-gray-200 pb-2 mb-2 font-semibold">
+              <div className=" rounded-lg bg-gray-100  p-4 mt-6">
+                {/* <p className="border-b-2 border-gray-200 pb-2 mb-2 font-semibold">
                 EngBook Fields
               </p> */}
-            <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
-              <div>
-                <CustomTreeSelect
-                  data={allCategory}
-                  control={control}
-                  name="categories"
-                  disabled={!isEditable}
-                />
-              </div>
-              <InputField
-                control={control}
-                errors={errors}
-                name="title"
-                label="Title"
-                disabled={!isEditable}
-              />
+                <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    label="Parent Category"
+                    name="viewParentCategory"
+                    type="option"
+                    mode="single"
+                    options={parentCategoryOptions}
+                  />
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="bookCode"
-                label="Book Code"
-                type="text"
-                disabled={!isEditable}
-              />
-              <InputField
-                control={control}
-                errors={errors}
-                name="paperBackOriginalPrice"
-                label="Paperback Original Price"
-                type="number"
-                disabled={!isEditable}
-              />
-              <InputField
-                control={control}
-                errors={errors}
-                name="addDiscount"
-                label="Discount"
-                type="option"
-                options={discountOptions}
-                defaultValue="yes"
-              />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    label="Sub Category"
+                    name="viewSubCategory"
+                    type="select"
+                    options={subCategoryOptions}
+                  />
 
-              {discountSelected === "yes" ? (
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="paperDiscount"
-                  label="Enter Discount %"
-                  type="number"
-                />
-              ) : (
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="paperBackDiscountedPrice"
-                  label="Paperback Discounted Price"
-                  type="numeric"
-                />
-              )}
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    label="Sub-Sub Category"
+                    name="viewSubSubCategory"
+                    type="select"
+                    options={subSubCategoryOptions}
+                  />
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="eBookOriginalPrice"
-                label="E-Book Original Price"
-                type="number"
-                disabled={!isEditable}
-              />
+                  <div>
+                    <CustomTreeSelect
+                      data={allCategory}
+                      control={control}
+                      name="categories"
+                      disabled={!isEditable}
+                    />
+                  </div>
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="title"
+                    label="Title"
+                    disabled={!isEditable}
+                  />
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="eBookDiscountedPrice"
-                label="E-Book Discounted Price"
-                type="number"
-                disabled={!isEditable}
-              />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="bookCode"
+                    label="Book Code"
+                    type="text"
+                    disabled={!isEditable}
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="paperBackOriginalPrice"
+                    label="Paperback Original Price"
+                    type="number"
+                    disabled={!isEditable}
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="addDiscount"
+                    label="Discount"
+                    type="option"
+                    options={discountOptions}
+                    defaultValue="yes"
+                  />
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="addEbookPrice"
-                label="E-book Addition Price"
-                type="number"
-                // required={true}
-              />
+                  {discountSelected === "yes" ? (
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="paperDiscount"
+                      label="Enter Discount %"
+                      type="number"
+                    />
+                  ) : (
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="paperBackDiscountedPrice"
+                      label="Paperback Discounted Price"
+                      type="numeric"
+                    />
+                  )}
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="active"
-                label="Active"
-                type="option"
-                options={statusOptions}
-              />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="eBookOriginalPrice"
+                    label="E-Book Original Price"
+                    type="number"
+                    disabled={!isEditable}
+                  />
 
-              {/* <InputField
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="eBookDiscountedPrice"
+                    label="E-Book Discounted Price"
+                    type="number"
+                    disabled={!isEditable}
+                  />
+
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="addEbookPrice"
+                    label="E-book Addition Price"
+                    type="number"
+                    // required={true}
+                  />
+
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="active"
+                    label="Active"
+                    type="option"
+                    options={statusOptions}
+                  />
+
+                  {/* <InputField
                 control={control}
                 errors={errors}
                 name="paperBackDiscountedPrice"
@@ -903,7 +983,7 @@ const UpdateBook = () => {
                 disabled={!isEditable}
               /> */}
 
-              {/* <InputField
+                  {/* <InputField
                 control={control}
                 errors={errors}
                 name="order"
@@ -911,32 +991,32 @@ const UpdateBook = () => {
                 type="numeric"
               /> */}
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="weight"
-                label="Weight (kg)"
-                disabled={!isEditable}
-              />
-              <InputField
-                control={control}
-                errors={errors}
-                name="isbn"
-                label="ISBN"
-                type="text"
-              />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="weight"
+                    label="Weight (kg)"
+                    disabled={!isEditable}
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="isbn"
+                    label="ISBN"
+                    type="text"
+                  />
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="brand"
-                label="Brand"
-                type="option"
-                options={brandNameOptions}
-                // required={true}
-              />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="brand"
+                    label="Brand"
+                    type="option"
+                    options={brandNameOptions}
+                    // required={true}
+                  />
 
-              {/* <InputField
+                  {/* <InputField
                 control={control}
                 errors={errors}
                 name="description"
@@ -945,26 +1025,26 @@ const UpdateBook = () => {
                 disabled={!isEditable}
               /> */}
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="edition"
-                label="For Session"
-                type="text"
-                disabled={!isEditable}
-              />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="edition"
+                    label="For Session"
+                    type="text"
+                    disabled={!isEditable}
+                  />
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="commonLine"
-                label="Common Line"
-                type="description"
-                disabled={!isEditable}
-              />
-              {/* <p>{videoSrc}</p> */}
-              <div className="relative">
-                {/* <a
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="commonLine"
+                    label="Common Line"
+                    type="description"
+                    disabled={!isEditable}
+                  />
+                  {/* <p>{videoSrc}</p> */}
+                  <div className="relative">
+                    {/* <a
                   href={videoSrc}
                   target="_blank"
                   className="absolute right-0 top-1"
@@ -972,54 +1052,54 @@ const UpdateBook = () => {
                   <FaLink />
                 </a> */}
 
-                {!videoSrc && !isEditable && (
-                  <div>
-                    <p className="font-medium ml-0.5 text-[#000000]">
-                      Video Preview
-                    </p>
-                    <div className="flex mt-2 items-center border w-full border-solid border-[#6E6E6E] overflow-hidden bg-transparent rounded-sm">
-                      <a className="w-full min-h[40px] text-[#000000] px-2.5 py-2 text-sm font-poppins placeholder:font-poppins placeholder:not-italic placeholder:text-sm placeholder:leading-normal placeholder:font-medium placeholder:text-[#6E6E6E] not-italic leading-normal bg-transparent font-medium outline-none border-none disabled:bg-[#eceff1] disabled:cursor-not-allowed">
-                        Not Added
-                      </a>
-                    </div>
+                    {!videoSrc && !isEditable && (
+                      <div>
+                        <p className="font-medium ml-0.5 text-[#000000]">
+                          Video Preview
+                        </p>
+                        <div className="flex mt-2 items-center border w-full border-solid border-[#6E6E6E] overflow-hidden bg-transparent rounded-sm">
+                          <a className="w-full min-h[40px] text-[#000000] px-2.5 py-2 text-sm font-poppins placeholder:font-poppins placeholder:not-italic placeholder:text-sm placeholder:leading-normal placeholder:font-medium placeholder:text-[#6E6E6E] not-italic leading-normal bg-transparent font-medium outline-none border-none disabled:bg-[#eceff1] disabled:cursor-not-allowed">
+                            Not Added
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                    {videoSrc && (
+                      <div className="flex justify-end absolute right-0 gap-3">
+                        <Tooltip title="View Video">
+                          <a target="_blank" href={videoSrc} className="">
+                            <BsFillEyeFill size={20} />
+                          </a>
+                        </Tooltip>
+                        <div onClick={handleVideoDelete} className="w-max">
+                          <Tooltip title="Delete Video">
+                            <MdDelete size={20} className="" />
+                          </Tooltip>
+                        </div>
+                      </div>
+                    )}
+                    {isEditable && (
+                      <InputField
+                        control={control}
+                        errors={errors}
+                        name="videoPreview"
+                        label="Video Preview "
+                        type="file"
+                        disabled={!isEditable}
+                      />
+                    )}
                   </div>
-                )}
-                {videoSrc && (
-                  <div className="flex justify-end absolute right-0 gap-3">
-                    <Tooltip title="View Video">
-                      <a target="_blank" href={videoSrc} className="">
-                        <BsFillEyeFill size={20} />
-                      </a>
-                    </Tooltip>
-                    <div onClick={handleVideoDelete} className="w-max">
-                      <Tooltip title="Delete Video">
-                        <MdDelete size={20} className="" />
-                      </Tooltip>
-                    </div>
-                  </div>
-                )}
-                {isEditable && (
+
                   <InputField
                     control={control}
                     errors={errors}
-                    name="videoPreview"
-                    label="Video Preview "
-                    type="file"
+                    name="descriptionPara"
+                    label="Book Description"
+                    type="description"
                     disabled={!isEditable}
                   />
-                )}
-              </div>
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="descriptionPara"
-                label="Book Description"
-                type="description"
-                disabled={!isEditable}
-              />
-
-              {/* <InputField
+                  {/* <InputField
                 control={control}
                 errors={errors}
                 name="whatYouGetInBook"
@@ -1028,26 +1108,26 @@ const UpdateBook = () => {
                 disabled={!isEditable}
               /> */}
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="stock"
-                label="Stock"
-                type="number"
-                disabled={!isEditable}
-              />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="stock"
+                    label="Stock"
+                    type="number"
+                    disabled={!isEditable}
+                  />
 
-              <InputField
-                control={control}
-                errors={errors}
-                name="isBestSeller"
-                label="Best Seller"
-                options={bestSellerOptions}
-                type="select"
-                mode="single"
-                disabled={!isEditable}
-              />
-              <div className="relative">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="isBestSeller"
+                    label="Best Seller"
+                    options={bestSellerOptions}
+                    type="select"
+                    mode="single"
+                    disabled={!isEditable}
+                  />
+                  {/* <div className="relative">
                 {assignmentUrl && (
                   <Tooltip title="View Assignment">
                     <a
@@ -1091,258 +1171,152 @@ const UpdateBook = () => {
                     disabled={!isEditable}
                   />
                 )}
-              </div>
-            </div>
-            <div>
-              <div>
-                <div className="grid grid-cols-5 gap-3 mt-2">
-                  {productImageUrls?.length < 0 && <p>No Image Added...</p>}
-                  {imgLoading ? (
-                    <div className="text-center">Loading...</div> // Show loading state
-                  ) : (
-                    productImageUrls?.map((url, index) => (
-                      <div key={index} className="relative">
-                        <a href={url} target="_blank" rel="noopener noreferrer">
-                          <img src={url} alt="Product" />
+              </div> */}
+                </div>
+                <div>
+                  <div>
+                    <div className="grid grid-cols-5 gap-3 mt-2">
+                      {productImageUrls?.length < 0 && <p>No Image Added...</p>}
+                      {imgLoading ? (
+                        <div className="text-center">Loading...</div> // Show loading state
+                      ) : (
+                        productImageUrls?.map((url, index) => (
+                          <div key={index} className="relative">
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img src={url} alt="Product" />
+                            </a>
+                            <Tooltip title="Delete Image">
+                              <MdDelete
+                                size={25}
+                                onClick={() => handleBookImgDelete(index)}
+                                className="absolute top-1 right-1 text-white cursor-pointer py-1 bg-red-500 hover:shadow-lg rounded-md border-blue-gray-500"
+                              />
+                            </Tooltip>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <ImageField
+                      control={control}
+                      errors={errors}
+                      name={"image"}
+                      maxFiles={10}
+                      label="Book Images (530px X 700px)"
+                      disabled={!isEditable}
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-3 pt-2 relative">
+                  {!ebookLink && !isEditable && (
+                    <div>
+                      <p className="font-medium ml-0.5 text-[#000000]">Ebook</p>
+                      <div className="flex mt-2 items-center border w-full border-solid border-[#6E6E6E] overflow-hidden bg-transparent rounded-sm">
+                        <a className="w-full min-h[40px] text-[#000000] px-2.5 py-2 text-sm font-poppins placeholder:font-poppins placeholder:not-italic placeholder:text-sm placeholder:leading-normal placeholder:font-medium placeholder:text-[#6E6E6E] not-italic leading-normal bg-transparent font-medium outline-none border-none disabled:bg-[#eceff1] disabled:cursor-not-allowed">
+                          Not Added
                         </a>
-                        <Tooltip title="Delete Image">
-                          <MdDelete
-                            size={25}
-                            onClick={() => handleBookImgDelete(index)}
-                            className="absolute top-1 right-1 text-white cursor-pointer py-1 bg-red-500 hover:shadow-lg rounded-md border-blue-gray-500"
-                          />
+                      </div>
+                    </div>
+                  )}
+
+                  {isEditable && ebookLink && (
+                    <div className="flex justify-end gap-2 absolute top-0 right-0">
+                      <div>
+                        <Tooltip title="View E-book">
+                          <a target="_blank" href={ebookLink} className="">
+                            <BsFillEyeFill size={20} />
+                          </a>
                         </Tooltip>
                       </div>
-                    ))
+                      <div
+                        onClick={handleEbookDelete}
+                        className="cursor-pointer"
+                      >
+                        <Tooltip title="Delete E-book">
+                          <MdDelete size={20} className="" />
+                        </Tooltip>
+                      </div>
+                    </div>
+                  )}
+
+                  {isEditable && (
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="ebook"
+                      label="Add E-Books"
+                      disabled={!isEditable}
+                      type="uploadFiles"
+                    />
                   )}
                 </div>
-
-                <ImageField
-                  control={control}
-                  errors={errors}
-                  name={"image"}
-                  maxFiles={10}
-                  label="Book Images (530px X 700px)"
-                  disabled={!isEditable}
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-3 pt-2 relative">
-              {!ebookLink && !isEditable && (
-                <div>
-                  <p className="font-medium ml-0.5 text-[#000000]">Ebook</p>
-                  <div className="flex mt-2 items-center border w-full border-solid border-[#6E6E6E] overflow-hidden bg-transparent rounded-sm">
-                    <a className="w-full min-h[40px] text-[#000000] px-2.5 py-2 text-sm font-poppins placeholder:font-poppins placeholder:not-italic placeholder:text-sm placeholder:leading-normal placeholder:font-medium placeholder:text-[#6E6E6E] not-italic leading-normal bg-transparent font-medium outline-none border-none disabled:bg-[#eceff1] disabled:cursor-not-allowed">
-                      Not Added
-                    </a>
-                  </div>
+                <div className="grid grid-cols-3">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="eBookIsDownloadable"
+                    label="Is Ebook Downloadable"
+                    type="option"
+                    options={discountOptions}
+                    // required={true}
+                  />
                 </div>
-              )}
-
-              {isEditable && ebookLink && (
-                <div className="flex justify-end gap-2 absolute top-0 right-0">
-                  <div>
-                    <Tooltip title="View E-book">
-                      <a target="_blank" href={ebookLink} className="">
-                        <BsFillEyeFill size={20} />
-                      </a>
-                    </Tooltip>
-                  </div>
-                  <div onClick={handleEbookDelete}>
-                    <Tooltip title="Delete E-book">
-                      <MdDelete size={20} className="" />
-                    </Tooltip>
-                  </div>
-                </div>
-              )}
-
-              {isEditable && (
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="ebook"
-                  label="Add E-Books"
-                  disabled={!isEditable}
-                  type="uploadFiles"
-                />
-              )}
-            </div>
-            <div className="grid grid-cols-3">
-              <InputField
-                control={control}
-                errors={errors}
-                name="eBookIsDownloadable"
-                label="Is Ebook Downloadable"
-                type="option"
-                options={discountOptions}
-                // required={true}
-              />
-            </div>
-            {/* <InputField
+                {/* <InputField
               type="textEditor"
               control={control}
               errors={errors}
               label="What book includes"
               name="whatYouGetInBook"
             /> */}
-            <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md mt-8">
-              <p className="font-semibold">About The Book</p>
-              <Tooltip title="Add More Content" placement="left">
-                <Button
-                  variant="gradient"
-                  color="blue"
-                  className="p-3 flex justify-center items-center primary-gradient gap-x-1"
-                  onClick={
-                    () =>
-                      appendChapter({
-                        title: "",
-                        content: null,
-                      }) // Append new field
-                  }
-                >
-                  <IoIosAddCircle size={17} />
-                </Button>
-              </Tooltip>
-            </div>
-
-            <div>
-              {chapterFields?.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="bg-[#f5f7fb] rounded-lg mt-2 pb-2"
-                >
-                  <div className="grid grid-cols-1 gap-3 p-3 relative ">
-                    {/* Title Input */}
-                    <InputField
-                      control={control}
-                      errors={errors}
-                      name={`theoreticalExplanationOfChapters.${index}.title`}
-                      label={`Title ${index + 1}`}
-                      type="text"
-                      disabled={!isEditable}
-                    />
-
-                    {/* File Input */}
-                    <InputField
-                      control={control}
-                      errors={errors}
-                      name={`theoreticalExplanationOfChapters.${index}.content`}
-                      label="Description"
-                      type="textEditor"
-                      disabled={!isEditable}
-                    />
-                  </div>
-                  {/* Remove Button */}
-                  <div className="flex justify-end pr-3">
+                <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md mt-8">
+                  <p className="font-semibold">About The Book</p>
+                  <Tooltip title="Add More Content" placement="left">
                     <Button
-                      size="sm"
-                      variant="outlined"
-                      color="white"
-                      className="bg-red-500 w-max p-2 ml-2 "
-                      onClick={() => removeChapter(index)} // Remove field
+                      variant="gradient"
+                      color="blue"
+                      className="p-3 flex justify-center items-center primary-gradient gap-x-1"
+                      onClick={
+                        () =>
+                          appendChapter({
+                            title: "",
+                            content: null,
+                          }) // Append new field
+                      }
                     >
-                      <MdDelete size={17} />
+                      <IoIosAddCircle size={17} />
                     </Button>
-                  </div>
+                  </Tooltip>
                 </div>
-              ))}
-            </div>
 
-            <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
-              <p className="font-semibold py-2">Solved Papers </p>
-              <Tooltip title="Add More ">
-                <Button
-                  variant="gradient"
-                  color="blue"
-                  className="p-3 flex justify-center items-center primary-gradient gap-x-1"
-                  onClick={
-                    () =>
-                      appendSamplePaper({
-                        file: "",
-                      }) // Append new field
-                  }
-                >
-                  <IoIosAddCircle size={17} />
-                </Button>
-              </Tooltip>
-            </div>
-            <div className="grid p-3">
-              <div className="grid grid-cols-3 gap-3">
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="isDownloadableEngSolvedPaper"
-                  label="Downloadable"
-                  type="option"
-                  options={[
-                    { label: "Yes", value: "true" },
-                    { label: "No", value: "false" },
-                  ]}
-                />
-
-                <div className="relative">
-                  <InputField
-                    control={control}
-                    errors={errors}
-                    name="engSolvedPaperImg"
-                    label="Image"
-                    type="file"
-                  />
-                  {samplePaperCoverUrl && (
-                    <Tooltip title="View Image">
-                      <FaFileImage
-                        onClick={() => {
-                          window.open(samplePaperCoverUrl, "_blank");
-                        }}
-                        size={20}
-                        className="cursor-pointer text-green-300 absolute top-0 right-0"
-                      />
-                    </Tooltip>
-                  )}
-                </div>
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="engSolvedPaperPrice"
-                  label="Price"
-                  type="text"
-                />
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {samplePaperFields?.map((item, index) => {
-                  const payload = {
-                    productId: outerId,
-                    language: medium === "English" ? "english" : "hindi",
-                    index: index,
-                  };
-
-                  return (
+                <div>
+                  {chapterFields?.map((item, index) => (
                     <div
                       key={item.id}
                       className="bg-[#f5f7fb] rounded-lg mt-2 pb-2"
                     >
-                      <div className="grid grid-cols-1  p-3 relative ">
-                        {pdfUrls[index] && (
-                          <Tooltip title="View Pdf">
-                            <FaFilePdf
-                              onClick={() => {
-                                const url = pdfUrls[index];
-                                if (url) {
-                                  window.open(url, "_blank");
-                                }
-                              }}
-                              size={20}
-                              className="cursor-pointer text-green-300 absolute top-3 right-2"
-                            />
-                          </Tooltip>
-                        )}
-
+                      <div className="grid grid-cols-1 gap-3 p-3 relative ">
+                        {/* Title Input */}
                         <InputField
                           control={control}
                           errors={errors}
-                          name={`solvedSamplePapers.${index}.file`}
-                          label={`Solved Sample Paper`}
-                          type="file"
+                          name={`theoreticalExplanationOfChapters.${index}.title`}
+                          label={`Title ${index + 1}`}
+                          type="text"
+                          disabled={!isEditable}
+                        />
+
+                        {/* File Input */}
+                        <InputField
+                          control={control}
+                          errors={errors}
+                          name={`theoreticalExplanationOfChapters.${index}.content`}
+                          label="Description"
+                          type="textEditor"
+                          disabled={!isEditable}
                         />
                       </div>
                       {/* Remove Button */}
@@ -1352,153 +1326,268 @@ const UpdateBook = () => {
                           variant="outlined"
                           color="white"
                           className="bg-red-500 w-max p-2 ml-2 "
-                          onClick={() => {
-                            removeSamplePaper(index);
-                            deleteSolvedPaperFile(index);
-                          }} // Remove field
+                          onClick={() => removeChapter(index)} // Remove field
                         >
                           <MdDelete size={17} />
                         </Button>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  ))}
+                </div>
 
-            <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
-              <p className="font-semibold py-2">Solved Assignments</p>
-              <Tooltip title="Add More Content" placement="left">
-                <Button
-                  variant="gradient"
-                  color="blue"
-                  className="p-3 flex justify-center items-center primary-gradient gap-x-1"
-                  onClick={
-                    () =>
-                      appendSolvedAssignment({
-                        session: "",
-                        isDownloadable: "",
-                        coverImg: "",
-                        assignmentFile: "",
-                        price: "",
-                        // medium: "",
-                        // course: "",
-                        // code: "",
-                        // title: "",
-                      }) // Append new field
-                  }
-                >
-                  <IoIosAddCircle size={17} />
-                </Button>
-              </Tooltip>
-            </div>
-            <div>
-              {solvedAssignmentFields?.map((item, index) => {
-                // const payload = {
-                //   index: index,
-                //   productId: outerId,
-                //   language: medium.toLowerCase(),
-                // };
-                // const imgUrl = dispatch(
-                //   getAssignmentImage(payload, (success, url) => {
-                //     if (success) {
-                //       return url;
-                //     }
-                //   })
-                // );
-                return (
-                  <div
-                    key={item.id}
-                    className="bg-[#f5f7fb] rounded-lg mt-2 pb-2"
-                  >
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-3 relative ">
-                      {/* Title Input */}
+                <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
+                  <p className="font-semibold py-2">Solved Papers </p>
+                  <Tooltip title="Add More ">
+                    <Button
+                      variant="gradient"
+                      color="blue"
+                      className="p-3 flex justify-center items-center primary-gradient gap-x-1"
+                      onClick={
+                        () =>
+                          appendSamplePaper({
+                            file: "",
+                          }) // Append new field
+                      }
+                    >
+                      <IoIosAddCircle size={17} />
+                    </Button>
+                  </Tooltip>
+                </div>
+                <div className="grid p-3">
+                  <div className="grid grid-cols-3 gap-3">
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="isDownloadableEngSolvedPaper"
+                      label="Downloadable"
+                      type="option"
+                      options={[
+                        { label: "Yes", value: "true" },
+                        { label: "No", value: "false" },
+                      ]}
+                    />
+
+                    <div className="relative">
                       <InputField
                         control={control}
                         errors={errors}
-                        name={`solvedAssignment.${index}.session`}
-                        label={`Session`}
-                        defaultValue={item?.session} // Pass the default session range
-                        type="monthRange"
+                        name="engSolvedPaperImg"
+                        label="Image"
+                        type="file"
                       />
-                      <InputField
-                        control={control}
-                        errors={errors}
-                        name={`solvedAssignment.${index}.isDownloadable`}
-                        label={`Downloadable`}
-                        defaultValue={item?.isDownloadable ? "true" : "false"}
-                        type="option"
-                        options={downloadOptions}
-                      />
+                      {samplePaperCoverUrl && (
+                        <Tooltip title="View Image">
+                          <FaFileImage
+                            onClick={() => {
+                              window.open(samplePaperCoverUrl, "_blank");
+                            }}
+                            size={20}
+                            className="cursor-pointer text-green-300 absolute top-0 right-0"
+                          />
+                        </Tooltip>
+                      )}
+                    </div>
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="engSolvedPaperPrice"
+                      label="Price"
+                      type="text"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {samplePaperFields?.map((item, index) => {
+                      const payload = {
+                        productId: outerId,
+                        language: medium === "English" ? "english" : "hindi",
+                        index: index,
+                      };
 
-                      <div className="relative">
-                        <InputField
-                          control={control}
-                          errors={errors}
-                          name={`solvedAssignment.${index}.coverImg`}
-                          label={`Image`}
-                          type="file"
-                        />
+                      return (
+                        <div
+                          key={item.id}
+                          className="bg-[#f5f7fb] rounded-lg mt-2 pb-2"
+                        >
+                          <div className="grid grid-cols-1  p-3 relative ">
+                            {pdfUrls[index] && (
+                              <Tooltip title="View Pdf">
+                                <FaFilePdf
+                                  onClick={() => {
+                                    const url = pdfUrls[index];
+                                    if (url) {
+                                      window.open(url, "_blank");
+                                    }
+                                  }}
+                                  size={20}
+                                  className="cursor-pointer text-green-300 absolute top-3 right-2"
+                                />
+                              </Tooltip>
+                            )}
 
-                        {assignmetnImageUrls[index] && (
-                          <div className="absolute top-0 right-0">
-                            <Tooltip title="View Image">
-                              <FaFileImage
-                                onClick={() => {
-                                  window.open(
-                                    assignmetnImageUrls[index],
-                                    "_blank"
-                                  );
-                                }}
-                                size={20}
-                                className="cursor-pointer text-green-300"
-                              />
-                            </Tooltip>
+                            <InputField
+                              control={control}
+                              errors={errors}
+                              name={`solvedSamplePapers.${index}.file`}
+                              label={`Solved Sample Paper`}
+                              type="file"
+                            />
                           </div>
-                        )}
-                      </div>
-
-                      {/* File Input */}
-                      <div className="relative">
-                        <InputField
-                          control={control}
-                          errors={errors}
-                          name={`solvedAssignment.${index}.assignmentFile`}
-                          label="Upload Assignment"
-                          type="file"
-                        />
-                        {assignmentPdfUrl[index] && (
-                          <div className="absolute top-0 right-0">
-                            <Tooltip title="View Assignment">
-                              <FaFileImage
-                                onClick={() => {
-                                  window.open(
-                                    assignmentPdfUrl[index],
-                                    "_blank"
-                                  );
-                                }}
-                                size={20}
-                                className="cursor-pointer text-green-300"
-                              />
-                            </Tooltip>
+                          {/* Remove Button */}
+                          <div className="flex justify-end pr-3">
+                            <Button
+                              size="sm"
+                              variant="outlined"
+                              color="white"
+                              className="bg-red-500 w-max p-2 ml-2 "
+                              onClick={() => {
+                                removeSamplePaper(index);
+                                deleteSolvedPaperFile(index);
+                              }} // Remove field
+                            >
+                              <MdDelete size={17} />
+                            </Button>
                           </div>
-                        )}
-                      </div>
-                      {/* <InputField
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
+                  <p className="font-semibold py-2">Solved Assignments</p>
+                  <Tooltip title="Add More Content" placement="left">
+                    <Button
+                      variant="gradient"
+                      color="blue"
+                      className="p-3 flex justify-center items-center primary-gradient gap-x-1"
+                      onClick={
+                        () =>
+                          appendSolvedAssignment({
+                            session: "",
+                            isDownloadable: "",
+                            coverImg: "",
+                            assignmentFile: "",
+                            price: "",
+                            // medium: "",
+                            // course: "",
+                            // code: "",
+                            // title: "",
+                          }) // Append new field
+                      }
+                    >
+                      <IoIosAddCircle size={17} />
+                    </Button>
+                  </Tooltip>
+                </div>
+                <div>
+                  {solvedAssignmentFields?.map((item, index) => {
+                    // const payload = {
+                    //   index: index,
+                    //   productId: outerId,
+                    //   language: medium.toLowerCase(),
+                    // };
+                    // const imgUrl = dispatch(
+                    //   getAssignmentImage(payload, (success, url) => {
+                    //     if (success) {
+                    //       return url;
+                    //     }
+                    //   })
+                    // );
+                    return (
+                      <div
+                        key={item.id}
+                        className="bg-[#f5f7fb] rounded-lg mt-2 pb-2"
+                      >
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 p-3 relative ">
+                          {/* Title Input */}
+                          <InputField
+                            control={control}
+                            errors={errors}
+                            name={`solvedAssignment.${index}.session`}
+                            label={`Session`}
+                            defaultValue={item?.session} // Pass the default session range
+                            type="monthRange"
+                          />
+                          <InputField
+                            control={control}
+                            errors={errors}
+                            name={`solvedAssignment.${index}.isDownloadable`}
+                            label={`Downloadable`}
+                            defaultValue={
+                              item?.isDownloadable ? "true" : "false"
+                            }
+                            type="option"
+                            options={downloadOptions}
+                          />
+
+                          <div className="relative">
+                            <InputField
+                              control={control}
+                              errors={errors}
+                              name={`solvedAssignment.${index}.coverImg`}
+                              label={`Image`}
+                              type="file"
+                            />
+
+                            {assignmetnImageUrls[index] && (
+                              <div className="absolute top-0 right-0">
+                                <Tooltip title="View Image">
+                                  <FaFileImage
+                                    onClick={() => {
+                                      window.open(
+                                        assignmetnImageUrls[index],
+                                        "_blank"
+                                      );
+                                    }}
+                                    size={20}
+                                    className="cursor-pointer text-green-300"
+                                  />
+                                </Tooltip>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* File Input */}
+                          <div className="relative">
+                            <InputField
+                              control={control}
+                              errors={errors}
+                              name={`solvedAssignment.${index}.assignmentFile`}
+                              label="Upload Assignment"
+                              type="file"
+                            />
+                            {assignmentPdfUrl[index] && (
+                              <div className="absolute top-0 right-0">
+                                <Tooltip title="View Assignment">
+                                  <FaFileImage
+                                    onClick={() => {
+                                      window.open(
+                                        assignmentPdfUrl[index],
+                                        "_blank"
+                                      );
+                                    }}
+                                    size={20}
+                                    className="cursor-pointer text-green-300"
+                                  />
+                                </Tooltip>
+                              </div>
+                            )}
+                          </div>
+                          {/* <InputField
                         control={control}
                         errors={errors}
                         name={`solvedAssignment.${index}.year`}
                         label="Year"
                         type="text"
                       /> */}
-                      <InputField
-                        control={control}
-                        errors={errors}
-                        name={`solvedAssignment.${index}.price`}
-                        label="Price"
-                        type="text"
-                      />
-                      {/* <InputField
+                          <InputField
+                            control={control}
+                            errors={errors}
+                            name={`solvedAssignment.${index}.price`}
+                            label="Price"
+                            type="text"
+                          />
+                          {/* <InputField
                       control={control}
                       errors={errors}
                       name={`solvedAssignment.${index}.medium`}
@@ -1526,107 +1615,108 @@ const UpdateBook = () => {
                       label="Title"
                       type="text"
                     /> */}
-                    </div>
-                    {/* Remove Button */}
-                    <div className="flex justify-end pr-3">
-                      <Button
-                        size="sm"
-                        variant="outlined"
-                        color="white"
-                        className="bg-red-500 w-max p-2 ml-2 "
-                        onClick={() => {
-                          removeSolvedAssignment(index);
-                          handleAssignmentProductDelete(index);
-                        }} // Remove field
-                      >
-                        <MdDelete size={17} />
-                      </Button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                        </div>
+                        {/* Remove Button */}
+                        <div className="flex justify-end pr-3">
+                          <Button
+                            size="sm"
+                            variant="outlined"
+                            color="white"
+                            className="bg-red-500 w-max p-2 ml-2 "
+                            onClick={() => {
+                              removeSolvedAssignment(index);
+                              handleAssignmentProductDelete(index);
+                            }} // Remove field
+                          >
+                            <MdDelete size={17} />
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
 
-            <div className="mt-5">
-              <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
-                <p className="font-semibold ">Review & Rating</p>
-                <Tooltip title="Add More Reviews" placement="left">
+                <div className="mt-5">
+                  <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
+                    <p className="font-semibold ">Review & Rating</p>
+                    <Tooltip title="Add More Reviews" placement="left">
+                      <Button
+                        variant="gradient"
+                        color="blue"
+                        className="p-3 flex justify-center items-center primary-gradient gap-x-1"
+                        onClick={
+                          () =>
+                            appendReview({ name: "", rating: "", comment: "" }) // Append new field
+                        }
+                      >
+                        <IoIosAddCircle size={17} />
+                      </Button>
+                    </Tooltip>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {reviewsFields.map((item, index) => (
+                      <div
+                        key={item.id}
+                        style={{}}
+                        className="bg-[#f5f7fb] p-2 rounded-md  mt-2 grid gap-3"
+                      >
+                        <InputField
+                          control={control}
+                          errors={errors}
+                          name={`reviews[${index}].name`}
+                          label="Name"
+                          placeholder="Enter Name"
+                          disabled={!isEditable}
+                        />
+                        <InputField
+                          control={control}
+                          errors={errors}
+                          name={`reviews[${index}].rating`}
+                          label="Rating"
+                          type="numeric"
+                          placeholder="Enter Rating"
+                          options={mediumOptions} // Pass your rating options here
+                          disabled={!isEditable}
+                        />
+                        <InputField
+                          control={control}
+                          errors={errors}
+                          name={`reviews[${index}].comment`}
+                          label="Description"
+                          type="description"
+                          placeholder="Enter Comment"
+                          disabled={!isEditable}
+                        />
+
+                        <div className="w-full flex justify-end ">
+                          <Button
+                            size="sm"
+                            variant="outlined"
+                            color="white"
+                            className="bg-red-500 w-max p-2 ml-2 "
+                            onClick={() => removeReview(index)}
+                          >
+                            <MdDelete size={17} />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex justify-end">
                   <Button
-                    variant="gradient"
-                    color="blue"
-                    className="p-3 flex justify-center items-center primary-gradient gap-x-1"
-                    onClick={
-                      () => appendReview({ name: "", rating: "", comment: "" }) // Append new field
-                    }
+                    type="button"
+                    className="primary-gradient mt-4 mb-4 capitalize"
+                    onClick={handleMediumDelete}
                   >
-                    <IoIosAddCircle size={17} />
+                    Delete {medium} book
                   </Button>
-                </Tooltip>
+                </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {reviewsFields.map((item, index) => (
-                  <div
-                    key={item.id}
-                    style={{}}
-                    className="bg-[#f5f7fb] p-2 rounded-md  mt-2 grid gap-3"
-                  >
-                    <InputField
-                      control={control}
-                      errors={errors}
-                      name={`reviews[${index}].name`}
-                      label="Name"
-                      placeholder="Enter Name"
-                      disabled={!isEditable}
-                    />
-                    <InputField
-                      control={control}
-                      errors={errors}
-                      name={`reviews[${index}].rating`}
-                      label="Rating"
-                      type="numeric"
-                      placeholder="Enter Rating"
-                      options={mediumOptions} // Pass your rating options here
-                      disabled={!isEditable}
-                    />
-                    <InputField
-                      control={control}
-                      errors={errors}
-                      name={`reviews[${index}].comment`}
-                      label="Description"
-                      type="description"
-                      placeholder="Enter Comment"
-                      disabled={!isEditable}
-                    />
 
-                    <div className="w-full flex justify-end ">
-                      <Button
-                        size="sm"
-                        variant="outlined"
-                        color="white"
-                        className="bg-red-500 w-max p-2 ml-2 "
-                        onClick={() => removeReview(index)}
-                      >
-                        <MdDelete size={17} />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button
-                type="button"
-                className="primary-gradient mt-4 mb-4 capitalize"
-                onClick={handleMediumDelete}
-              >
-                Delete {medium} book
-              </Button>
-            </div>
-          </div>
+              <div></div>
 
-          <div></div>
-
-          {/* <div className="mt-4">
+              {/* <div className="mt-4">
         <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
           <p className="font-semibold">Quiz </p>
           <Tooltip title="Add Solved Paper">
@@ -1697,24 +1787,28 @@ const UpdateBook = () => {
         </div>
       </div> */}
 
-          <div className="flex  gap-2">
-            <Button type="submit" className="primary-gradient mt-4 mb-4">
-              Save
-            </Button>
-            {/* <Button
+              <div className="flex  gap-2">
+                <Button
+                  type="submit"
+                  className="primary-gradient mt-4 mb-4"
+                  loading={isLoading}
+                >
+                  Save
+                </Button>
+                {/* <Button
               type="button"
               className="primary-gradient mt-4 mb-4"
               onClick={() => setIsEditable(!isEditable)}
             >
               Edit
             </Button> */}
-          </div>
-        </form>
+              </div>
+            </form>
 
-        {/* <button>
+            {/* <button>
       <h1 className="mt-7 text-black-800 text-[20px]">Review & Rating</h1>
     </button> */}
-        {/* <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
+            {/* <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
       <InputField
         control={control}
         errors={errors}
@@ -1741,10 +1835,16 @@ const UpdateBook = () => {
       />
     </div> */}
 
-        {/* <Button type="submit" className="primary-gradient mt-4 mb-4">
+            {/* <Button type="submit" className="primary-gradient mt-4 mb-4">
       Submit
     </Button> */}
-      </div>
+          </div>
+        </>
+      ) : (
+        <div className="h-[75vh] w-full flex justify-center items-center">
+          <p>Loading ...</p>
+        </div>
+      )}
     </PageCont>
   );
 };

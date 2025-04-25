@@ -16,14 +16,13 @@ const HeroSection = () => {
 
   const onSubmit = (data) => {
     console.log(data);
-
     dispatch(createHeroSection(data));
   };
 
   return (
     <>
       <div className="my-8 border-t-2 pt-8">
-        <Heading text="Top Bar Fields" backIcon="false" />
+        <Heading text="Home Banner" backIcon="false" />
       </div>
       <div className="mt-4 p-3 rounded-lg bg-gray-100">
         <h2 className="text-black-800 text-[20px] font-semibold border-b mb-3">

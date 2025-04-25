@@ -259,6 +259,14 @@ const ShipmentPdf = ({ data = {} }) => {
   //   return total + originalAmount;
   // }, 0);
 
+  function calculateDiscountPercentage(totalAmount, discountAmount) {
+    if (totalAmount <= 0) {
+      return "Total amount must be greater than zero.";
+    }
+    let discountPercentage = (discountAmount / totalAmount) * 100;
+    return discountPercentage; // returns a string with 2 decimal places
+  }
+
   const originalAmountCalculate = items?.reduce((total, product) => {
     const medium = product.language;
     const bookTitle = product?.productId?.[medium]?.title;
@@ -310,6 +318,11 @@ const ShipmentPdf = ({ data = {} }) => {
     return total + originalAmount;
   }, 0);
 
+  let discountPercent = calculateDiscountPercentage(
+    originalAmountCalculate,
+    originalAmountCalculate - discountedAmountCalculate
+  );
+
   const amountAfterAdditionalDiscount =
     discountedAmountCalculate - additionalDiscount;
 
@@ -321,8 +334,9 @@ const ShipmentPdf = ({ data = {} }) => {
   const couponDiscountCalculated =
     amountAfterAdditionalDiscount - couponDiscountOff;
 
-  const grandTotalCalculated =
-    Number(couponDiscountCalculated) + Number(shippingAmount);
+  const grandTotalCalculated = Math.round(
+    Number(couponDiscountCalculated) + Number(shippingAmount)
+  );
 
   // ---------------------
 
@@ -551,9 +565,9 @@ const ShipmentPdf = ({ data = {} }) => {
             <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
               Price
             </Text>
-            <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
+            {/* <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
               HSN
-            </Text>
+            </Text> */}
             <Text style={{ fontSize: 12, width: "15%", textAlign: "right" }}>
               Amount
             </Text>
@@ -610,11 +624,11 @@ const ShipmentPdf = ({ data = {} }) => {
                   >
                     {originalSellingPrice}
                   </Text>
-                  <Text
+                  {/* <Text
                     style={{ fontSize: 9, width: "15%", textAlign: "center" }}
                   >
                     {product?.hsn}
-                  </Text>
+                  </Text> */}
                   <Text
                     style={{ fontSize: 9, width: "15%", textAlign: "right" }}
                   >
@@ -804,7 +818,9 @@ const ShipmentPdf = ({ data = {} }) => {
                 paddingVertical: "7px",
               }}
             >
-              <Text style={{ fontSize: "9px" }}>Discount</Text>
+              <Text style={{ fontSize: "9px" }}>
+                Discount ({discountPercent}%)
+              </Text>
               <Text style={{ fontSize: "9px" }}>
                 Rs. {originalAmountCalculate - discountedAmountCalculate}/-
               </Text>
@@ -902,7 +918,9 @@ const ShipmentPdf = ({ data = {} }) => {
                 paddingVertical: "7px",
               }}
             >
-              <Text style={{ fontSize: "9px" }}>Shipping</Text>
+              <Text style={{ fontSize: "9px" }}>
+                Shipping & Handling Charges
+              </Text>
               <Text style={{ fontSize: "9px" }}>Rs. {shippingAmount} /-</Text>
             </View>
             <View
@@ -915,7 +933,7 @@ const ShipmentPdf = ({ data = {} }) => {
                 paddingVertical: "7px",
               }}
             >
-              <Text style={{ fontSize: "12px" }}> Grannd Total</Text>
+              <Text style={{ fontSize: "12px" }}> Grand Total</Text>
               <Text style={{ fontSize: "12px" }}>
                 Rs. {grandTotalCalculated}
                 /-

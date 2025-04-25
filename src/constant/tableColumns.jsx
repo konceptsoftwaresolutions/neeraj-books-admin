@@ -312,15 +312,15 @@ export const allCategoryColumns = (handleRowClick, handleCategorySort) => {
 
 export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
   return [
-    {
-      name: "S.No.",
-      width: "80px",
-      wrap: true,
-      selector: (row, index) => index + 1,
-    },
+    // {
+    //   name: "S.No.",
+    //   width: "80px",
+    //   wrap: true,
+    //   selector: (row, index) => index + 1,
+    // },
     {
       name: "OrderId",
-      width: "150px",
+      width: "120px",
       wrap: true,
       selector: (row) => row.orderId || "N/A",
     },
@@ -337,7 +337,7 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
     },
     {
       name: "Client ",
-      width: "200px",
+      width: "160px",
       wrap: true,
       selector: (row) =>
         row.shippingAddress.firstName + " " + row.shippingAddress.lastName ||
@@ -348,13 +348,13 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
     },
     {
       name: "State",
-      width: "150px",
+      width: "120px",
       wrap: true,
       selector: (row) => row.shippingAddress.state || "N/A",
     },
     {
       name: "Order Total",
-      width: "150px",
+      width: "130px",
       wrap: true,
       selector: (row) => `₹${row.totalAmount}` || "N/A",
     },

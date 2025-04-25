@@ -82,7 +82,7 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
     <Dialog
       open={showParentModal}
       handler={handleCloseModal}
-      className="detailModal overflow-hidden"
+      className=" overflow-hidden !min-w-[80vw]"
       style={{ maxHeight: "90vh" }} // Set max-height to 90% of the viewport height
     >
       <DialogHeader className="text-xl primary-gradient text-white poppins-font">
@@ -128,6 +128,14 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
               name="description2"
               label="Description 2"
               type="description"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="tagline"
+              label="Tagline"
+              type="description"
+              // options={mediumOptions}
             />
             <InputField
               control={control}
