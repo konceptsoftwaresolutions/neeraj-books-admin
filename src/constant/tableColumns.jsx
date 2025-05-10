@@ -447,7 +447,7 @@ export const allMembers = [
   },
   {
     name: "Email",
-    width: "120px",
+    width: "200px",
     wrap: true,
     selector: (row) => row.email || "N/A",
     style: {

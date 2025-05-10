@@ -1,16 +1,19 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import React, { useEffect, useState } from "react";
 import Heading from "../../components/Heading";
-import InputField from "../../common/fields/InputField";
-import { Button } from "@material-tailwind/react";
 import { useDispatch } from "react-redux";
+import { useForm } from "react-hook-form";
 import {
-  createHeroSection,
-  getHeroSectionData,
+  createYoutubePopUp,
+  getYTPopUpData,
 } from "../../redux/features/sliders";
+import { Button } from "@material-tailwind/react";
+import InputField from "../../common/fields/InputField";
 
-const HeroSection = () => {
+const TopBar = () => {
   const dispatch = useDispatch();
+
+  const [isLoading, setIsLoading] = useState(false);
+
   const {
     handleSubmit,
     formState: { errors },
@@ -20,12 +23,11 @@ const HeroSection = () => {
 
   const getDefaultData = () => {
     dispatch(
-      getHeroSectionData((success, data) => {
+      getYTPopUpData((success, data) => {
         if (success) {
-          console.log("hero ", data);
+          console.log(data);
           reset({
-            title: data.title,
-            description: data.description,
+            firstLinkName: data.firstLinkName,
             youtubeLink: data.youtubeLink,
           });
         }
@@ -37,54 +39,55 @@ const HeroSection = () => {
     getDefaultData();
   }, []);
 
-  const onSubmit = (data) => {
+  const discountTextSubmit = (data) => {
     console.log(data);
-    dispatch(createHeroSection(data));
-    getDefaultData();
+    const title = data.firstLinkName?.split(" ")[0] || ""; // Extract first word
+    const payload = {
+      ...data,
+      title,
+    };
+    dispatch(createYoutubePopUp(payload, setIsLoading));
   };
 
   return (
-    <>
+    <div>
       <div className="my-8 border-t-2 pt-8">
-        <Heading text="Home Banner" backIcon="false" />
+        <Heading text="Top Bar Fields" backIcon="false" />
       </div>
       <div className="mt-4 p-3 rounded-lg bg-gray-100">
         <h2 className="text-black-800 text-[20px] font-semibold border-b mb-3">
           YT Link
         </h2>
         <div>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(discountTextSubmit)}>
             <div className="grid grid-cols-2 gap-3 ">
               <InputField
                 control={control}
                 errors={errors}
-                label="Heading"
-                name="title"
+                label="Enter Text"
+                name="firstLinkName"
                 type="description"
               />
               <InputField
                 control={control}
                 errors={errors}
-                label="Sub Heading"
-                name="description"
-                type="description"
-              />
-              <InputField
-                control={control}
-                errors={errors}
-                label="YT Link"
+                label="YT link"
                 name="youtubeLink"
                 type="description"
               />
             </div>
-            <Button type="submit" className="primary-gradient mt-4 mb-4">
+            <Button
+              type="submit"
+              loading={isLoading}
+              className="primary-gradient mt-4 mb-4 capitalize"
+            >
               Save
             </Button>
           </form>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
-export default HeroSection;
+export default TopBar;

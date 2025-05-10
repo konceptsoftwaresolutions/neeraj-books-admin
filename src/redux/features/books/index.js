@@ -720,7 +720,7 @@ export const deleteHindiAssignment = (payload) => {
     };
 };
 
-export const deleteEnglishEbook = (payload) => {
+export const deleteEnglishEbook = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
 
@@ -728,7 +728,7 @@ export const deleteEnglishEbook = (payload) => {
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Deleted successfully!";
-                // callback(null);
+                callback(true);
 
                 toast.success(message);
                 // dispatch(getAllLeads());
@@ -739,7 +739,7 @@ export const deleteEnglishEbook = (payload) => {
             if (error?.hasOwnProperty("response")) {
                 message = error?.response?.data?.message;
             }
-            // callback(error);
+            callback(false);
             toast.error(message);
         } finally {
 
@@ -747,7 +747,7 @@ export const deleteEnglishEbook = (payload) => {
     };
 };
 
-export const deleteHindiEbook = (payload) => {
+export const deleteHindiEbook = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
 
@@ -755,7 +755,7 @@ export const deleteHindiEbook = (payload) => {
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Deleted successfully!";
-                // callback(null);
+                callback(true);
 
                 toast.success(message);
                 // dispatch(getAllLeads());
@@ -766,7 +766,7 @@ export const deleteHindiEbook = (payload) => {
             if (error?.hasOwnProperty("response")) {
                 message = error?.response?.data?.message;
             }
-            // callback(error);
+            callback(false);
             toast.error(message);
         } finally {
 
@@ -883,6 +883,24 @@ export const getAssignmentFile = (payload, callback = () => { }) => {
                 message = error?.message;
             }
             // toast.error(message);
+        }
+    };
+};
+
+
+
+
+export const uploadBulkImages = (payload) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.postForm("/product/uploadSingleImage", payload);
+            if (response.status === 200) {
+                console.log("response is ", response);
+                // No toast here anymore
+            }
+        } catch (error) {
+            console.log(error);
+            throw error; // Important: rethrow error to handle in onSubmit
         }
     };
 };

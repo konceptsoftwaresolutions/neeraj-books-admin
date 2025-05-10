@@ -22,6 +22,11 @@ import {
 } from "../../redux/features/sliders";
 import HeroSection from "./HeroSection";
 import Sliders from "../sliders/Sliders";
+import HomePopUp from "./HomePopUp";
+import AppPopUp from "./AppPopUp";
+import DiscountPopUp from "./DiscountPopUp";
+import TopBar from "./TopBar";
+import AIBoxPopUp from "./AIBoxPopUp";
 
 function AllPopups(props) {
   const navigate = useNavigate();
@@ -71,13 +76,6 @@ function AllPopups(props) {
       status: "From Dec 10",
     },
   ];
-
-  const {
-    handleSubmit,
-    formState: { errors },
-    control,
-    reset,
-  } = useForm();
 
   const {
     handleSubmit: handleAppDiscountSubmit,
@@ -219,73 +217,9 @@ function AllPopups(props) {
             customStyles={tableStyle}
           />
         </div> */}
-        <div className="mt-6 p-3 rounded-lg bg-gray-100">
-          <h2 className="text-black-800 text-[20px] font-semibold border-b mb-3">
-            Home Popup
-          </h2>
-          <div className="flex gap-x-2 mb-2">
-            <p
-              className={`bg-gray-300 px-3 rounded-xl cursor-pointer border-2 border-gray-300 ${
-                popupType === "image"
-                  ? "!bg-[#1f437f38] text-[#1f437f] border-[#1f437f]"
-                  : ""
-              }`}
-              onClick={() => setPopupType("image")}
-            >
-              Image
-            </p>
-            <p
-              className={`bg-gray-300 px-3 rounded-xl cursor-pointer border-2 border-gray-300 ${
-                popupType === "video"
-                  ? "!bg-[#1f437f38] text-[#1f437f] border-[#1f437f]"
-                  : ""
-              }`}
-              onClick={() => setPopupType("video")}
-            >
-              Video
-            </p>
-          </div>
-
-          {/* <Modal /> */}
-          <form onSubmit={handleSubmit(onsubmit)}>
-            <div className="mb-3">
-              <InputField
-                type="textEditor"
-                control={control}
-                errors={errors}
-                label="Pop Up text"
-                name="tagTitle"
-              />
-            </div>
-            {popupType === "image" && (
-              <div>
-                <ImageField
-                  control={control}
-                  errors={errors}
-                  name={"popUpBanner"}
-                  maxFiles={1}
-                  label="Select Image"
-                />
-              </div>
-            )}
-            {popupType === "video" && (
-              <div>
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name="youtubeLink"
-                  maxFiles={1}
-                  label="Youtube Link"
-                  type="text"
-                />
-              </div>
-            )}
-            <Button type="submit" className="primary-gradient mt-4 mb-4">
-              Save
-            </Button>
-          </form>
-        </div>
-        <div className="mt-4 p-3 rounded-lg bg-gray-100">
+        <HomePopUp />
+        <AppPopUp />
+        {/* <div className="mt-4 p-3 rounded-lg bg-gray-100">
           <h2 className="text-black-800 text-[20px] font-semibold border-b mb-3">
             App Installation Discount
           </h2>
@@ -350,58 +284,11 @@ function AllPopups(props) {
               </Button>
             </form>
           </div>
-        </div>
-        <div className="mt-4 p-3 rounded-lg bg-gray-100">
-          <h2 className="text-black-800 text-[20px] font-semibold border-b mb-3">
-            Discount Pop Up
-          </h2>
-          <div>
-            <form onSubmit={handleDiscountPopSubmit(disountPopUpSubmit)}>
-              <div className="grid grid-cols-3 gap-3 ">
-                <InputField
-                  control={controlDiscountPopup}
-                  errors={errorsDiscountPopup}
-                  label="Link Text"
-                  name="firstLinkName"
-                  type="text"
-                />
-                <InputField
-                  control={controlDiscountPopup}
-                  errors={errorsDiscountPopup}
-                  label="Title"
-                  name="title"
-                  type="text"
-                />
-                <InputField
-                  control={controlDiscountPopup}
-                  errors={errorsDiscountPopup}
-                  label="First Heading"
-                  name="heading1"
-                  type="text"
-                />
-                <InputField
-                  control={controlDiscountPopup}
-                  errors={errorsDiscountPopup}
-                  label="Second Heading"
-                  name="heading2"
-                  type="text"
-                />
-                {/* <InputField
-                  control={controlDiscountPopup}
-                  errors={errorsDiscountPopup}
-                  label="Pop Up Text"
-                  name="normalDiscount"
-                  type="textEditor"
-                /> */}
-              </div>
-              <Button type="submit" className="primary-gradient mt-4 mb-4">
-                Save
-              </Button>
-            </form>
-          </div>
-        </div>
+        </div> */}
+        <DiscountPopUp />
         {/* -----------------top bar fields --------------*/}
-        <div className="my-8 border-t-2 pt-8">
+        <TopBar />
+        {/* <div className="my-8 border-t-2 pt-8">
           <Heading text="Top Bar Fields" backIcon="false" />
         </div>
         <div className="mt-4 p-3 rounded-lg bg-gray-100">
@@ -431,15 +318,12 @@ function AllPopups(props) {
               </Button>
             </form>
           </div>
-        </div>
+        </div> */}
         {/* -----------------AIbox  --------------*/}
-        <div className="my-8 border-t-2 pt-8">
+        {/* <div className="my-8 border-t-2 pt-8">
           <Heading text="AI Box" backIcon="false" />
         </div>
         <div className="mt-4 p-3 rounded-lg bg-gray-100">
-          {/* <h2 className="text-black-800 text-[20px] font-semibold border-b mb-3">
-            AI NO
-          </h2> */}
           <div>
             <form onSubmit={handleAITextSubmit(aiTextSubmit)}>
               <div className="grid grid-cols-1 gap-3 ">
@@ -456,7 +340,8 @@ function AllPopups(props) {
               </Button>
             </form>
           </div>
-        </div>
+        </div> */}
+        <AIBoxPopUp />
         <HeroSection />
         <Sliders />
       </PageCont>

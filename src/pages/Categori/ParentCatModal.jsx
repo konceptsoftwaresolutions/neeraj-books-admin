@@ -43,6 +43,7 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
       discountPercentage,
       amount,
       order,
+      sidebarDescription,
     } = data;
     console.log(data);
 
@@ -59,6 +60,7 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
     formData.append("slug", slug);
     formData.append("discountPercentage", discountPercentage);
     formData.append("amount", amount);
+    formData.append("sidebarDescription", sidebarDescription);
     const payload = {
       ...data,
       parent: null,
@@ -74,6 +76,7 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
       imageFile: "",
       discountPercentage: "",
       amount: "",
+      sidebarDescription: "",
     });
     setShowParentModal(false);
   };
@@ -112,6 +115,14 @@ const ParentCatModal = ({ showParentModal, setShowParentModal }) => {
               errors={errors}
               name="name"
               label="Parent Category Name"
+              type="text"
+              // options={mediumOptions}
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="sidebarDescription"
+              label="Sidebar Description"
               type="text"
               // options={mediumOptions}
             />

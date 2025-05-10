@@ -218,14 +218,16 @@ const Sliders = () => {
               maxFiles={10}
               label="Upload Image (1200px X 400px)"
             />
-            <Button
-              type="submit"
-              variant="contained"
-              color="success"
-              className="w-full primary-gradient capitalize"
-            >
-              Create Slider
-            </Button>
+            <div className="flex justify-start">
+              <Button
+                type="submit"
+                variant="contained"
+                color="success"
+                className=" primary-gradient capitalize"
+              >
+                Create Slider
+              </Button>
+            </div>
           </form>
         </div>
       </div>

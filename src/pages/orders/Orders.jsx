@@ -18,6 +18,7 @@ import { FaFileExcel, FaFilter } from "react-icons/fa";
 
 // Import the FilterDrawer component
 import FilterDrawer from "./FilterDrawer"; // 🆕 Import the Drawer component
+import OrderModal from "./OrderModal";
 
 const Orders = () => {
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ const Orders = () => {
   const [isDrawerVisible, setIsDrawerVisible] = useState(false); // Drawer visibility state
   const [filters, setFilters] = useState({}); // Applied filters state
   const [ordersData, setOrdersData] = useState();
+  const [showBulkModal, setShowBulkModal] = useState(false);
 
   const { role } = useSelector((state) => state.auth);
   const { allOrders } = useSelector((state) => state.order);
@@ -151,6 +153,14 @@ const Orders = () => {
         </div>
         <div className="flex gap-3">
           <Button
+            type="submit"
+            variant="filled"
+            className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
+            onClick={() => setShowBulkModal(!showBulkModal)}
+          >
+            Bulk Order
+          </Button>
+          <Button
             variant="filled"
             className="bg-green-600 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center justify-center gap-1"
             onClick={exportToExcel}
@@ -211,6 +221,7 @@ const Orders = () => {
         onApplyFilter={onApplyFilter}
         onCancelFilter={onCancelFilter} // 🆕 pass down
       />
+      <OrderModal showModal={showBulkModal} setShowModal={setShowBulkModal} />
     </PageCont>
   );
 };

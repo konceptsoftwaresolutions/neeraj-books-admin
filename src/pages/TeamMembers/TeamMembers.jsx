@@ -99,6 +99,9 @@ function TeamMembers(props) {
           columns={allMembers}
           customStyles={tableStyle}
           onRowClicked={handleRowClick}
+          pagination
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 25, 50]}
         />
       </div>
     </PageCont>

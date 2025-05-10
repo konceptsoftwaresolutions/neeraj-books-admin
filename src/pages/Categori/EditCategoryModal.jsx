@@ -36,7 +36,9 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
       description2: category?.description2,
       sort: category?.sort,
       discountPercentage: category?.discountPercentage,
-      amount: category?.mrpValue,
+      amount: category?.amount,
+      tagline: category?.tagline,
+      sidebarDescription: category?.sidebarDescription,
     });
     if (category?.name) {
       const payload = {
@@ -63,6 +65,8 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
       categoryFile,
       discountPercentage,
       amount,
+      tagline,
+      sidebarDescription,
     } = data;
 
     const slug = name.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
@@ -74,8 +78,10 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
     formData.append("categoryId", category._id);
     formData.append("slug", slug);
     if (!category?.parent) {
+      formData.append("tagline", tagline);
       formData.append("discountPercentage", discountPercentage);
       formData.append("amount", amount);
+      formData.append("sidebarDescription", sidebarDescription);
     }
     if (categoryFile) {
       const imageFile = categoryFile[0]?.file;
@@ -128,6 +134,17 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
                 type="text"
                 disabled={!isEditable}
               />
+
+              {!category?.parent && (
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="sidebarDescription"
+                  label="Sidebar Description"
+                  type="text"
+                  disabled={!isEditable}
+                />
+              )}
               <InputField
                 control={control}
                 errors={errors}

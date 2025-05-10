@@ -1,6 +1,5 @@
 import { ChevronFirst, ChevronLast, LogOut, Menu } from "lucide-react";
 import logo from "../assets/logo.png";
-import profile from "../assets/profile.jpg";
 import { createContext, useContext, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,6 +7,7 @@ import { logoutThunkMiddleware } from "../redux/features/user";
 import { persistor } from "../redux/store";
 import LogoModal from "./LogoModal";
 import { Tooltip } from "antd";
+import { setBook } from "../redux/features/books";
 
 const SidebarContext = createContext();
 
@@ -43,7 +43,10 @@ export default function Sidebar({ children }) {
                 }`}
               />
               <button
-                onClick={() => setExpanded((curr) => !curr)}
+                onClick={() => {
+                  setExpanded((curr) => !curr);
+                  dispatch(setBook({ menuExpanded: !expanded }));
+                }}
                 className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 md:block hidden"
               >
                 {expanded ? <ChevronFirst /> : <ChevronLast />}
@@ -104,14 +107,24 @@ export default function Sidebar({ children }) {
   );
 }
 
-export function SidebarItem({ icon, text, active, alert, to }) {
+export function SidebarItem({
+  icon,
+  text,
+  active,
+  alert,
+  to,
+  dropdown,
+  subItem = false,
+}) {
   const { expanded } = useContext(SidebarContext);
   return (
     <NavLink
       to={to}
       className={({ isActive }) =>
         `flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${
-          isActive
+          dropdown
+            ? "text-gray-900" // no background on hover or active if dropdown
+            : isActive
             ? "primary-gradient text-white"
             : "hover:bg-[#1f437f0d] text-gray-900"
         }`

@@ -202,17 +202,17 @@ export const getStandardImgSlider = (payload, callback = () => { }) => {
 };
 
 
-export const createHomePopUp = ({ formData }) => {
+export const createHomePopUp = ({ formData }, setIsLoading, callback = () => { }) => {
     return async (dispatch) => {
         try {
             const response = await axiosInstance.postForm("/popup/update", formData);
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Added successfully!";
-                // callback(null);
 
                 toast.success(message);
                 callback(true);
+                setIsLoading(false)
 
                 // dispatch(getAllLeads());
             }
@@ -224,23 +224,144 @@ export const createHomePopUp = ({ formData }) => {
             }
             // callback(error);
             callback(false);
-
+            setIsLoading(false)
             toast.error(message);
+        } finally {
+            setIsLoading(false)
         }
     }
 }
 
-export const createAppPopUp = ({ formData }) => {
+export const getHomePopUp = (callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/popup/get");
+            if (response.status === 200) {
+                console.log(response);
+                callback(true, response?.data?.popup);
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};
+
+export const getHomePopupImage = (title, callback) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get(`/popup/download/${title}`, {
+                responseType: 'blob', // Ensure you're expecting a blob response
+            });
+            if (response.status === 200) {
+                const data = response?.data;
+                const imageUrl = URL.createObjectURL(data); // Convert blob to URL
+                console.log("fetched ", imageUrl)
+                callback(imageUrl); // Send imageUrl via callback ✅
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};
+
+
+export const getAISectionData = (callback) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/popup/getAiDiv");
+            if (response.status === 200) {
+                console.log(response);
+                const data = response?.data?.popup;
+                console.log(data, "0000000000")
+                if (callback) {
+                    callback(true, data); // Pass the data to the callback
+                }
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};
+
+export const getAppPopUp = (callback) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/popup/getRegistrationPopup");
+            if (response.status === 200) {
+                console.log(response);
+                console.log(response.data)
+                callback(true, response.data.popup);
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};
+
+export const getAppPopupImage = (title, callback) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get(`/popup/downloadRegistration/${title}`, {
+                responseType: 'blob', // Ensure you're expecting a blob response
+            });
+            if (response.status === 200) {
+                const data = response?.data;
+                const imageUrl = URL.createObjectURL(data); // Convert blob to URL
+                console.log("fetched ", imageUrl)
+                callback(imageUrl); // Send imageUrl via callback ✅
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};
+
+export const createAppPopUp = ({ formData }, callback = () => { }, setIsLoading) => {
     return async (dispatch) => {
         try {
             const response = await axiosInstance.postForm("/popup/updateRegistrationPopup", formData);
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Added successfully!";
-                // callback(null);
+                callback(true);
 
                 toast.success(message);
-
+                setIsLoading(false)
 
                 // dispatch(getAllLeads());
             }
@@ -252,23 +373,26 @@ export const createAppPopUp = ({ formData }) => {
             }
             // callback(error);
             // callback(false);
+            setIsLoading(false)
 
             toast.error(message);
+        } finally {
+            setIsLoading(false)
         }
     }
 }
 
 
 
-export const createDiscountPopUp = (payload) => {
+export const createDiscountPopUp = (payload, callback = () => { }, setIsLoading) => {
     return async (dispatch) => {
         try {
             const response = await axiosInstance.post("/popup/updateTextPopup", payload);
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Added successfully!";
-                // callback(null);
-
+                callback(true);
+                setIsLoading(false)
                 toast.success(message);
 
                 // dispatch(getAllLeads());
@@ -280,15 +404,19 @@ export const createDiscountPopUp = (payload) => {
                 message = error?.message;
             }
             // callback(error);
+            setIsLoading(false)
             toast.error(message);
+        } finally {
+            setIsLoading(false)
         }
     }
 }
 
 
-export const createYoutubePopUp = (payload) => {
+export const createYoutubePopUp = (payload, setIsLoading) => {
     return async (dispatch) => {
         try {
+            setIsLoading(true)
             const response = await axiosInstance.post("/popup/updateSecondTextPopup", payload);
             if (response.status === 200) {
                 console.log("response is ", response)
@@ -296,6 +424,7 @@ export const createYoutubePopUp = (payload) => {
                 // callback(null);
 
                 toast.success(message);
+                setIsLoading(false)
 
                 // dispatch(getAllLeads());
             }
@@ -307,21 +436,73 @@ export const createYoutubePopUp = (payload) => {
             }
             // callback(error);
             toast.error(message);
+            setIsLoading(false)
+        } finally {
+            setIsLoading(false)
         }
     }
 }
 
 
-export const createAIsection = (payload) => {
+export const getYTPopUpData = (callback = () => {
+}) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/popup/getSecondTextPopup");
+            if (response.status === 200) {
+                console.log(response);
+                const data = response?.data?.popup;
+                callback(true, data);
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};
+
+
+export const getHeroSectionData = (callback) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/popup/getHeroDiv");
+            if (response.status === 200) {
+                console.log("hero popup ", response);
+                const data = response?.data?.popup;
+                if (callback) {
+                    callback(true, data); // Pass the data to the callback
+                }
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};
+
+
+export const createAIsection = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
             const response = await axiosInstance.post("/popup/updateAiDiv", payload);
             if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Added successfully!";
-                // callback(null);
 
                 toast.success(message);
+                callback(true);
 
                 // dispatch(getAllLeads());
             }
@@ -385,3 +566,27 @@ export const createHeroSection = (payload) => {
         }
     }
 }
+
+
+export const getDiscountPopUpData = (callback) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/popup/getTextPopup");
+            if (response.status === 200) {
+                const data = response?.data?.popup;
+                if (callback) {
+                    callback(true, data); // Pass the data to the callback
+                }
+            }
+        } catch (error) {
+            let message = 'ERROR';
+            if (error.hasOwnProperty('response')) {
+                message = error?.response?.data;
+            }
+            // toast.error(message);
+            if (callback) {
+                callback(false); // Pass the error to the callback
+            }
+        }
+    };
+};

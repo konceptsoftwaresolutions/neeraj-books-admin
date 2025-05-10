@@ -17,39 +17,43 @@ const Emailer = () => {
   const [emailName, setEmailName] = useState("");
   const [emailLink, setEmailLink] = useState("");
 
-  return (
-    <div className=" border-t-2 mt-10 pt-5">
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg lg:text-2xl head-color font-medium ">
-          Send Email
-        </h2>
-        <div className="flex  gap-2">
-          <button
-            className="  bg-green-500 text-white py-2 px-3"
-            onClick={() => setOpenModal(!openModal)}
-          >
-            Create Template
-          </button>
-          <button className="  bg-green-500 text-white py-2 px-3">Send</button>
-        </div>
-      </div>
+  const onSubmit = (data) => {
+    console.log(data);
+  };
 
-      <form className="mt-3  ">
-        <div className="grid grid-cols-1 gap-4 ">
-          <InputField
-            type="option"
-            control={control}
-            errors={errors}
-            label="Select Template"
-          />
+  return (
+    <div className=" border-t-2 mt-10 ">
+      <form className="mt-3" onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex justify-between items-center mt-5">
+          <h2 className="text-lg lg:text-2xl head-color font-medium ">
+            Send Email
+          </h2>
+          <div className="flex  gap-2">
+            <button
+              className="  bg-green-500 text-white py-2 px-3"
+              type="submit"
+            >
+              Send
+            </button>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 gap-4  mt-3">
           <InputField
             type="text"
             control={control}
             errors={errors}
             label="Subject : "
+            name="subject"
+          />
+          <InputField
+            control={control}
+            errors={errors}
+            label="Body"
+            name="body"
+            type="textEditor"
           />
         </div>
-        <div className="grid grid-cols-2 gap-3 mt-3">
+        {/* <div className="grid grid-cols-2 gap-3 mt-3">
           <div>
             <p>Email : </p>
             <p className="border border-black p-2 min-h-[120px]">
@@ -91,7 +95,7 @@ const Emailer = () => {
               ></input>
             </div>
           </div>
-        </div>
+        </div> */}
       </form>
       <TemplateModal showModal={openModal} setShowModal={setOpenModal} />
     </div>

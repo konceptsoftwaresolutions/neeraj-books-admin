@@ -109,7 +109,7 @@ const Books = () => {
       const normalizedSearch = normalizeText(searchText);
       setFilteredBooks(
         tableData.filter((book) =>
-          normalizeText(book.title).includes(normalizedSearch)
+          normalizeText(book.bookCode).includes(normalizedSearch)
         )
       );
     }
@@ -248,7 +248,7 @@ const Books = () => {
 
         <Input
           type="text"
-          placeholder="Search by name..."
+          placeholder="Search by book code..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           className="w-full px-4 py-2 pl-7 border rounded-md shadow-sm focus:outline-none focus:ring-2 border-cstm-blue "

@@ -8,11 +8,13 @@ import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { IoIosCloseCircle } from "react-icons/io";
 import InputField from "../../common/fields/InputField";
+import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getBrandName,
   setBrandName,
   updateEbookExtraAmount,
+  uploadBulkImages,
 } from "../../redux/features/books";
 import ImageField from "../../common/fields/ImageField";
 
@@ -29,10 +31,29 @@ const ImageUpload = ({ showModal, setShowModal }) => {
     reset,
   } = useForm({});
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log(data);
     reset();
     handleCloseModal();
+
+    const loadingToastId = toast.loading("Uploading images...");
+
+    try {
+      for (const img of data.image) {
+        if (img.file) {
+          const formData = new FormData();
+          formData.append("image", img.file);
+
+          await dispatch(uploadBulkImages(formData));
+        }
+      }
+
+      toast.success("All images uploaded successfully!", {
+        id: loadingToastId,
+      });
+    } catch (error) {
+      toast.error("Failed to upload some images.", { id: loadingToastId });
+    }
   };
 
   return (

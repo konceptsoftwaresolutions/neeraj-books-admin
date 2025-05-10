@@ -23,7 +23,10 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import CustomTreeSelect from "../../components/CustomTreeSelect";
 import { DatePicker } from "antd";
-import { getSubcategoryOptionsByIds } from "../../constant/utilityfunction";
+import {
+  getCategory,
+  getSubcategoryOptionsByIds,
+} from "../../constant/utilityfunction";
 const { RangePicker } = DatePicker;
 
 const CreateBook = () => {
@@ -380,14 +383,24 @@ const CreateBook = () => {
       const englishSlug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
       payload.english = {
+        metaTitle: data?.engMetaTitle,
+        metaDescription: data?.engMetaDescription,
+        metaTags: data?.engMetaTags,
+
         viewParentCategory: data?.engParentCategory,
         viewSubCategory: data?.engSubCategory,
         viewSubSubCategory: data?.engSubSubCategory,
-        categories: data?.engSubSubCategory
-          ? data.engSubSubCategory
-          : data?.engSubCategory
-          ? data.engSubCategory
-          : data?.engParentCategory,
+        // categories: data?.engSubSubCategory
+        //   ? data.engSubSubCategory
+        //   : data?.engSubCategory
+        //   ? data.engSubCategory
+        //   : data?.engParentCategory,
+        categories: getCategory(
+          data?.engParentCategory,
+          data?.engSubCategory,
+          data?.engSubSubCategory
+        ),
+
         eBookIsDownloadable: data?.eBookEngIsDownloadable,
         isDownloadableEngSolvedPaper: data?.isDownloadableEngSolvedPaper,
         engSolvedPaperImg: data?.engSolvedPaperImg,
@@ -453,14 +466,18 @@ const CreateBook = () => {
       const hindiSlug = data.hTitle.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
       payload.hindi = {
+        metaTitle: data?.hindiMetaTitle,
+        metaDescription: data?.hindiMetaDescription,
+        metaTags: data?.hindiMetaTags,
         viewParentCategory: data?.hindiParentCategory,
         viewSubCategory: data?.hindiSubCategory,
         viewSubSubCategory: data?.hindiSubSubCategory,
-        categories: data?.hindiSubSubCategory
-          ? data.hindiSubSubCategory
-          : data?.hindiSubCategory
-          ? data.hindiSubCategory
-          : data?.hindiParentCategory,
+        categories: getCategory(
+          data?.hindiParentCategory,
+          data?.hindiSubCategory,
+          data?.hindiSubSubCategory
+        ),
+
         eBookIsDownloadable: data?.eBookHindiIsDownloadable,
         isDownloadableEngSolvedPaper: data?.isDownloadableHindiSolvedPaper,
         engSolvedPaperImg: data?.hindiSolvedPaperImg,
@@ -1158,6 +1175,36 @@ const CreateBook = () => {
                   </div>
                 ))}
               </div>
+
+              <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
+                <p className="font-semibold py-2">English Book Meta Details</p>
+              </div>
+              <div className="grid grid-cols-2 gap-3 bg-[#f5f7fb] rounded-lg mt-2 p-3">
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="engMetaTitle"
+                  label="Meta Title"
+                  type="text"
+                />
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="engMetaTags"
+                  label="Meta Tags"
+                  type="description"
+                />
+                <div className="col-span-2">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="engMetaDescription"
+                    label="Meta Description"
+                    type="description"
+                    rows={5}
+                  />
+                </div>
+              </div>
             </div>
           )}
           {selectedMedium?.includes("Hindi") && (
@@ -1196,13 +1243,13 @@ const CreateBook = () => {
                       options={hindiSubSubCategoryOptions}
                     />
                   )}
-                  <div>
+                  {/* <div>
                     <CustomTreeSelect
                       data={allCategory}
                       control={control}
                       name="hcategories"
                     />
-                  </div>
+                  </div> */}
 
                   <InputField
                     control={control}
@@ -1818,6 +1865,36 @@ const CreateBook = () => {
                     </div>
                   ))}
                 </div>
+
+                <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
+                  <p className="font-semibold py-2">Hindi Book Meta Details</p>
+                </div>
+                <div className="grid grid-cols-2 gap-3 bg-[#f5f7fb] rounded-lg mt-2 p-3">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="hindiMetaTitle"
+                    label="Meta Title"
+                    type="text"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="hindiMetaTags"
+                    label="Meta Tags"
+                    type="description"
+                  />
+                  <div className="col-span-2">
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="hindiMetaDescription"
+                      label="Meta Description"
+                      type="description"
+                      rows={5}
+                    />
+                  </div>
+                </div>
               </div>
             </>
           )}
@@ -1939,7 +2016,7 @@ const CreateBook = () => {
           </div>
 
           <Button
-            loading={addLoader}
+            // loading={addLoader}
             type="submit"
             className="primary-gradient mt-4 mb-4"
           >

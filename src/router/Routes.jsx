@@ -46,6 +46,7 @@ import ShipmentPdf from "../pages/pdf/ShipmentPdf";
 import ViewAffiliate from "../pages/Promotions/ViewAffiliate";
 import AffiliateOrder from "../pages/Promotions/AffiliateOrder";
 import AffiliatePayment from "../pages/Promotions/AffiliatePayment";
+import AddCustomer from "../pages/customer/AddCustomer";
 
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
@@ -122,6 +123,7 @@ const Routes = () => {
         { path: "/:type/editcategory", element: <EditCategory /> },
         { path: "/:type/customer", element: <Customer /> },
         { path: "/:type/editcustomer", element: <EditCustomer /> },
+        { path: "/:type/addcustomer", element: <AddCustomer /> },
         { path: "/:type/promotions", element: <Promotions /> },
         { path: "/:type/affiliateDetails", element: <ViewAffiliate /> },
         { path: "/:type/affiliateorders", element: <AffiliateOrder /> },

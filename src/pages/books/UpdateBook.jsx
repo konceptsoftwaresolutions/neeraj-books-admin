@@ -54,7 +54,10 @@ import CustomTreeSelect from "../../components/CustomTreeSelect";
 import { useEffect, useState } from "react";
 import { FaFileImage, FaFilePdf, FaLink } from "react-icons/fa";
 import { editBookDetails } from "../../redux/features/teamMembers";
-import { getSubcategoryOptionsByIds } from "../../constant/utilityfunction";
+import {
+  getCategories,
+  getSubcategoryOptionsByIds,
+} from "../../constant/utilityfunction";
 
 const UpdateBook = () => {
   const { allCategory } = useSelector((state) => state.category);
@@ -226,11 +229,14 @@ const UpdateBook = () => {
 
   useEffect(() => {
     if (rowData?.title && medium === "English") {
+      console.log("if condition called");
       dispatch(
         getEnglishEbook(rowData.title, (url) => {
           if (url) {
-            console.log(url);
+            console.log("xxxx ", url);
             setEbookLink(url);
+          } else {
+            setEbookLink(null);
           }
         })
       );
@@ -239,7 +245,9 @@ const UpdateBook = () => {
       dispatch(
         getHindiEbook(rowData.title, (url) => {
           if (url) {
-            console.log(url);
+            console.log("yyy", url);
+            setEbookLink(url);
+          } else {
             setEbookLink(url);
           }
         })
@@ -494,22 +502,20 @@ const UpdateBook = () => {
 
   const onSubmit = (data) => {
     setIsLoading(true);
-    // console.log(data);
+    console.log(data);
 
     // Initialize payload
 
     const slug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
     const bookData = {
+      metaTitle: data?.metaTitle,
+      metaDescription: data?.metaDescription,
+      metaTags: data?.metaTags,
       viewParentCategory: data?.viewParentCategory,
       viewSubCategory: data?.viewSubCategory,
       viewSubSubCategory: data?.viewSubSubCategory,
-      // categories: data?.categories,
-      categories: data?.viewSubSubCategory
-        ? data.viewSubSubCategory
-        : data?.viewSubCategory
-        ? data.viewSubCategory
-        : data?.viewParentCategory,
+      categories: getCategories(data),
       eBookIsDownloadable: data?.eBookIsDownloadable,
       isDownloadableEngSolvedPaper: data?.isDownloadableEngSolvedPaper,
       engSolvedPaperImg: data?.engSolvedPaperImg,
@@ -610,10 +616,22 @@ const UpdateBook = () => {
       productId: outerId,
     };
     if (medium === "English") {
-      dispatch(deleteEnglishEbook(payload));
+      dispatch(
+        deleteEnglishEbook(payload, (success) => {
+          if (success) {
+            setEbookLink(null);
+          }
+        })
+      );
     }
     if (medium === "Hindi") {
-      dispatch(deleteHindiEbook(payload));
+      dispatch(
+        deleteHindiEbook(payload, (success) => {
+          if (success) {
+            setEbookLink(null);
+          }
+        })
+      );
     }
   };
 
@@ -883,7 +901,7 @@ const UpdateBook = () => {
                       data={allCategory}
                       control={control}
                       name="categories"
-                      disabled={!isEditable}
+                      disabled={true}
                     />
                   </div>
                   <InputField
@@ -1223,12 +1241,16 @@ const UpdateBook = () => {
                     </div>
                   )}
 
-                  {isEditable && ebookLink && (
+                  {ebookLink && (
                     <div className="flex justify-end gap-2 absolute top-0 right-0">
                       <div>
                         <Tooltip title="View E-book">
-                          <a target="_blank" href={ebookLink} className="">
-                            <BsFillEyeFill size={20} />
+                          <a
+                            target="_blank"
+                            href={ebookLink}
+                            className="text-blue-700"
+                          >
+                            View Uploaded E-Book
                           </a>
                         </Tooltip>
                       </div>
@@ -1634,6 +1656,38 @@ const UpdateBook = () => {
                       </div>
                     );
                   })}
+                </div>
+
+                <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md mt-5">
+                  <p className="font-semibold py-2 ">
+                    English Book Meta Details
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-3 bg-[#f5f7fb] rounded-lg mt-2 p-3">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="metaTitle"
+                    label="Meta Title"
+                    type="text"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="metaTags"
+                    label="Meta Tags"
+                    type="description"
+                  />
+                  <div className="col-span-2">
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="metaDescription"
+                      label="Meta Description"
+                      type="description"
+                      rows={5}
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-5">
