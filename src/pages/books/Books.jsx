@@ -12,6 +12,9 @@ import { allBooksColumns } from "../../constant/tableColumns";
 import { useDispatch, useSelector } from "react-redux";
 import { FaFileExcel } from "react-icons/fa";
 import { FaSearch } from "react-icons/fa";
+import { FaFileCsv } from "react-icons/fa6";
+import { IoMdPrint } from "react-icons/io";
+import * as XLSX from "xlsx"; // Import xlsx library
 
 import {
   getAllBooks,
@@ -24,6 +27,11 @@ import { getAllCategories } from "../../redux/features/category";
 import useCategoryName from "../../hooks/useCategoryName";
 import UploadExcel from "../../components/UploadExcel";
 import ImageUpload from "./ImageUpload";
+import Papa from "papaparse";
+import { pdf } from "@react-pdf/renderer";
+import { saveAs } from "file-saver";
+import FilteredBooksPdf from "./FilteredBooksPdf";
+import { FaFilePdf } from "react-icons/fa6";
 
 const Books = () => {
   const dispatch = useDispatch();
@@ -195,6 +203,164 @@ const Books = () => {
     },
   ];
 
+  const exportToCSV = () => {
+    if (!filteredBooks || filteredBooks.length === 0) return;
+
+    const flattenedData = filteredBooks.map((book) => {
+      const details = book.bookDetail || {};
+      const category = book.categoriesArray?.[0] || {};
+
+      return {
+        Title: book.title ?? "",
+        BookCode: book.bookCode ?? "",
+        ISBN: details.isbn ?? "",
+        Edition: details.edition ?? "",
+        Medium: book.medium ?? "",
+        Category: category.name ?? "",
+        SubCategory: category.description1 ?? "",
+        Price_Paperback: details.paperBackOriginalPrice ?? "",
+        Discounted_Price_Paperback: details.paperBackDiscountedPrice ?? "",
+        Price_eBook: details.eBookOriginalPrice ?? "",
+        Discounted_Price_eBook: details.eBookDiscountedPrice ?? "",
+        Weight_kg: details.weight ?? "",
+        Brand: details.brand ?? "",
+        Stock: details.stock ?? "",
+        Description_Summary: details.commonLine ?? "",
+      };
+    });
+
+    const csv = Papa.unparse(flattenedData);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "Books.csv");
+  };
+
+  const exportBooksToPDF = async () => {
+    try {
+      const blob = await pdf(
+        <FilteredBooksPdf data={filteredBooks} />
+      ).toBlob();
+      saveAs(blob, "FilteredBooks.pdf");
+    } catch (error) {
+      console.error("Failed to export books PDF:", error);
+    }
+  };
+
+  const printFilteredBooksHtml = (books = []) => {
+    const htmlContent = books
+      .map((book, index) => {
+        const detail = book.bookDetail || {};
+        const category =
+          book.categoriesArray?.[0]?.name ||
+          book.categories?.[0]?.name ||
+          "N/A";
+
+        return `
+        <div class="book-section">
+          <h2>Book ${index + 1}: ${book.title}</h2>
+          <table>
+            <tr><th>Book Code</th><td>${book.bookCode}</td></tr>
+            <tr><th>Category</th><td>${category}</td></tr>
+            <tr><th>Language</th><td>${book.medium}</td></tr>
+            <tr><th>Paperback Price</th><td>₹${book.paperBackPrice}</td></tr>
+            <tr><th>eBook Price</th><td>₹${book.eBookPrice}</td></tr>
+            <tr><th>Paperback Discounted</th><td>₹${
+              detail.paperBackDiscountedPrice ?? "-"
+            }</td></tr>
+            <tr><th>eBook Discounted</th><td>₹${
+              detail.eBookDiscountedPrice || "-"
+            }</td></tr>
+            <tr><th>Edition</th><td>${detail.edition || "-"}</td></tr>
+            <tr><th>ISBN</th><td>${detail.isbn || "-"}</td></tr>
+            <tr><th>Weight</th><td>${detail.weight || "-"} kg</td></tr>
+            <tr><th>Stock</th><td>${detail.stock}</td></tr>
+          </table>
+          <hr/>
+        </div>
+      `;
+      })
+      .join("");
+
+    const printWindow = window.open("", "", "width=900,height=700");
+    printWindow.document.write(`
+    <html>
+      <head>
+        <title>Books</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+          h1 {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          h2 {
+            margin-top: 30px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+          }
+          th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+          }
+          th {
+            background-color: #f5f5f5;
+          }
+          hr {
+            margin: 30px 0;
+            border: none;
+            border-top: 1px solid #ccc;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Books List</h1>
+        ${htmlContent}
+      </body>
+    </html>
+  `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+  };
+
+  // Function to export filtered books to Excel
+  const exportToExcel = () => {
+    if (!filteredBooks || filteredBooks.length === 0) return;
+
+    const wb = XLSX.utils.book_new(); // Create a new workbook
+    const wsData = filteredBooks.map((book) => {
+      const details = book.bookDetail || {};
+      const category = book.categoriesArray?.[0] || {};
+
+      return {
+        Title: book.title ?? "",
+        BookCode: book.bookCode ?? "",
+        ISBN: details.isbn ?? "",
+        Edition: details.edition ?? "",
+        Medium: book.medium ?? "",
+        Category: category.name ?? "",
+        SubCategory: category.description1 ?? "",
+        Price_Paperback: details.paperBackOriginalPrice ?? "",
+        Discounted_Price_Paperback: details.paperBackDiscountedPrice ?? "",
+        Price_eBook: details.eBookOriginalPrice ?? "",
+        Discounted_Price_eBook: details.eBookDiscountedPrice ?? "",
+        Weight_kg: details.weight ?? "",
+        Brand: details.brand ?? "",
+        Stock: details.stock ?? "",
+        Description_Summary: details.commonLine ?? "",
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(wsData); // Convert JSON to sheet
+    XLSX.utils.book_append_sheet(wb, ws, "Books"); // Append sheet to workbook
+    XLSX.writeFile(wb, "Books.xlsx"); // Trigger download
+  };
+
   return (
     <PageCont>
       <div className="flex justify-between items-center">
@@ -240,6 +406,40 @@ const Books = () => {
             Bulk Upload
           </Button>
         </div>
+      </div>
+
+      <div className="flex justify-start gap-2 mt-5">
+        <Button
+          variant="filled"
+          className="bg-blue-700 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center gap-1"
+          onClick={exportToCSV}
+        >
+          <FaFileCsv size={17} /> Export CSV
+        </Button>
+        <Button
+          variant="gradient"
+          color="blue"
+          onClick={exportToExcel}
+          className="bg-blue-700 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center gap-1"
+        >
+          <FaFileExcel className="mr-2" />
+          Export to Excel
+        </Button>
+        <Button
+          variant="filled"
+          className="bg-red-600 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center gap-1"
+          onClick={exportBooksToPDF}
+        >
+          <FaFilePdf size={17} /> Export PDF
+        </Button>
+        <Button
+          variant="filled"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center gap-1"
+          onClick={() => printFilteredBooksHtml(filteredBooks)}
+        >
+          <IoMdPrint size={17} />
+          Print Table
+        </Button>
       </div>
 
       {/* Search Input */}

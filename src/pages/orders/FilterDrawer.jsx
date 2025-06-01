@@ -78,7 +78,7 @@ const FilterDrawer = ({
             }}
             className="bg-gray-400 text-white"
           >
-            Cancel
+            Reset
           </Button>
           <Button
             type="primary"

@@ -175,23 +175,17 @@ export const allBooksColumns = (
       selector: (row) => row.bookCode || "N/A",
     },
     {
+      name: "Medium",
+      width: "120px",
+      wrap: true,
+      selector: (row) => row.medium || "N/A",
+    },
+    {
       name: "Category",
       selector: (row) =>
         row.categories?.length
           ? row.categories?.map((item) => item.name).join(", ")
           : "NA",
-    },
-    {
-      name: "Stock",
-      width: "130px",
-      wrap: true,
-      selector: (row) => row.stock || "N/A",
-    },
-    {
-      name: "Medium",
-      width: "120px",
-      wrap: true,
-      selector: (row) => row.medium || "N/A",
     },
 
     {
@@ -226,6 +220,12 @@ export const allBooksColumns = (
           />
         </div>
       ),
+    },
+    {
+      name: "Stock",
+      width: "130px",
+      wrap: true,
+      selector: (row) => row.stock || "N/A",
     },
 
     // {

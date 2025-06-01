@@ -47,6 +47,7 @@ import ViewAffiliate from "../pages/Promotions/ViewAffiliate";
 import AffiliateOrder from "../pages/Promotions/AffiliateOrder";
 import AffiliatePayment from "../pages/Promotions/AffiliatePayment";
 import AddCustomer from "../pages/customer/AddCustomer";
+import AboutUsPage from "../pages/about/AboutUsPage";
 
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
@@ -114,7 +115,7 @@ const Routes = () => {
         { path: "/:type/orders", element: <Orders /> },
         { path: "/:type/invoice", element: <ShipmentPdf /> },
         { path: "/:type/editOrders", element: <EditOrders /> },
-        { path: "/:type/addOrders", element: <AddOrders /> },
+        { path: "/:type/addbulkOrders", element: <AddOrders /> },
         { path: "/:type/teamMembers", element: <TeamMembers /> },
         { path: "/:type/editMembers", element: <EditMembers /> },
         { path: "/:type/addMembers", element: <AddMembers /> },
@@ -142,6 +143,7 @@ const Routes = () => {
         { path: "/:type/abandonedcart", element: <AbandonedCart /> },
         { path: "/:type/abandoned-detail", element: <AbandonedDetail /> },
         { path: "/:type/coupons", element: <AllCoupons /> },
+        { path: "/:type/about", element: <AboutUsPage /> },
         { path: "*", element: <Navigate to="/" replace /> }, // Redirects to /home
       ],
     },

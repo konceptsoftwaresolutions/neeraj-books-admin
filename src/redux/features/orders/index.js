@@ -153,6 +153,31 @@ export const deleteOrder = (payload) => {
     };
 };
 
+
+export const cancelOrder = (payload, callback = () => { }, setCancelOrderLoader) => {
+    return async (dispatch) => {
+        try {
+            setCancelOrderLoader(true)
+            const response = await axiosInstance.post("/order/makeOrderCancel", { id: payload });
+            if (response.status === 200) {
+                console.log("response is ", response)
+                const message = response.data?.message || "Order Cancelled successfully!";
+                toast.success(message);
+                callback(true)
+                setCancelOrderLoader(false)
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data;
+            }
+            toast.error(message);
+            setCancelOrderLoader(false)
+        }
+    };
+};
+
 export const createShippingOrder = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
@@ -235,6 +260,30 @@ export const getTrackingOrder = (code, callback = () => { }) => {
             toast.error(message);
         } finally {
             dispatch(setOrder({ generateLabelLoder: false }))
+        }
+    };
+};
+
+
+
+
+export const createOnSiteDiscount = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/order/onsiteDiscount", payload);
+            if (response.status === 200) {
+                console.log("response is ", response.data)
+                const message = response.data?.message || "Successfull !";
+                callback(true)
+                toast.success(message);
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data;
+            }
+            toast.error(message || "Error Occurred");
         }
     };
 };

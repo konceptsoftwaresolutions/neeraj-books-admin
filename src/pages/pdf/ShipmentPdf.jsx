@@ -10,8 +10,11 @@ import {
 } from "@react-pdf/renderer";
 
 import logo from "../../assets/pdf_logo.jpeg";
+import neerajLogo from "../../assets/neerajlogo.jpeg";
+import hatlogo from "../../assets/hatlogo.png";
 import { PDFViewer } from "@react-pdf/renderer";
 import { format } from "date-fns";
+import useCartCalculations from "../../hooks/useCartCalculations";
 
 // Define styles
 const styles = StyleSheet.create({
@@ -215,7 +218,7 @@ const styles = StyleSheet.create({
 // Create the PDF document
 
 // Component to download the PDF
-const ShipmentPdf = ({ data = {} }) => {
+const ShipmentPdf = ({ data = {}, couponPercentage }) => {
   const {
     createdAt,
     discountTotal,
@@ -231,112 +234,34 @@ const ShipmentPdf = ({ data = {} }) => {
     totalAmount,
     user,
     appliedCoupon,
+    discountDetails,
     _id,
+    txnid,
     additionalDiscount,
+    onSiteDiscount,
   } = data;
 
-  // const originalAmountCalculate = items.reduce((total, product) => {
-  //   const medium = product.language;
-  //   const bookTitle = product?.productId?.[medium]?.title;
-  //   const originalSellingPrice = parseFloat(
-  //     product?.productId?.[medium]?.paperBackOriginalPrice || 0
-  //   );
-  //   const quantity = parseFloat(product?.quantity || 0);
-  //   const ebookPrice = parseFloat(product?.ebookPrice || 0);
-  //   const onlyEbook = product?.onlyEbookSelected;
-  //   const isEbookAlso = product?.isEbookAlsoSelected;
+  console.log("items in pdf ", data);
 
-  //   let originalAmount = 0;
+  const {
+    totalPaperbackOriginalAmount,
+    totalPaperbackAmount,
+    totalPaperbackDiscountAmount,
+    totalPaperbackDiscountPercent,
+    totalPaperbackQuantity,
 
-  //   if (onlyEbook) {
-  //     originalAmount = ebookPrice;
-  //   } else if (isEbookAlso) {
-  //     originalAmount = quantity * originalSellingPrice + ebookPrice;
-  //   } else {
-  //     originalAmount = originalSellingPrice * quantity;
-  //   }
+    totalSpecialDiscountOnPaperback, // e.g. 28.50 + 9.00
+    totalSpecialDiscountPercentage, // e.g. 5 + 3
 
-  //   return total + originalAmount;
-  // }, 0);
+    paperbackAmountAfterSpecialDiscount,
+    totalEbookAmount,
+    totalEbookQuantity,
 
-  function calculateDiscountPercentage(totalAmount, discountAmount) {
-    if (totalAmount <= 0) {
-      return "Total amount must be greater than zero.";
-    }
-    let discountPercentage = (discountAmount / totalAmount) * 100;
-    return discountPercentage; // returns a string with 2 decimal places
-  }
-
-  const originalAmountCalculate = items?.reduce((total, product) => {
-    const medium = product.language;
-    const bookTitle = product?.productId?.[medium]?.title;
-    const originalSellingPrice = parseFloat(
-      product?.productId?.[medium]?.paperBackOriginalPrice || 0
-    );
-    const quantity = parseFloat(product?.quantity || 0);
-    const ebookPrice = parseFloat(product?.ebookPrice || 0);
-    const onlyEbook = product?.onlyEbookSelected;
-    const isEbookAlso = product?.isEbookAlsoSelected;
-
-    let originalAmount = 0;
-
-    if (onlyEbook) {
-      originalAmount = ebookPrice;
-    } else if (isEbookAlso) {
-      originalAmount = quantity * originalSellingPrice + ebookPrice;
-    } else {
-      originalAmount = originalSellingPrice * quantity;
-    }
-
-    return total + originalAmount;
-  }, 0);
-
-  const discountedAmountCalculate = items?.reduce((total, product) => {
-    const medium = product.language;
-    const bookTitle = product?.productId?.[medium]?.title;
-    const originalSellingPrice = parseFloat(
-      product?.productId?.[medium]?.paperBackOriginalPrice || 0
-    );
-    const discountedSellingPrice = parseFloat(
-      product?.productId?.[medium]?.paperBackDiscountedPrice || 0
-    );
-    const quantity = parseFloat(product?.quantity || 0);
-    const ebookPrice = parseFloat(product?.ebookPrice || 0);
-    const onlyEbook = product?.onlyEbookSelected;
-    const isEbookAlso = product?.isEbookAlsoSelected;
-
-    let originalAmount = 0;
-
-    if (onlyEbook) {
-      originalAmount = ebookPrice;
-    } else if (isEbookAlso) {
-      originalAmount = quantity * discountedSellingPrice + ebookPrice;
-    } else {
-      originalAmount = discountedSellingPrice * quantity;
-    }
-
-    return total + originalAmount;
-  }, 0);
-
-  let discountPercent = calculateDiscountPercentage(
-    originalAmountCalculate,
-    originalAmountCalculate - discountedAmountCalculate
-  );
-
-  const amountAfterAdditionalDiscount =
-    discountedAmountCalculate - additionalDiscount;
-
-  const couponDiscountOff =
-    (Number(amountAfterAdditionalDiscount || 0) *
-      Number(appliedCouponDiscount || 0)) /
-    100;
-
-  const couponDiscountCalculated =
-    amountAfterAdditionalDiscount - couponDiscountOff;
-
-  const grandTotalCalculated = Math.round(
-    Number(couponDiscountCalculated) + Number(shippingAmount)
-  );
+    subtotalAmount, // before coupon discount
+    couponDiscountPercent,
+    couponDiscountAmount,
+    // totalAmount,
+  } = useCartCalculations(items, additionalDiscount, couponPercentage);
 
   // ---------------------
 
@@ -349,66 +274,61 @@ const ShipmentPdf = ({ data = {} }) => {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
+            alignItems: "center",
+            marginTop: "-10px",
+            paddingBottom: "10px",
+            borderBottom: 1,
           }}
         >
-          <Text style={styles.font9}>4/7/25, 4:54 PM </Text>
-          <Text style={{ fontSize: "9px", marginLeft: "-50px" }}>
-            View Shipment | NeerajPublications
+          <View>
+            <Image
+              src={neerajLogo}
+              style={{
+                width: 80,
+                height: 50, // add height to maintain aspect ratio or size
+              }}
+            />
+          </View>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontSize: "10px", fontStyle: "italic" }}>
+              Based on Various Courses of
+            </Text>{" "}
+            <Text style={{ fontSize: "10px" }}>
+              IGNOU - (BA , B.Com , MA , M.Com., MBA , BCA , MCA etc)
+            </Text>{" "}
+            <Text style={{ fontSize: "10px" }}>
+              NIOS - Class - X & XII , IP Universtiy, Skill Courses{" "}
+            </Text>
+            <Text style={{ fontSize: "10px" }}>
+              M. : 8510009872 , 9510009878
+            </Text>
+            <Text style={{ fontSize: "10px" }}>
+              {" "}
+              E-mail : info@neerajbooks.com
+            </Text>
+          </View>
+          <Text>
+            <Image
+              src={hatlogo}
+              style={{
+                width: 65,
+                height: 65, // add height to maintain aspect ratio or size
+              }}
+            />
           </Text>
-          <Text></Text>
         </View>
-        <View>
-          <Text
-            style={{
-              fontSize: "23px",
-              textAlign: "center",
-              marginTop: "20px",
-              fontWeight: 300, // default, but can be explicitly added
-              letterSpacing: 1, // adds spacing for a lighter feel
-            }}
-          >
-            NEERAJ PUBLICATIONS
-          </Text>
-          <Text
-            style={{ fontSize: "9px", textAlign: "center", marginTop: "6px" }}
-          >
-            Nai Sarak, Delhi-110006, India
-          </Text>
-          <Text
-            style={{ fontSize: "9px", textAlign: "center", marginTop: "3px" }}
-          >
-            Email: info@neerajbooks.com | Mobile: 8510009872, 8510009878
-          </Text>
-        </View>
-        {/* <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            marginTop: 12,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              color: "#00", // Customize color here
-            }}
-          >
-            Invoice / Order{" "}
-          </Text>
-          <Text
-            style={{
-              fontSize: 18,
-              color: "#007BFF", // Default or another color for the order number
-            }}
-          >
-            {orderId}
-          </Text>
-        </View> */}
 
         <View
           style={{
-            paddingHorizontal: "30px",
-            marginTop: "30px",
+            paddingHorizontal: "10px",
+            marginTop: "20px",
             display: "flex",
             flexDirection: "column",
             rowGap: "5px",
@@ -441,7 +361,7 @@ const ShipmentPdf = ({ data = {} }) => {
             {/* Left: Address Section */}
             <View
               style={{
-                width: "35%",
+                width: "140px",
                 borderRight: 1,
                 borderColor: "#efefef",
                 paddingVertical: 5,
@@ -450,16 +370,69 @@ const ShipmentPdf = ({ data = {} }) => {
               <Text style={{ fontSize: "15px", marginBottom: 2, color: "red" }}>
                 {orderId}
               </Text>
-              <Text style={{ fontSize: "9px" }}>
-                Payment Mode - {paymentMode}
-              </Text>
+
               <Text style={{ fontSize: "9px", paddingTop: "3px" }}>
                 Date -{" "}
                 {createdAt ? format(new Date(createdAt), "dd/MM/yyyy") : ""}
               </Text>
               <Text style={{ fontSize: "9px", paddingTop: "3px" }}>
-                Coupon - {appliedCoupon}
+                Time -{" "}
+                {createdAt ? format(new Date(createdAt), "hh:mm:ss a") : ""}
               </Text>
+              {appliedCoupon && (
+                <Text style={{ fontSize: "9px", paddingTop: "3px" }}>
+                  Coupon - {appliedCoupon}
+                </Text>
+              )}
+
+              {/* <Text style={{ fontSize: "9px" }}>
+                  {shippingAddress?.city} {shippingAddress?.state}{" "}
+                  {shippingAddress?.pincode}
+                </Text>
+                <Text style={{ fontSize: "9px" }}>
+                  {shippingAddress?.country}
+                </Text> */}
+              {/* <Text style={{ fontSize: "9px" }}>
+                  {shippingAddress?.mobile}
+                </Text> */}
+              {/* <Text style={{ fontSize: "9px" }}>1234567890</Text> */}
+            </View>
+
+            <View
+              style={{
+                width: "100px",
+                borderRight: 1,
+                borderColor: "#efefef",
+                textAlign: "center",
+                paddingVertical: 5,
+                display: "flex",
+                flexDirection: "column",
+                gap: "3px",
+              }}
+            >
+              <Text style={{ fontSize: "9px" }}>
+                Payment Mode - {paymentMode}
+              </Text>
+              {paymentMode === "Prepaid" && (
+                <>
+                  <Text style={{ fontSize: "9px" }}>
+                    Txn ID: - {paymentMode}
+                  </Text>
+                  <Text style={{ fontSize: "9px" }}>Mode: - UPI</Text>
+                </>
+              )}
+              <Text style={{ fontSize: "9px" }}>
+                Net Payable - Rs.{" "}
+                {Math.round(
+                  (couponDiscountPercent > 0
+                    ? subtotalAmount - couponDiscountAmount
+                    : subtotalAmount) +
+                    (shippingAmount ? parseFloat(shippingAmount) : 0) -
+                    (onSiteDiscount ? parseFloat(onSiteDiscount) : 0)
+                )}
+                /-
+              </Text>
+
               {/* <Text style={{ fontSize: "9px" }}>
                   {shippingAddress?.city} {shippingAddress?.state}{" "}
                   {shippingAddress?.pincode}
@@ -476,19 +449,20 @@ const ShipmentPdf = ({ data = {} }) => {
             {/* Right: Order Info */}
             <View
               style={{
-                width: "65%",
+                width: "300px",
                 paddingVertical: 5,
                 display: "flex",
+                justifyContent: "flex-end",
                 flexDirection: "row",
                 gap: 10,
               }}
             >
-              <View style={{ width: "80%" }}>
+              <View style={{ width: "70%" }}>
                 <Text
                   style={{
                     fontSize: "9px",
                     marginBottom: 2,
-                    textAlign: "left",
+                    textAlign: "right",
                   }}
                 >
                   {shippingAddress?.firstName} {shippingAddress?.lastName}
@@ -496,7 +470,7 @@ const ShipmentPdf = ({ data = {} }) => {
                 <Text
                   style={{
                     fontSize: 9,
-                    textAlign: "left",
+                    textAlign: "right",
                     paddingTop: 3,
                     lineHeight: 1.5,
                   }}
@@ -516,14 +490,14 @@ const ShipmentPdf = ({ data = {} }) => {
                 <Text
                   style={{
                     fontSize: "9px",
-                    textAlign: "left",
+                    textAlign: "right",
                     paddingTop: "2px",
                   }}
                 >
                   Mobile - {shippingAddress?.mobile}
                 </Text>
               </View>
-              <View
+              {/* <View
                 style={{
                   display: "flex",
                   flexDirection: "column",
@@ -541,358 +515,253 @@ const ShipmentPdf = ({ data = {} }) => {
                     border: "1 solid black", // border format for react-pdf (no "px", no CSS-style string)
                   }}
                 />
+              </View> */}
+            </View>
+          </View>
+
+          {totalPaperbackQuantity > 0 && (
+            <>
+              <View
+                style={{
+                  paddingVertical: 8,
+                  paddingHorizontal: 5,
+                  backgroundColor: "#efefef",
+                  marginTop: "20px",
+                }}
+              >
+                <Text style={{ fontSize: "12px", textAlign: "left" }}>
+                  Printed Book
+                </Text>
               </View>
-            </View>
-          </View>
 
-          {/* table */}
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: 1,
-              marginTop: "20px",
-              borderColor: "#000",
-              paddingVertical: 4,
-            }}
-          >
-            <Text style={{ fontSize: 9, width: "10%" }}>#</Text>
-            <Text style={{ fontSize: 12, width: "35%" }}>Product</Text>
-            <Text style={{ fontSize: 12, width: "10%", textAlign: "center" }}>
-              Qty
-            </Text>
-            <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
-              Price
-            </Text>
-            {/* <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
-              HSN
-            </Text> */}
-            <Text style={{ fontSize: 12, width: "15%", textAlign: "right" }}>
-              Amount
-            </Text>
-          </View>
-
-          {items?.map((product) => {
-            const medium = product.language;
-            const bookTitle = product?.productId?.[medium]?.title;
-            const sellingPrice = parseFloat(
-              product?.productId?.[medium]?.paperBackDiscountedPrice || 0
-            );
-            const originalSellingPrice = parseFloat(
-              product?.productId?.[medium]?.paperBackOriginalPrice || 0
-            );
-            const onlyEbook = product?.onlyEbookSelected;
-            const isEbookAlso = product?.isEbookAlsoSelected;
-            const quantity = parseFloat(product?.quantity || 0);
-            const ebookPrice = parseFloat(product?.ebookPrice || 0);
-
-            let originalAmount = 0;
-
-            if (onlyEbook) {
-              originalAmount = ebookPrice * 1;
-            } else if (isEbookAlso) {
-              originalAmount = quantity * originalSellingPrice + ebookPrice;
-            } else {
-              originalAmount = originalSellingPrice * quantity;
-            }
-
-            const rows = [];
-            if (!isEbookAlso && !product?.onlyEbookSelected) {
-              rows.push(
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    borderTop: 1,
-                    borderColor: "#000",
-                    paddingVertical: 4,
-                  }}
-                >
-                  <Text style={{ fontSize: 9, width: "10%" }}>1</Text>
-                  <Text style={{ fontSize: 9, width: "35%" }}>
-                    {bookTitle} x ({medium})
-                  </Text>
-                  <Text
-                    style={{ fontSize: 9, width: "10%", textAlign: "center" }}
-                  >
-                    {product?.quantity}
-                  </Text>
-                  <Text
-                    style={{ fontSize: 9, width: "15%", textAlign: "center" }}
-                  >
-                    {originalSellingPrice}
-                  </Text>
-                  {/* <Text
-                    style={{ fontSize: 9, width: "15%", textAlign: "center" }}
-                  >
-                    {product?.hsn}
-                  </Text> */}
-                  <Text
-                    style={{ fontSize: 9, width: "15%", textAlign: "right" }}
-                  >
-                    {originalSellingPrice * quantity}
-                  </Text>
-                </View>
-              );
-            }
-
-            if (isEbookAlso) {
-              rows.push(
-                <>
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      borderTop: 1,
-                      borderColor: "#000",
-                      paddingVertical: 4,
-                    }}
-                  >
-                    <Text style={{ fontSize: 9, width: "10%" }}>1</Text>
-                    <Text style={{ fontSize: 9, width: "35%" }}>
-                      {bookTitle} x ({medium})
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "10%",
-                        textAlign: "center",
-                      }}
-                    >
-                      {product?.quantity}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "15%",
-                        textAlign: "center",
-                      }}
-                    >
-                      {originalSellingPrice}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "15%",
-                        textAlign: "center",
-                      }}
-                    >
-                      {product?.hsn}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "15%",
-                        textAlign: "right",
-                      }}
-                    >
-                      {originalSellingPrice * quantity}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      borderTop: 1,
-                      borderColor: "#000",
-                      paddingVertical: 4,
-                    }}
-                  >
-                    <Text style={{ fontSize: 9, width: "10%" }}>1</Text>
-                    <Text style={{ fontSize: 9, width: "35%" }}>
-                      {bookTitle} x ({medium}) - E-book
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "10%",
-                        textAlign: "center",
-                      }}
-                    >
-                      1
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "15%",
-                        textAlign: "center",
-                      }}
-                    >
-                      {ebookPrice}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "15%",
-                        textAlign: "center",
-                      }}
-                    >
-                      {product?.hsn}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: 9,
-                        width: "15%",
-                        textAlign: "right",
-                      }}
-                    >
-                      {ebookPrice * 1}
-                    </Text>
-                  </View>
-                </>
-              );
-            }
-
-            if (product?.onlyEbookSelected) {
-              rows.push(
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    borderTop: 1,
-                    borderColor: "#000",
-                    paddingVertical: 4,
-                  }}
-                >
-                  <Text style={{ fontSize: 9, width: "10%" }}>1</Text>
-                  <Text style={{ fontSize: 9, width: "35%" }}>
-                    {bookTitle} x ({medium}) - E-booksdsds
-                  </Text>
-                  <Text
-                    style={{ fontSize: 9, width: "10%", textAlign: "center" }}
-                  >
-                    1
-                  </Text>
-                  <Text
-                    style={{ fontSize: 9, width: "15%", textAlign: "center" }}
-                  >
-                    {ebookPrice}
-                  </Text>
-                  <Text
-                    style={{ fontSize: 9, width: "15%", textAlign: "center" }}
-                  >
-                    {product?.hsn}
-                  </Text>
-                  <Text
-                    style={{ fontSize: 9, width: "15%", textAlign: "right" }}
-                  >
-                    {ebookPrice * 1}
-                  </Text>
-                </View>
-              );
-            }
-
-            return rows;
-          })}
-
-          <View>
-            {/* <Text style={{ fontSize: "10px", marginVertical: 7 }}>Total</Text> */}
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                borderTop: 0,
-                borderColor: "#000",
-                paddingVertical: "7px",
-                marginTop: 20,
-              }}
-            >
-              <Text style={{ fontSize: "9px" }}>Total</Text>
-              <Text style={{ fontSize: "9px" }}>
-                Rs. {originalAmountCalculate}/-
-              </Text>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                borderTop: 1,
-                borderColor: "#000",
-                paddingVertical: "7px",
-              }}
-            >
-              <Text style={{ fontSize: "9px" }}>
-                Discount ({discountPercent}%)
-              </Text>
-              <Text style={{ fontSize: "9px" }}>
-                Rs. {originalAmountCalculate - discountedAmountCalculate}/-
-              </Text>
-            </View>
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                borderTop: 1,
-                borderColor: "#000",
-                paddingVertical: "7px",
-              }}
-            >
-              <Text style={{ fontSize: "9px" }}>Sub Total</Text>
-              <Text style={{ fontSize: "9px" }}>
-                Rs. {discountedAmountCalculate}/-
-              </Text>
-            </View>
-
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                borderTop: 1,
-                borderColor: "#000",
-                paddingVertical: "7px",
-              }}
-            >
-              <Text style={{ fontSize: "9px" }}>Additional Discount -</Text>
-              <Text style={{ fontSize: "9px" }}>
-                Rs. {additionalDiscount}
-                /-
-              </Text>
-            </View>
-
-            <View
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
-                borderTop: 1,
-                borderColor: "#000",
-                paddingVertical: "7px",
-              }}
-            >
-              <Text style={{ fontSize: "9px" }}>Sub-Total </Text>
-              <Text style={{ fontSize: "9px" }}>
-                Rs. {amountAfterAdditionalDiscount}/-
-              </Text>
-            </View>
-
-            {appliedCouponDiscount && (
+              {/* table */}
               <View
                 style={{
                   display: "flex",
                   flexDirection: "row",
                   justifyContent: "space-between",
                   borderTop: 1,
+                  borderLeft: 1,
+                  borderRight: 1,
+                  borderBottom: 1,
+                  marginBottom: "-5px",
+                  paddingHorizontal: 4,
+                  backgroundColor: "#efefef",
+                  marginTop: "10px",
                   borderColor: "#000",
-                  paddingVertical: "7px",
+                  paddingVertical: 4,
                 }}
               >
-                <Text style={{ fontSize: "9px" }}>Coupon Discount -</Text>
-                <Text style={{ fontSize: "9px" }}>
-                  {appliedCouponDiscount}%
+                <Text style={{ fontSize: 9, width: "10%" }}>S.No.</Text>
+                <Text style={{ fontSize: 12, width: "35%" }}>Product</Text>
+                <Text
+                  style={{ fontSize: 12, width: "10%", textAlign: "center" }}
+                >
+                  Qty
+                </Text>
+                <Text
+                  style={{ fontSize: 12, width: "15%", textAlign: "center" }}
+                >
+                  Price
+                </Text>
+                {/* <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
+              HSN
+            </Text> */}
+                <Text
+                  style={{ fontSize: 12, width: "15%", textAlign: "right" }}
+                >
+                  Amount
                 </Text>
               </View>
-            )}
 
-            <View
+              {items?.map((product, index) => {
+                const medium = product.language;
+                const bookTitle = product?.productId?.[medium]?.title;
+                const sellingPrice = parseFloat(
+                  product?.productId?.[medium]?.paperBackDiscountedPrice || 0
+                );
+                const originalSellingPrice = parseFloat(
+                  product?.productId?.[medium]?.paperBackOriginalPrice || 0
+                );
+
+                const quantity = parseFloat(product?.quantity || 0);
+                const ebookPrice = parseFloat(product?.ebookPrice || 0);
+
+                const rows = [];
+                if (product.onlyEbookSelected === true) {
+                  return;
+                } else {
+                  rows.push(
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        borderBottom: 1,
+                        borderLeft: 1,
+                        borderRight: 1,
+                        marginBottom: "-5px",
+                        paddingHorizontal: 4,
+                        borderColor: "#000",
+                        paddingVertical: 4,
+                      }}
+                    >
+                      <Text style={{ fontSize: 9, width: "10%" }}>
+                        {index + 1}
+                      </Text>
+                      <Text style={{ fontSize: 10, width: "35%" }}>
+                        {bookTitle}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          width: "10%",
+                          textAlign: "center",
+                        }}
+                      >
+                        {quantity}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          width: "15%",
+                          textAlign: "center",
+                        }}
+                      >
+                        {originalSellingPrice}
+                      </Text>
+                      {/* <Text style={{ fontSize: 10, width: "15%", textAlign: "center" }}>
+              HSN
+            </Text> */}
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          width: "15%",
+                          textAlign: "right",
+                        }}
+                      >
+                        {sellingPrice * quantity}
+                      </Text>
+                    </View>
+                  );
+                }
+
+                return rows;
+              })}
+
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "black",
+                  marginTop: "10px",
+                }}
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 0,
+                    borderColor: "#000",
+                    paddingVertical: "7px",
+                    paddingHorizontal: "7px",
+                  }}
+                >
+                  <Text style={{ fontSize: "9px" }}>Total Items : </Text>
+                  <Text style={{ fontSize: "9px" }}>
+                    {totalPaperbackQuantity}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 1,
+                    borderColor: "#000",
+                    paddingVertical: "7px",
+                    paddingHorizontal: "7px",
+                  }}
+                >
+                  <Text style={{ fontSize: "9px" }}>Total</Text>
+                  <Text style={{ fontSize: "9px" }}>
+                    Rs. {totalPaperbackOriginalAmount}/-
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 1,
+                    borderColor: "#000",
+                    paddingVertical: "7px",
+                    paddingHorizontal: "7px",
+                  }}
+                >
+                  <Text style={{ fontSize: "9px" }}>
+                    Discount ({totalPaperbackDiscountPercent}%)
+                  </Text>
+                  <Text style={{ fontSize: "9px" }}>
+                    Rs. {totalPaperbackDiscountAmount}/-
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 1,
+                    borderColor: "#000",
+                    paddingHorizontal: "7px",
+                    paddingVertical: "7px",
+                  }}
+                >
+                  <Text style={{ fontSize: "9px" }}>Sub Total</Text>
+                  <Text style={{ fontSize: "9px" }}>
+                    Rs. {totalPaperbackAmount}/-
+                  </Text>
+                </View>
+                {totalSpecialDiscountPercentage > 0 && (
+                  <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      borderTop: 1,
+                      borderColor: "#000",
+                      paddingVertical: "7px",
+                      paddingHorizontal: "7px",
+                    }}
+                  >
+                    <Text style={{ fontSize: "9px" }}>
+                      Special Discount: ({totalSpecialDiscountPercentage}%){" "}
+                    </Text>
+                    <Text style={{ fontSize: "9px" }}>
+                      Rs. {totalSpecialDiscountOnPaperback}/-
+                    </Text>
+                  </View>
+                )}
+
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 1,
+                    borderColor: "#000",
+                    paddingVertical: "7px",
+                    paddingHorizontal: "7px",
+                  }}
+                >
+                  <Text style={{ fontSize: "9px" }}>Total:</Text>
+                  <Text style={{ fontSize: "9px" }}>
+                    Rs. {paperbackAmountAfterSpecialDiscount}/-
+                  </Text>
+                </View>
+
+                {/* <View
               style={{
                 display: "flex",
                 flexDirection: "row",
@@ -903,9 +772,7 @@ const ShipmentPdf = ({ data = {} }) => {
               }}
             >
               <Text style={{ fontSize: "9px" }}>Total -</Text>
-              <Text style={{ fontSize: "9px" }}>
-                Rs. {couponDiscountCalculated} /-
-              </Text>
+              <Text style={{ fontSize: "9px" }}>Rs. /-</Text>
             </View>
 
             <View
@@ -921,7 +788,7 @@ const ShipmentPdf = ({ data = {} }) => {
               <Text style={{ fontSize: "9px" }}>
                 Shipping & Handling Charges
               </Text>
-              <Text style={{ fontSize: "9px" }}>Rs. {shippingAmount} /-</Text>
+              <Text style={{ fontSize: "9px" }}>Rs. /-</Text>
             </View>
             <View
               style={{
@@ -934,11 +801,310 @@ const ShipmentPdf = ({ data = {} }) => {
               }}
             >
               <Text style={{ fontSize: "12px" }}> Grand Total</Text>
-              <Text style={{ fontSize: "12px" }}>
-                Rs. {grandTotalCalculated}
-                /-
+              <Text style={{ fontSize: "12px" }}>Rs. /-</Text>
+            </View> */}
+              </View>
+            </>
+          )}
+
+          {totalEbookAmount > 0 && (
+            <>
+              <View
+                style={{
+                  paddingVertical: 8,
+                  paddingHorizontal: 5,
+                  backgroundColor: "#efefef",
+                  marginTop: "20px",
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: "12px",
+                    textAlign: "left",
+                  }}
+                >
+                  Ebooks
+                </Text>
+              </View>
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  borderTop: 1,
+                  borderBottom: 1,
+                  borderLeft: 1,
+                  borderRight: 1,
+                  marginTop: "10px",
+                  backgroundColor: "#efefef",
+                  borderColor: "#000",
+                  paddingVertical: 4,
+                  paddingHorizontal: 4,
+                  marginBottom: "-5px",
+                }}
+              >
+                <Text style={{ fontSize: 9, width: "10%" }}>S.No.</Text>
+                <Text style={{ fontSize: 12, width: "35%" }}>Product</Text>
+                <Text
+                  style={{ fontSize: 12, width: "10%", textAlign: "center" }}
+                >
+                  Qty
+                </Text>
+                <Text
+                  style={{ fontSize: 12, width: "15%", textAlign: "center" }}
+                >
+                  Price
+                </Text>
+                {/* <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
+              HSN
+            </Text> */}
+                <Text
+                  style={{ fontSize: 12, width: "15%", textAlign: "right" }}
+                >
+                  Amount
+                </Text>
+              </View>
+
+              {items?.map((product, index) => {
+                const medium = product.language;
+                const bookTitle = product?.productId?.[medium]?.title;
+                const isEbookThere =
+                  product?.isEbookAlsoSelected === true ||
+                  product?.onlyEbookSelected === true
+                    ? true
+                    : false;
+                const ebookPrice = parseFloat(product?.ebookPrice || 0);
+
+                const rows = [];
+                let serialNumber = 1; // Initialize serial number for S. No.
+
+                if (isEbookThere === true) {
+                  rows.push(
+                    <View
+                      style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        borderBottom: 1,
+                        borderLeft: 1,
+                        borderRight: 1,
+                        borderColor: "#000",
+                        paddingHorizontal: 4,
+                        marginBottom: "-5px",
+                        paddingVertical: 5,
+                      }}
+                    >
+                      <Text style={{ fontSize: 9, width: "10%" }}>
+                        {serialNumber++}{" "}
+                        {/* Increment serial number for each item */}
+                      </Text>
+                      <Text style={{ fontSize: 10, width: "35%" }}>
+                        {bookTitle}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          width: "10%",
+                          textAlign: "center",
+                        }}
+                      >
+                        1
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          width: "15%",
+                          textAlign: "center",
+                        }}
+                      >
+                        {ebookPrice}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          width: "15%",
+                          textAlign: "right",
+                        }}
+                      >
+                        {ebookPrice}
+                      </Text>
+                    </View>
+                  );
+                }
+
+                return rows;
+              })}
+
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: "black",
+                  marginTop: "10px",
+                }}
+              >
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 0,
+                    borderColor: "#000",
+                    paddingHorizontal: "7px",
+                    paddingVertical: "7px",
+                  }}
+                >
+                  <Text style={{ fontSize: "9px" }}>Total Items : </Text>
+                  <Text style={{ fontSize: "9px" }}>{totalEbookQuantity}</Text>
+                </View>
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 1,
+                    borderColor: "#000",
+                    paddingVertical: "7px",
+                    paddingHorizontal: "7px",
+                  }}
+                >
+                  <Text style={{ fontSize: "9px" }}>Total</Text>
+                  <Text style={{ fontSize: "9px" }}>
+                    Rs. {totalEbookAmount}/-
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
+
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              borderTop: 1,
+              borderColor: "#000",
+              paddingVertical: "3px",
+              paddingHorizontal: "5px",
+              backgroundColor: "#efefef",
+              marginTop: "12px",
+              marginBottom: "-5px",
+              borderLeft: 1,
+              borderRight: 1,
+            }}
+          >
+            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              Grand Total
+            </Text>
+            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              Rs. {totalEbookAmount + paperbackAmountAfterSpecialDiscount}
+            </Text>
+          </View>
+
+          {/* net payable  */}
+          {appliedCoupon && (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                backgroundColor: "#efefef",
+                paddingHorizontal: "5px",
+                marginBottom: "-5px",
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Coupon Discount
+              </Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                {couponDiscountPercent}%
               </Text>
             </View>
+          )}
+
+          {shippingAmount && (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                backgroundColor: "#efefef",
+                paddingHorizontal: "5px",
+                marginBottom: "-5px",
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Shipping & Handling Charges
+              </Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Rs. {shippingAmount}
+              </Text>
+            </View>
+          )}
+          {onSiteDiscount && (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                backgroundColor: "#efefef",
+                paddingHorizontal: "5px",
+                marginBottom: "-5px",
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Onsite Discount
+              </Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Rs. {onSiteDiscount}
+              </Text>
+            </View>
+          )}
+
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              borderTop: 1,
+              borderColor: "#000",
+              paddingVertical: "3px",
+              paddingHorizontal: "5px",
+              backgroundColor: "#efefef",
+              marginBottom: "-5px",
+              borderBottom: 1,
+              borderLeft: 1,
+              borderRight: 1,
+            }}
+          >
+            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              Net Payable :
+            </Text>
+            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              Rs.{" "}
+              {Math.round(
+                (couponDiscountPercent > 0
+                  ? subtotalAmount - couponDiscountAmount
+                  : subtotalAmount) +
+                  (shippingAmount ? parseFloat(shippingAmount) : 0) -
+                  (onSiteDiscount ? parseFloat(onSiteDiscount) : 0)
+              )}
+              /-
+            </Text>
           </View>
         </View>
       </Page>

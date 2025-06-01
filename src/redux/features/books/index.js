@@ -8,6 +8,7 @@ const axiosInstance = createAxiosInstance();
 const initialState = {
     allBooks: null,
     brandNames: null,
+    menuExpanded: true,
 };
 
 const bookSlice = createSlice({
@@ -901,6 +902,26 @@ export const uploadBulkImages = (payload) => {
         } catch (error) {
             console.log(error);
             throw error; // Important: rethrow error to handle in onSubmit
+        }
+    };
+};
+
+
+
+
+
+export const checkCouponAvailability = (title, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+
+            const response = await axiosInstance.post("/utility/getCouponByCouponCode", { couponCode: title });
+            if (response.status === 200) {
+                const data = response?.data?.message
+                callback(true, response?.data?.coupon?.discount)
+
+            }
+        } catch (error) {
+            callback(false)
         }
     };
 };

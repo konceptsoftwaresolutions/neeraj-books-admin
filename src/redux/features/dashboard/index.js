@@ -1,17 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 import createAxiosInstance from "../../../config/axiosConfig";
-// import { toast } from "react-toastify";
 
 const initialState = {
   allUsers: null,
-  allLeads: null,
-  highPriorityLeads: null,
-  leadsByLastWeek: null,
-  allLeadsSummary: null,
-  executiveSummary: null,
-  executive: null,
-  managers: null,
+  dashboardData: null,
+  dashboardLoader: false
 };
+
+
+const axiosInstance = createAxiosInstance();
 
 const dashboardSlice = createSlice({
   name: "dashboardDetails",
@@ -27,3 +24,21 @@ const dashboardSlice = createSlice({
 
 export const { setDashboard } = dashboardSlice.actions;
 export default dashboardSlice.reducer;
+
+
+export const getDashboardData = (payload) => {
+  return async (dispatch) => {
+    try {
+      dispatch(setDashboard({ dashboardLoader: true }))
+      const response = await axiosInstance.post("/dashboard", payload);
+      if (response.status === 200) {
+        // console.log(response.data)
+        dispatch(setDashboard({ dashboardLoader: false }))
+        dispatch(setDashboard({ dashboardData: response.data }))
+      }
+    } catch (error) {
+      console.log(error)
+      dispatch(setDashboard({ dashboardLoader: false }))
+    }
+  };
+};

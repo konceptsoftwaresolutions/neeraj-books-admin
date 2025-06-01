@@ -97,6 +97,7 @@ const Navbar = () => {
           {showSettingsDropdown && (
             <div className="bg-gray-200 py-2">
               <div className="ml-4 w-[90%]  mx-auto">
+                <SidebarItem text="About Page" to={getRoute("/about")} />
                 <SidebarItem text="Popups" to={getRoute("/popups")} />
                 <SidebarItem text="Quiz" to={getRoute("/quiz")} />
                 {/* <SidebarItem text="Combo Offers" to={getRoute("/combos")} /> */}
@@ -118,12 +119,17 @@ const Navbar = () => {
                   text="Testimonials"
                   to={getRoute("/testimonials")}
                 />
+                <SidebarItem
+                  text="Bulk Orders"
+                  to={getRoute("/addbulkOrders")}
+                />
                 {/* <SidebarItem text="Best Seller" to={getRoute("/bestseller")} /> */}
                 {/* <SidebarItem
                   text="Reviews & Rating"
                   to={getRoute("/reviews-rating")}
                 /> */}
                 <SidebarItem text="Customer" to={getRoute("/customer")} />
+
                 {/* <SidebarItem text="User" to={getRoute("/user")} /> */}
               </div>
             </div>

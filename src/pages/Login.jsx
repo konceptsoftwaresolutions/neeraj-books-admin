@@ -99,7 +99,7 @@ const Login = () => {
             <Button
               type="submit"
               variant="filled"
-              className="primary-gradient black text-white py-2 font-bold text-md mt-4 rounded-md flex items-center justify-center "
+              className="primary-gradient black capitalize text-white py-2 font-bold text-md mt-4 rounded-md flex items-center justify-center "
               loading={isLoading}
             >
               Log In

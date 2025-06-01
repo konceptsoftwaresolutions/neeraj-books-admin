@@ -21,12 +21,17 @@ import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { pdf } from "@react-pdf/renderer";
 import {
+  cancelOrder,
   createShippingOrder,
   generateLabelShiprocket,
   getOrderById,
   getTrackingOrder,
 } from "../../redux/features/orders";
 import ShipmentPdf from "../pdf/ShipmentPdf";
+import RefundModal from "./RefundModal";
+import useCartCalculations from "../../hooks/useCartCalculations";
+import OnsiteModal from "./OnsiteModal";
+import { checkCouponAvailability } from "../../redux/features/books";
 
 const items = [
   {
@@ -97,9 +102,49 @@ const EditOrders = () => {
 
   const [orderInitial, setOrderInitial] = useState();
   const [orderdata, setOrderData] = useState();
+  const [cancelOrderLoader, setCancelOrderLoader] = useState(false);
+  const [showRefundModal, setShowRefundModal] = useState();
+  const [showOnsiteModal, setShowOnsiteModal] = useState();
+  const [couponPercentage, setCouponPercentage] = useState(0);
 
   const location = useLocation();
-  console.log(location?.state?.data);
+  // console.log(location?.state?.data);
+
+  useEffect(() => {
+    if (orderdata) {
+      dispatch(
+        checkCouponAvailability(orderdata.appliedCoupon, (success, data) => {
+          if (success) {
+            setCouponPercentage(data);
+          }
+        })
+      );
+    }
+  }, [orderdata]);
+
+  const {
+    totalPaperbackOriginalAmount,
+    totalPaperbackAmount,
+    totalPaperbackDiscountAmount,
+    totalPaperbackDiscountPercent,
+    totalPaperbackQuantity,
+
+    totalSpecialDiscountOnPaperback, // e.g. 28.50 + 9.00
+    totalSpecialDiscountPercentage, // e.g. 5 + 3
+
+    paperbackAmountAfterSpecialDiscount,
+    totalEbookAmount,
+    totalEbookQuantity,
+
+    subtotalAmount, // before coupon discount
+    couponDiscountPercent,
+    couponDiscountAmount,
+    // totalAmount,
+  } = useCartCalculations(
+    orderdata?.items,
+    orderdata?.additionalDiscount,
+    couponPercentage || 0
+  );
 
   const { shipNowBtnLoader, generateLabelLoder } = useSelector(
     (state) => state.order
@@ -124,88 +169,6 @@ const EditOrders = () => {
       getTheOrderbyId(orderInitial?._id);
     }
   }, [orderInitial]);
-
-  function calculateDiscountPercentage(totalAmount, discountAmount) {
-    if (totalAmount <= 0) {
-      return "Total amount must be greater than zero.";
-    }
-    let discountPercentage = (discountAmount / totalAmount) * 100;
-    return discountPercentage; // returns a string with 2 decimal places
-  }
-
-  const originalAmountCalculate = orderdata?.items?.reduce((total, product) => {
-    const medium = product.language;
-    const bookTitle = product?.productId?.[medium]?.title;
-    const originalSellingPrice = parseFloat(
-      product?.productId?.[medium]?.paperBackOriginalPrice || 0
-    );
-    const quantity = parseFloat(product?.quantity || 0);
-    const ebookPrice = parseFloat(product?.ebookPrice || 0);
-    const onlyEbook = product?.onlyEbookSelected;
-    const isEbookAlso = product?.isEbookAlsoSelected;
-
-    let originalAmount = 0;
-
-    if (onlyEbook) {
-      originalAmount = ebookPrice;
-    } else if (isEbookAlso) {
-      originalAmount = quantity * originalSellingPrice + ebookPrice;
-    } else {
-      originalAmount = originalSellingPrice * quantity;
-    }
-
-    return total + originalAmount;
-  }, 0);
-
-  const discountedAmountCalculate = orderdata?.items?.reduce(
-    (total, product) => {
-      const medium = product.language;
-      const bookTitle = product?.productId?.[medium]?.title;
-      const originalSellingPrice = parseFloat(
-        product?.productId?.[medium]?.paperBackOriginalPrice || 0
-      );
-      const discountedSellingPrice = parseFloat(
-        product?.productId?.[medium]?.paperBackDiscountedPrice || 0
-      );
-      const quantity = parseFloat(product?.quantity || 0);
-      const ebookPrice = parseFloat(product?.ebookPrice || 0);
-      const onlyEbook = product?.onlyEbookSelected;
-      const isEbookAlso = product?.isEbookAlsoSelected;
-
-      let originalAmount = 0;
-
-      if (onlyEbook) {
-        originalAmount = ebookPrice;
-      } else if (isEbookAlso) {
-        originalAmount = quantity * discountedSellingPrice + ebookPrice;
-      } else {
-        originalAmount = discountedSellingPrice * quantity;
-      }
-
-      return total + originalAmount;
-    },
-    0
-  );
-
-  let discountPercent = calculateDiscountPercentage(
-    originalAmountCalculate,
-    originalAmountCalculate - discountedAmountCalculate
-  );
-
-  const amountAfterAdditionalDiscount =
-    discountedAmountCalculate - orderdata?.additionalDiscount;
-
-  const couponDiscountOff =
-    (Number(amountAfterAdditionalDiscount || 0) *
-      Number(orderdata?.appliedCouponDiscount || 0)) /
-    100;
-
-  const couponDiscountCalculated =
-    amountAfterAdditionalDiscount - couponDiscountOff;
-
-  const grandTotalCalculated = Math.round(
-    Number(couponDiscountCalculated) + Number(orderdata?.shippingAmount)
-  );
 
   const totalBooks = orderdata?.items?.reduce((total, item) => {
     const isOnlyEbook = item.onlyEbookSelected;
@@ -234,8 +197,6 @@ const EditOrders = () => {
 
     return total;
   }, 0);
-
-  console.log(totalWeight);
 
   useEffect(() => {
     if (totalBooks && totalWeight) {
@@ -292,7 +253,9 @@ const EditOrders = () => {
   const handleInvoiceClick = async (data) => {
     console.log(data);
     try {
-      const blob = await pdf(<ShipmentPdf data={data} />).toBlob();
+      const blob = await pdf(
+        <ShipmentPdf data={data} couponPercentage={couponPercentage} />
+      ).toBlob();
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, "_blank");
     } catch (error) {
@@ -304,21 +267,25 @@ const EditOrders = () => {
     dispatch(getTrackingOrder(1234));
   };
 
+  const handleCancelOrder = () => {
+    dispatch(
+      cancelOrder(
+        location?.state?.data._id,
+        (success) => {
+          if (success) {
+            getTheOrderbyId(location?.state?.data._id);
+          }
+        },
+        setCancelOrderLoader
+      )
+    );
+  };
+
   return (
     <PageCont>
       <Heading text="Orders Details" />
       <div className="mt-4">
         <div>
-          {/* <div className="flex justify-start items-center gap-4">
-            <span className="text-xl font-medium">Order #32453</span>
-            <span className="bg-[#00c9a71a] text-[#00c9a7] px-3 text-[12px] rounded-md">
-              Paid
-            </span>
-            <span className="flex items-center gap-2 text-[12px]">
-              <IoCalendarOutline size={18} />
-              Aug 17, 2020, 5:48 (ET)
-            </span>
-          </div> */}
           <div className="flex justify-start items-center gap-2 mt-2">
             {/* <p className="flex items-center  text-sm gap-1 text-[#677788] cursor-pointer">
               <IoPrintOutline size={18} /> Print Order
@@ -382,13 +349,27 @@ const EditOrders = () => {
               </p>
             </div>
             <div className="flex justify-end gap-1 mb-6">
-              <Button>SMS</Button>
-              <Button onClick={() => handleInvoiceClick(orderdata)}>
+              <Button className="capitalize">SMS</Button>
+              <Button
+                onClick={() => handleInvoiceClick(orderdata)}
+                className="capitalize"
+              >
                 Invoice
               </Button>
+              {/* {(orderdata?.paymentMode === "Prepaid") && (orderdata?.paymentStatus === 'Paid') && ( */}
+              {orderdata?.paymentMode !== "COD" && 
+              <Button
+              className="capitalize"
+              onClick={() => setShowRefundModal(!showRefundModal)}
+              >
+                Refund
+              </Button>
+              }
+              {/* )} */}
+
               {orderdata?.orderStatus === "Shipped" && (
                 <Button
-                  className=""
+                  className="capitalize"
                   onClick={handleGenerateLabel}
                   loading={generateLabelLoder}
                 >
@@ -396,10 +377,18 @@ const EditOrders = () => {
                 </Button>
               )}
               {orderdata?.orderStatus === "Pending" && (
-                <Button className="bg-red-400">Cancel Order</Button>
+                <Button
+                  className="bg-red-400 capitalize"
+                  onClick={handleCancelOrder}
+                  loading={cancelOrderLoader}
+                >
+                  Cancel Order
+                </Button>
               )}
               {orderdata?.orderStatus === "Shipped" && (
-                <Button onClick={handleOrderTracking}>Track Order</Button>
+                <Button onClick={handleOrderTracking} className="capitalize">
+                  Track Order
+                </Button>
               )}
             </div>
             <div className="flex justify-between ">
@@ -410,8 +399,6 @@ const EditOrders = () => {
                     {orderdata?.shippingAddress?.firstName}
                     {orderdata?.shippingAddress?.lastName}
                   </li>
-                  <li>{orderdata?.shippingAddress?.mobile}</li>
-                  <li>{orderdata?.shippingAddress?.email}</li>
                   <li>{orderdata?.shippingAddress?.addressLine1}</li>
                   {orderdata?.shippingAddress?.addressline2 && (
                     <li>{orderdata?.shippingAddress?.addressline2}</li>
@@ -422,6 +409,8 @@ const EditOrders = () => {
                     {orderdata?.shippingAddress?.pincode}{" "}
                   </li>
                   <li>{orderdata?.shippingAddress?.country}</li>
+                  <li>{orderdata?.shippingAddress?.mobile}</li>
+                  <li>{orderdata?.shippingAddress?.email}</li>
                 </ul>
               </div>
               <div className="w-[50%]">
@@ -435,15 +424,21 @@ const EditOrders = () => {
                   <li>Mode : {orderdata?.paymentMode}</li>
                   <li>Ref ID: </li>
                   <li>
-                    Status :{" "}
+                    Order Status :{" "}
                     <span className="text-green-500 font-bold">
                       {orderdata?.orderStatus}
+                    </span>
+                  </li>
+                  <li>
+                    Payment Status :{" "}
+                    <span className="text-green-500 font-bold">
+                      {orderdata?.paymentStatus}
                     </span>
                   </li>
                   <li>Shipped By : </li>
                 </ul>
                 <div className="w-full flex flex-col items-end   justify-end gap-y-2">
-                  <p className="p-2 rounded-md text-white px-3 bg-red-400 my-2 cursor-pointer">
+                  <p className="p-2 rounded-md text-white px-3 bg-red-400 my-2 cursor-pointer capitalize">
                     Mark As Returned
                   </p>
                   {orderdata?.courier && <p>Courier : {orderdata?.courier}</p>}
@@ -692,56 +687,115 @@ const EditOrders = () => {
                 </div>
               </div>
               <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5">
-                <p className="text-2xl border-b border-black  mb-5 pb-3">
-                  Total
-                </p>
-                <div className="border border-black">
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p> Total </p>
-                    <p>₹{originalAmountCalculate}/-</p>
-                  </div>
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Discount ({discountPercent}%)</p>
+                <div className="flex justify-between items-center border-b border-black  mb-5 pb-3">
+                  <p className="text-2xl ">Total</p>
+                  {orderdata.paymentMode !== "Prepaid" && (
+                      <Button
+                        className="capitalize"
+                        onClick={() => setShowOnsiteModal(!showOnsiteModal)}
+                      >
+                        Onsite discount
+                      </Button>
+                    )}
+                </div>
+                {totalPaperbackQuantity > 0 && (
+                  <>
+                    <p className="text-lg mt-2">Printed Book</p>
+                    <div className="border border-black">
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> Total Items</p>
+                        <p>{totalPaperbackQuantity}</p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> Total</p>
+                        <p>₹{totalPaperbackOriginalAmount}/-</p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> Discount ({totalPaperbackDiscountPercent}%)</p>
+                        <p>₹{totalPaperbackDiscountAmount}/-</p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p>Sub Total</p>
+                        <p>₹{totalPaperbackAmount}/-</p>
+                      </div>
+                      {totalSpecialDiscountPercentage > 0 && (
+                        <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                          <p>
+                            {" "}
+                            Special Discount ({totalSpecialDiscountPercentage}%)
+                          </p>
+                          <p>₹{totalSpecialDiscountOnPaperback}/-</p>
+                        </div>
+                      )}
+                      <div className="flex justify-between  border-black p-2 text-md">
+                        <p> Total</p>
+                        <p>₹{paperbackAmountAfterSpecialDiscount}/-</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {totalEbookQuantity > 0 && (
+                  <>
+                    <p className="text-lg mt-4">E Book</p>
+                    <div className="border border-black">
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> Total Items</p>
+                        <p>{totalEbookQuantity}</p>
+                      </div>
+                      <div className="flex justify-between  border-black p-2 text-md">
+                        <p> Total </p>
+                        <p>₹{totalEbookAmount}/-</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="border border-black mt-6">
+                  <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                    <p className="font-semibold"> Grand Total</p>
                     <p>
-                      ₹{originalAmountCalculate - discountedAmountCalculate}/-
+                      ₹{totalEbookAmount + paperbackAmountAfterSpecialDiscount}
+                      /-
                     </p>
                   </div>
-                  {orderdata?.additionalDiscount > 0 && (
-                    <>
-                      <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                        <p> Sub-Total </p>
-                        <p>₹{discountedAmountCalculate}/- </p>
-                      </div>
-                      <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                        <p>Additional Discount </p>
-                        <p>₹{orderdata?.additionalDiscount || 0}/- </p>
-                      </div>
-                      <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                        <p>Sub-Total </p>
-                        <p>₹{amountAfterAdditionalDiscount}/- </p>
-                      </div>
-                    </>
-                  )}
-
-                  {orderdata?.appliedCouponDiscount && (
-                    <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                      <p>Coupon Discount </p>
-                      <p>{orderdata?.appliedCouponDiscount}% </p>
+                  {orderdata?.appliedCoupon && (
+                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                      <p className="font-semibold"> Coupon Discount</p>
+                      <p>{couponDiscountPercent}%</p>
                     </div>
                   )}
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Total </p>
-                    <p>₹{couponDiscountCalculated}/- </p>
-                  </div>
+                  {orderdata?.shippingAmount && (
+                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                      <p className="font-semibold">
+                        {" "}
+                        Shipping & Handling Charges{" "}
+                      </p>
+                      <p>₹{orderdata?.shippingAmount}/-</p>
+                    </div>
+                  )}
 
-                  <div className="flex justify-between border-b-[1px] border-black p-3 text-lg">
-                    <p>Shipping & Handling Charges </p>
-                    <p>₹{orderdata?.shippingAmount}/- </p>
-                  </div>
-                  <div className="flex justify-between p-3 text-lg">
-                    <p className="text-red-400 text-xl">Grand-Total</p>
-                    <p className="text-red-400 text-xl">
-                      ₹{grandTotalCalculated} /-
+                  {orderdata?.onSiteDiscount && (
+                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                      <p className="font-semibold"> Onsite Discount </p>
+                      <p>₹{orderdata?.onSiteDiscount}/-</p>
+                    </div>
+                  )}
+                  <div className="flex justify-between  border-black p-2 text-md">
+                    <p className="font-semibold"> Net Payable </p>
+                    <p>
+                      ₹
+                      {Math.round(
+                        (couponDiscountPercent > 0
+                          ? subtotalAmount - couponDiscountAmount
+                          : subtotalAmount) +
+                          (orderdata?.shippingAmount
+                            ? parseFloat(orderdata?.shippingAmount)
+                            : 0) -
+                          (orderdata?.onSiteDiscount
+                            ? parseFloat(orderdata?.onSiteDiscount)
+                            : 0)
+                      )}
+                      /-
                     </p>
                   </div>
                 </div>
@@ -756,6 +810,18 @@ const EditOrders = () => {
           </div>
         </>
       )}
+      <RefundModal
+        openModal={showRefundModal}
+        setOpenModal={setShowRefundModal}
+        orderdata={orderdata}
+      />
+
+      <OnsiteModal
+        openModal={showOnsiteModal}
+        setOpenModal={setShowOnsiteModal}
+        id={orderdata?._id}
+        getTheOrderbyId={getTheOrderbyId}
+      />
     </PageCont>
   );
 };

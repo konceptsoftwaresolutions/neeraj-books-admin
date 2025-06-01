@@ -312,6 +312,10 @@ const UpdateBook = () => {
         active: JSON.stringify(rowData?.active ?? ""),
         stock: rowData?.stock || "",
         weight: rowData?.weight || "",
+        metaTitle: rowData?.metaTitle || "",
+        metaTag: rowData?.metaTag || "",
+        metaDescription: rowData?.metaDescription || "",
+
         theoreticalExplanationOfChapters:
           rowData?.theoreticalExplanationOfChapters || [
             { title: "", content: null },
@@ -511,7 +515,7 @@ const UpdateBook = () => {
     const bookData = {
       metaTitle: data?.metaTitle,
       metaDescription: data?.metaDescription,
-      metaTags: data?.metaTags,
+      metaTag: data?.metaTag,
       viewParentCategory: data?.viewParentCategory,
       viewSubCategory: data?.viewSubCategory,
       viewSubSubCategory: data?.viewSubSubCategory,
@@ -1674,7 +1678,7 @@ const UpdateBook = () => {
                   <InputField
                     control={control}
                     errors={errors}
-                    name="metaTags"
+                    name="metaTag"
                     label="Meta Tags"
                     type="description"
                   />

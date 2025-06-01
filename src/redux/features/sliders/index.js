@@ -351,6 +351,12 @@ export const getAppPopupImage = (title, callback) => {
     };
 };
 
+
+
+
+
+
+
 export const createAppPopUp = ({ formData }, callback = () => { }, setIsLoading) => {
     return async (dispatch) => {
         try {
@@ -587,6 +593,90 @@ export const getDiscountPopUpData = (callback) => {
             if (callback) {
                 callback(false); // Pass the error to the callback
             }
+        }
+    };
+};
+
+
+
+export const getAboutSectionData = (callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/utility/getAboutUs");
+            if (response.status === 200) {
+                // console.log("response is ", response)
+                callback(true, response?.data?.aboutUs)
+
+            }
+        } catch (error) {
+            console.log(error)
+
+            callback(false)
+        }
+    };
+};
+
+
+export const getSectionPhoto = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/utility/findPhotoAboutUs", payload, {
+                responseType: "blob",
+            });
+
+            if (response.status === 200 && response.data instanceof Blob) {
+                const blobURL = URL.createObjectURL(response.data);
+                callback(true, blobURL); // return only blob URL
+            } else {
+                callback(false);
+            }
+        } catch (error) {
+            console.log("Error fetching photo:", error);
+            callback(false);
+        }
+    };
+};
+
+
+export const createAboutSection = (data, callback = () => { }, setIsLoading) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/utility/updateAboutUs", data);
+            if (response.status === 200) {
+                console.log("response is ", response)
+                // const message = response.data?.message || "Added successfully!";
+                callback(true);
+                toast.success(message);
+                setIsLoading(false)
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("message")) {
+                message = error?.message;
+            }
+            setIsLoading(false)
+            toast.error(message);
+        } finally {
+            setIsLoading(false)
+        }
+    }
+}
+
+export const uploadPhotoAboutSection = (formData, callback = () => { }, setIsLoading) => {
+    return async () => {
+        try {
+
+
+            const response = await axiosInstance.postForm("/utility/uploadPhotoAboutUs", formData);
+            if (response.status === 200) {
+                toast.success("Photo uploaded successfully!");
+                callback(true);
+            }
+        } catch (error) {
+            console.error("Photo Upload Error:", error);
+            const message = error?.message || "Photo upload failed";
+            toast.error(message);
         }
     };
 };

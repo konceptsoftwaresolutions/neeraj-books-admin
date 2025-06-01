@@ -1,15 +1,39 @@
-import React from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PageCont from "../../components/PageCont";
 import StatsCard from "./StatsCard";
 import Heading from "../../components/Heading";
-import BillPDF from "../../pdf/billPdf";
 import { useForm } from "react-hook-form";
-import { Button } from "@material-tailwind/react";
-import InputField from "../../common/fields/InputField";
-import { FaUser, FaWallet, FaCarAlt, FaTruck, FaWindowClose, FaSync, FaBook, FaShoppingCart } from "react-icons/fa";
+import { DatePicker } from "antd";
+import "antd/dist/reset.css";
+import dayjs from "dayjs";
+import Category from "./categorydata/Category";
+import { useDispatch, useSelector } from "react-redux";
+import { getDashboardData } from "../../redux/features/dashboard";
+import MonthChart from "./charts/MonthChart";
+import { getAllCategories } from "../../redux/features/category";
 
 const Home = () => {
+  const dispatch = useDispatch();
 
+  const [filters, setFilters] = useState({
+    period: "all",
+    category: "IGNOU",
+    fromDate: null,
+    toDate: null,
+  });
+
+  const { dashboardData } = useSelector((state) => state.dashboard);
+  const { allCategory } = useSelector((state) => state.category);
+
+  useEffect(() => {
+    dispatch(getAllCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(getDashboardData(filters));
+  }, [dispatch, filters]);
+
+  const { RangePicker } = DatePicker;
   const {
     handleSubmit,
     formState: { errors },
@@ -18,64 +42,184 @@ const Home = () => {
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data);
+    // console.log(data);
+  };
+
+  const handleTimeFilterChange = (value) => {
+    setFilters((prev) => ({
+      ...prev,
+      period: value,
+    }));
+  };
+
+  const handleFromDateChange = (date, dateString) => {
+    setFilters((prev) => ({
+      ...prev,
+      fromDate: dateString,
+    }));
+  };
+
+  const handleToDateChange = (date, dateString) => {
+    setFilters((prev) => ({
+      ...prev,
+      toDate: dateString,
+    }));
   };
 
   return (
     <PageCont>
       <div className="flex justify-start items-center gap-3   ">
-        <Heading text="Admin Dashboard" /> 
-        {/* <BillPDF /> */}
+        <Heading text="Admin Dashboard" />
       </div>
-      <div className="mt-4">
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <p className="text-sm">Select Date to Filter Date</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-3">
-            <InputField
-              control={control}
-              errors={errors}
-              name="bookCover"
-              type="Date"
-            />
-            <InputField
-              control={control}
-              errors={errors}
-              name="previewPdf"
-              type="Date"
-            />
-            <div className="flex justify-center gap-5 items-center">
-              <Button type="submit" className="bg-[#1ABC9C] w-[300px]">
-                Filter
-              </Button>
-              <Button type="submit" className="bg-[#FF7979] w-[300px]">
-                Reset
-              </Button>
-            </div>
-          </div>
-          <Button type="submit" className="bg-[#1ABC9C] w-[200px] mt-4">
-            Remettance Loge
-          </Button>
 
-        </form>
+      <div className="flex justify-end gap-3">
+        <div className="flex">
+          {["today", "weekly", "monthly", "yearly", "all"].map((time) => (
+            <button
+              key={time}
+              className={`border-black border-[1px] px-2 py-1 border-r-0 last:border-r ${
+                filters.period === time ? "bg-black text-white" : ""
+              }`}
+              onClick={() => handleTimeFilterChange(time)}
+            >
+              {time.charAt(0).toUpperCase() + time.slice(1)}
+            </button>
+          ))}
+        </div>
+        <div className="flex gap-4">
+          <DatePicker
+            className="border px-2 py-1 rounded-none border-black"
+            onChange={handleFromDateChange}
+            allowClear
+            format="DD-MM-YYYY"
+            placeholder="From Date"
+            value={
+              filters.fromDate ? dayjs(filters.fromDate, "DD-MM-YYYY") : null
+            }
+          />
+          <DatePicker
+            className="border px-2 py-1 rounded-none border-black"
+            onChange={handleToDateChange}
+            allowClear
+            format="DD-MM-YYYY"
+            placeholder="To Date"
+            value={filters.toDate ? dayjs(filters.toDate, "DD-MM-YYYY") : null}
+          />
+        </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-6 lg:gap-8 my-5 max-h-screen overflow-auto">
-        <StatsCard title={"Today's Sales"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Yesterday's Sales"} icon={<FaUser />} value="100" growth="100" />
-        <StatsCard title={"Last 7 days Sale"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Last 30 days Sale"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Pending Orders"} icon={<FaCarAlt />} value="100" growth="100" />
-        <StatsCard title={"Shipped Orders"} icon={<FaTruck />} value="100" growth="100" />
-        <StatsCard title={"Cancelled Orders"} icon={<FaWindowClose />} value="100" growth="100" />
-        <StatsCard title={"Refunded Orders"} icon={<FaSync />} value="100" growth="100" />
-        <StatsCard title={"Total Products"} icon={<FaBook />} value="100" growth="100" />
-        <StatsCard title={"Total Orders"} icon={<FaShoppingCart />} value="100" growth="100" />
-        <StatsCard title={"Total Sales"} icon={<FaWallet />} value="100" growth="100" />
-        <StatsCard title={"Total Customers"} icon={<FaUser />} value="100" growth="100" />
-        <StatsCard title={"Total Products Sold"} icon={<FaUser />} value="100" growth="100" />
-        <StatsCard title={"Total Other Orders"} icon={<FaBook />} value="100" growth="100" />
-        <StatsCard title={"Other OrdersTotal"} icon={<FaShoppingCart />} value="100" growth="100" />
-        <StatsCard title={"Other Order Clients"} icon={<FaWallet />} value="100" growth="100" />
+      <div className="grid grid-cols-4 gap-4 my-10">
+        <StatsCard
+          firstTitle="Total orders"
+          firstAmount={dashboardData?.totalOrders}
+          secondTitle="Total Orders Sale"
+          secondAmount={dashboardData?.totalOrderSales}
+        />
+        <StatsCard
+          firstTitle="COD Orders"
+          firstAmount={dashboardData?.codOrders}
+          secondTitle="COD Sale"
+          secondAmount={dashboardData?.codOrdersSales}
+        />
+        <StatsCard
+          firstTitle="Prepaid Orders"
+          firstAmount={dashboardData?.prepaidOrders}
+          secondTitle="Prepaid Sale"
+          secondAmount={dashboardData?.prepaidOrdersSales}
+        />
+        <StatsCard
+          firstTitle="Bulk Orders"
+          firstAmount="456"
+          secondTitle="Bulk Sale"
+          secondAmount="45678"
+        />
+        <StatsCard
+          firstTitle="Pending Orders"
+          firstAmount={dashboardData?.pendingOrders}
+          secondTitle="Pending Sale"
+          secondAmount={dashboardData?.pendingOrdersSales}
+        />
+        <StatsCard
+          firstTitle="In Transit Orders"
+          firstAmount={dashboardData?.inTransitOrders}
+          secondTitle="In Transit Sale"
+          secondAmount={dashboardData?.inTransitOrdersSales}
+        />
+        <StatsCard
+          firstTitle="Returned Orders"
+          firstAmount={dashboardData?.returnedOrders}
+          secondTitle="Returned Sale"
+          secondAmount={dashboardData?.returnedOrdersSales}
+        />
+        <StatsCard
+          firstTitle="Refund Orders"
+          firstAmount={dashboardData?.refundOrders}
+          secondTitle="Refund Sale"
+          secondAmount={dashboardData?.refundOrdersSales}
+        />
+        <StatsCard
+          firstTitle="Cancel Orders"
+          firstAmount={dashboardData?.cancelOrders}
+          secondTitle="Cancel Sale"
+          secondAmount={dashboardData?.cancelOrdersSales}
+        />
+        <StatsCard
+          firstTitle="Total Registered"
+          firstAmount={dashboardData?.totalRegistered}
+        />
+        <StatsCard
+          firstTitle="Total Purchasers"
+          firstAmount={dashboardData?.totalPurchasers}
+        />
+        <StatsCard
+          firstTitle="Total Products"
+          firstAmount={dashboardData?.totalProducts}
+        />
+        <StatsCard
+          firstTitle="Ebook Orders"
+          firstAmount={dashboardData?.eBookOrders}
+          secondTitle="Ebook Sale"
+          secondAmount={dashboardData?.eBookSales}
+        />
+        <StatsCard
+          firstTitle="Assignment Orders"
+          firstAmount="0"
+          secondTitle="Assignment Sale"
+          secondAmount="0"
+        />
+        <StatsCard
+          firstTitle="Sample Paper Orders"
+          firstAmount="0"
+          secondTitle="Sample Paper Sale"
+          secondAmount="0"
+        />
+        <StatsCard firstTitle="Bulk Buyers" firstAmount="0" />
+        <StatsCard
+          firstTitle="Shipping Paid"
+          firstAmount={dashboardData?.shippingPaid}
+        />
       </div>
+      <MonthChart dashboardData={dashboardData} />
+      <div className="flex gap-3 flex-wrap">
+        <div className="flex gap-3 flex-wrap">
+          {allCategory?.map((item, index) => (
+            <p
+              key={index}
+              onClick={() =>
+                setFilters((prev) => ({
+                  ...prev,
+                  category: item.name,
+                }))
+              }
+              className={`px-3 py-1 border-[1px] border-black rounded-2xl cursor-pointer ${
+                filters.category === item.name ? "bg-black text-white" : ""
+              }`}
+            >
+              {item.name}
+            </p>
+          ))}
+        </div>
+      </div>
+      <Category />
     </PageCont>
   );
 };

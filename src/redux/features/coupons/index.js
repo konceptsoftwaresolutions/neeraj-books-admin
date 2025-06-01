@@ -92,3 +92,35 @@ export const editCoupon = (payload) => {
         }
     };
 };
+
+export const initiateRefund = (payload, setIsLoading, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setIsLoading(true)
+            const response = await axiosInstance.post("/order/initiate-refund", payload);
+            if (response.status === 200) {
+                console.log(response)
+                const message = response.data?.message + "-" + response?.data?.refundData?.msg || "Initiated successfully!";
+                toast.success(message);
+                setIsLoading(false)
+                callback(true)
+            }
+        } catch (error) {
+            setIsLoading(false)
+            // console.log(error)
+            if (error.response.data.error) {
+                toast.error(error.response.data.error);
+
+            } else {
+                toast.error(error.response.data);
+
+            }
+
+            // callback(error);
+            callback(false)
+        } finally {
+            setIsLoading(false)
+            callback(false)
+        }
+    };
+};
