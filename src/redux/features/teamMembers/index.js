@@ -36,7 +36,7 @@ export const getAllTeamMembers = () => {
                 const data = response?.data;
                 // callback(null);
 
-                dispatch(setTeamMembers({ allUsers: data }))
+                dispatch(setTeamMembers({ allUsers: [...data].reverse() }))
                 // dispatch(getAllLeads());
             }
         } catch (error) {

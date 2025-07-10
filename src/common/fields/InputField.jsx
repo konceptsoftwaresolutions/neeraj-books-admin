@@ -72,6 +72,7 @@ const InputField = ({
   modalBodyClass = "",
   modalLabelClass = "",
   max = 1,
+  maxFiles,
   value,
   picker = "date",
 }) => {
@@ -99,6 +100,7 @@ const InputField = ({
     modalClass,
     modalBodyClass,
     modalLabelClass,
+    maxFiles,
     max,
     picker,
   };

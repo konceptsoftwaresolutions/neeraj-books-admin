@@ -93,7 +93,7 @@ function TeamMembers(props) {
           Add Members
         </Button>
       </div>
-      <div className="mt-4">
+      {/* <div className="mt-4">
         <DataTable
           data={allUsers ? allUsers : []}
           columns={allMembers}
@@ -103,7 +103,7 @@ function TeamMembers(props) {
           paginationPerPage={10}
           paginationRowsPerPageOptions={[10, 25, 50]}
         />
-      </div>
+      </div> */}
     </PageCont>
   );
 }

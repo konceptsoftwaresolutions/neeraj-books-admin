@@ -41,6 +41,9 @@ const AffiliateOrder = () => {
           data={ordersData ? ordersData : []}
           columns={affiliateOrderColumns}
           customStyles={tableStyle}
+          noDataComponent={
+            <div className="text-gray-500 py-4">No orders found.</div>
+          }
         />
       </div>
     </PageCont>

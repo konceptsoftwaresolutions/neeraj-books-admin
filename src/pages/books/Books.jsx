@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PageCont from "../../components/PageCont";
 import { Plus } from "lucide-react";
 import Heading from "../../components/Heading";
@@ -106,22 +106,33 @@ const Books = () => {
     return rows;
   };
 
-  const tableData = transformData(allBooks);
+  const tableData = useMemo(() => transformData(allBooks), [allBooks]);
 
   const normalizeText = (text) => text.toLowerCase().replace(/[^a-z0-9]/g, "");
 
   useEffect(() => {
-    if (searchText.trim() === "") {
+    if (!searchText.trim()) {
       setFilteredBooks(tableData);
-    } else {
-      const normalizedSearch = normalizeText(searchText);
-      setFilteredBooks(
-        tableData.filter((book) =>
-          normalizeText(book.bookCode).includes(normalizedSearch)
-        )
-      );
+      return;
     }
-  }, [searchText, allBooks]);
+
+    const normalizedSearch = normalizeText(searchText);
+    const filtered = tableData.filter((book) => {
+      const bookCodeMatch = normalizeText(book.bookCode).includes(
+        normalizedSearch
+      );
+      const mediumMatch = normalizeText(book.medium).includes(normalizedSearch);
+      const paperBackPriceMatch =
+        String(book.paperBackPrice) === normalizedSearch;
+      const eBookPriceMatch = String(book.eBookPrice) === normalizedSearch;
+
+      return (
+        bookCodeMatch || mediumMatch || paperBackPriceMatch || eBookPriceMatch
+      );
+    });
+
+    setFilteredBooks(filtered);
+  }, [searchText, tableData]);
 
   const handleRowClick = (row) => {
     const bookId = row.bookDetail._id;
@@ -142,7 +153,7 @@ const Books = () => {
   };
 
   const handleUploadExcel = (data) => {
-    console.log(data);
+    // console.log(data);
     const formData = new FormData();
     formData.append("file", data); // 👈 "excel" should match backend field key
     dispatch(uploadBulkUploadExcel(formData));
@@ -200,6 +211,12 @@ const Books = () => {
       description3: "",
       title4: "",
       description4: "",
+      metaTitle: "",
+      metaTag: "",
+      metaDescription: "",
+      totalPages: "",
+      totalNoOfPapers: "",
+      authorName: "",
     },
   ];
 
@@ -361,6 +378,8 @@ const Books = () => {
     XLSX.writeFile(wb, "Books.xlsx"); // Trigger download
   };
 
+  // console.log(filteredBooks);
+
   return (
     <PageCont>
       <div className="flex justify-between items-center">
@@ -448,7 +467,7 @@ const Books = () => {
 
         <Input
           type="text"
-          placeholder="Search by book code..."
+          placeholder="Search by book code , Medium..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           className="w-full px-4 py-2 pl-7 border rounded-md shadow-sm focus:outline-none focus:ring-2 border-cstm-blue "

@@ -22,6 +22,8 @@ import { IoSettings } from "react-icons/io5";
 import { IoIosArrowUp } from "react-icons/io";
 
 import { IoIosArrowDown } from "react-icons/io";
+import { HiMiniUserGroup } from "react-icons/hi2";
+import { BsFillGrid1X2Fill } from "react-icons/bs";
 
 const Navbar = () => {
   const { isAuthenticated, role } = useSelector((state) => state.auth);
@@ -51,6 +53,11 @@ const Navbar = () => {
           icon={<FaBook size={20} />}
           text="Books"
           to={getRoute("/books")}
+        />
+        <SidebarItem
+          icon={<FaBitbucket size={20} />}
+          text="Old Website Books"
+          to={getRoute("/oldbooks")}
         />
 
         <SidebarItem
@@ -123,18 +130,33 @@ const Navbar = () => {
                   text="Bulk Orders"
                   to={getRoute("/addbulkOrders")}
                 />
+                <SidebarItem
+                  text="Bulk Orders Client"
+                  to={getRoute("/bulk-orders-client")}
+                />
                 {/* <SidebarItem text="Best Seller" to={getRoute("/bestseller")} /> */}
                 {/* <SidebarItem
                   text="Reviews & Rating"
                   to={getRoute("/reviews-rating")}
                 /> */}
-                <SidebarItem text="Customer" to={getRoute("/customer")} />
 
                 {/* <SidebarItem text="User" to={getRoute("/user")} /> */}
               </div>
             </div>
           )}
         </div>
+
+        <SidebarItem
+          icon={<HiMiniUserGroup size={20} />}
+          text="Customer"
+          to={getRoute("/customer")}
+        />
+
+        <SidebarItem
+          icon={<BsFillGrid1X2Fill size={20} />}
+          text="Manage Sections"
+          to={getRoute("/sections")}
+        />
 
         <hr className="my-3" />
       </Sidebar>

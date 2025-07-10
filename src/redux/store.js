@@ -19,6 +19,7 @@ import testimonialReducer from './features/testimonials'
 import couponReducer from './features/coupons'
 import allUserReducer from './features/allUsers'
 import affiliateReducer from './features/affiliates'
+import customerReducer from './features/customers'
 
 import { thunk } from "redux-thunk";
 
@@ -39,12 +40,13 @@ const rootReducer = combineReducers({
   coupons: couponReducer,
   allUsers: allUserReducer,
   affiliate: affiliateReducer,
+  customer: customerReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "affiliate", "allUsers", "coupons", "testimonial", "dashboard", "user", "team", "order", "category", "slider", "books", "dummy", "dummyBook", "allBooks", "quiz"],
+  whitelist: ["auth", "customer", "affiliate", "allUsers", "coupons", "testimonial", "dashboard", "user", "team", "order", "category", "slider", "books", "dummy", "dummyBook", "allBooks", "quiz"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

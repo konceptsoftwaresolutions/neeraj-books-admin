@@ -13,6 +13,7 @@ import {
   getSectionPhoto,
 } from "../../redux/features/sliders";
 import { toast } from "react-toastify";
+import AboutSectionEditor from "./AboutSectionEditor";
 
 const AboutUsPage = () => {
   const dispatch = useDispatch();
@@ -108,7 +109,6 @@ const AboutUsPage = () => {
     dispatch(createAboutSection(data));
   };
 
-  console.log(sectionImages);
 
   return (
     <PageCont>
@@ -187,6 +187,7 @@ const AboutUsPage = () => {
           {isLoading ? "Saving..." : "Save All"}
         </Button>
       </form>
+      {/* <AboutSectionEditor /> */}
     </PageCont>
   );
 };

@@ -171,12 +171,14 @@ export const allBooksColumns = (
     {
       name: "Book Code",
       width: "250px",
+      sortable: true,
       wrap: true,
       selector: (row) => row.bookCode || "N/A",
     },
     {
       name: "Medium",
       width: "120px",
+      sortable: true,
       wrap: true,
       selector: (row) => row.medium || "N/A",
     },
@@ -191,6 +193,7 @@ export const allBooksColumns = (
     {
       name: "Paperback Price",
       width: "170px",
+      sortable: true,
       wrap: true,
       selector: (row) => `₹${row.paperBackPrice}` || "N/A",
       // style: {
@@ -201,6 +204,7 @@ export const allBooksColumns = (
       name: "E-Book Price",
       width: "150px",
       wrap: true,
+      sortable: true,
       selector: (row) => `₹${row.eBookPrice}` || "N/A",
     },
     {
@@ -221,6 +225,102 @@ export const allBooksColumns = (
         </div>
       ),
     },
+    {
+      name: "Stock",
+      width: "130px",
+      wrap: true,
+      selector: (row) => row.stock || "N/A",
+    },
+
+    // {
+    //   name: "E-Book Discounted Price",
+    //   width: "270px",
+    //   wrap: true,
+    //   selector: (row) => `₹${row.eBookDiscountedPrice}` || "N/A",
+    //   style: {
+    //     padding: "10px",
+    //   },
+    // },
+  ];
+};
+
+export const oldBooksColumns = (
+  handleRowClick,
+
+  getCategoryName,
+  allCategory,
+  handleBookSort
+) => {
+  return [
+    {
+      name: "S.No.",
+      width: "80px",
+      wrap: true,
+      selector: (row, index) => index + 1,
+    },
+    {
+      name: "Action",
+      width: "80px",
+      selector: (row) => (
+        <div className="flex justify-center items-center gap-x-2">
+          <Tooltip title="Edit Book">
+            <Button
+              className="primary-gradient rounded-md py-2 px-3 text-white"
+              onClick={() => handleRowClick(row)}
+            >
+              <CiEdit size={18} />
+            </Button>
+          </Tooltip>
+        </div>
+      ),
+    },
+    {
+      name: "Book Code",
+      width: "250px",
+      sortable: true,
+      wrap: true,
+      selector: (row) => row.bookCode || "N/A",
+    },
+    {
+      name: "Medium",
+      width: "120px",
+      sortable: true,
+      wrap: true,
+      selector: (row) => row.medium || "N/A",
+    },
+    {
+      name: "Category",
+      selector: (row) =>
+        row.categories?.length
+          ? row.categories?.map((item) => item.name).join(", ")
+          : "NA",
+    },
+
+    {
+      name: "Paperback Price",
+      width: "170px",
+      sortable: true,
+      wrap: true,
+      selector: (row) => `₹${row.paperBackPrice}` || "N/A",
+      // style: {
+      //   padding: "10px",
+      // },
+    },
+    {
+      name: "E-Book Price",
+      width: "150px",
+      wrap: true,
+      sortable: true,
+      selector: (row) => `₹${row.eBookPrice}` || "N/A",
+    },
+    {
+      name: "Order",
+      width: "150px",
+      wrap: true,
+      sortable: true,
+      selector: (row) => `${row.sort}` || "N/A",
+    },
+
     {
       name: "Stock",
       width: "130px",
@@ -447,7 +547,7 @@ export const allMembers = [
   },
   {
     name: "Email",
-    width: "200px",
+    width: "260px",
     wrap: true,
     selector: (row) => row.email || "N/A",
     style: {

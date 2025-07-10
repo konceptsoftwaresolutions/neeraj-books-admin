@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
 import { Button } from "@material-tailwind/react";
@@ -30,6 +30,7 @@ const Quiz = () => {
   const navigate = useNavigate();
 
   const { role } = useSelector((state) => state.auth);
+  const [allQuiz, setAllQuiz] = useState();
 
   const handleViewClick = (data) => {
     // Change the path when the "View" button is clicked
@@ -40,10 +41,14 @@ const Quiz = () => {
 
   useEffect(() => {
     dispatch(getAllBooks());
-    dispatch(getAllQuiz());
+    dispatch(
+      getAllQuiz((success, data) => {
+        if (success) setAllQuiz(data);
+      })
+    );
   }, [dispatch]);
 
-  const { allQuiz } = useSelector((state) => state.quiz);
+  // const { allQuiz } = useSelector((state) => state.quiz);
 
   console.log(allQuiz);
 

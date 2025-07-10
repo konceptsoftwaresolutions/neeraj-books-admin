@@ -2,31 +2,52 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { Skeleton } from "antd";
 
-const StatsCard = ({ firstTitle, firstAmount, secondTitle, secondAmount }) => {
+const StatsCard = ({
+  profile,
+  firstTitle,
+  firstAmount,
+  secondTitle,
+  secondAmount,
+  icon: Icon,
+  image,
+}) => {
   const { dashboardLoader } = useSelector((state) => state.dashboard);
 
   return (
-    <div className="rounded-xl shadow-lg bg-gradient-to-r bg-[#FFD700] p-3 flex flex-col gap-2">
-      {firstTitle && (
-        <p className="m-0 text-base font-semibold flex items-center gap-2">
-          {firstTitle} -{" "}
-          {dashboardLoader ? (
-            <Skeleton.Input active size="small" style={{ width: 30 }} />
-          ) : (
-            <span>{firstAmount}</span>
-          )}
-        </p>
+    <div className=" border-l-[5px] shadow-lg rounded-lg border-[#2b4063] p-4 py-5 flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-3 min-h-max w-full">
+      {/* Image/Icon Section */}
+      {image && (
+        <img
+          src={image}
+          alt="stats"
+          className="w-12 h-12 sm:w-14 sm:h-14 object-contain "
+        />
       )}
-      {secondTitle && (
-        <p className="m-0 text-base font-semibold flex items-center gap-2">
-          {secondTitle} -{" "}
-          {dashboardLoader ? (
-            <Skeleton.Input active size="small" style={{ width: 30 }} />
-          ) : (
-            <span>{secondAmount}</span>
-          )}
-        </p>
-      )}
+
+      {/* Text Content */}
+      <div className="flex flex-col justify-start items-start w-full">
+        {firstTitle && (
+          <p className="m-0 text-sm sm:text-base font-semibold  gap-2 text-black">
+            {firstTitle}
+            {dashboardLoader ? (
+              <Skeleton.Input active size="small" style={{ width: 30 }} />
+            ) : (
+              <span>- {firstAmount}</span>
+            )}
+          </p>
+        )}
+
+        {secondTitle && profile != "staff" && (
+          <p className="m-0 text-sm sm:text-base  font-semibold   gap-2 text-black">
+            {secondTitle}
+            {dashboardLoader ? (
+              <Skeleton.Input active size="small" style={{ width: 30 }} />
+            ) : (
+              <span>- {secondAmount}</span>
+            )}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

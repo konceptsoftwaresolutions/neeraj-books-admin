@@ -27,13 +27,58 @@ export const { setBook } = bookSlice.actions;
 export default bookSlice.reducer;
 
 
-export const getAllBooks = () => {
+export const getAllBooks = (callback = () => { }) => {
     return async (dispatch) => {
         try {
             const response = await axiosInstance.get("/product/getAll");
             if (response.status === 200) {
                 const allBooks = response?.data?.reverse();
+                callback(true, allBooks)
                 dispatch(setBook({ allBooks: allBooks }))
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "Error"
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+
+export const getAllProducts = (callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/product/getAll");
+            if (response.status === 200) {
+                const allBooks = response?.data?.reverse();
+                callback(true, allBooks)
+
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "Error"
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+
+
+
+export const getAllOldBooks = (callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/product/oldbooksdata");
+            if (response.status === 200) {
+                const allBooks = response?.data?.reverse();
+                callback(true, allBooks)
+                // dispatch(setBook({ allBooks: allBooks }))
             }
         } catch (error) {
             console.log(error)
@@ -91,6 +136,122 @@ export const addBook = ({ formData, setAddLoader = () => { }, callback = () => {
         }
     };
 };
+
+
+
+export const getAIQuesPaper = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/product/fetchPreviousPdf", payload, {
+                responseType: 'blob', // Ensure you're expecting a blob response
+            });
+            if (response.status === 200) {
+                const data = response?.data;
+                // Convert blob to a 
+                const imageUrl = URL.createObjectURL(data);
+                // console.log(imageUrl)
+                // Pass imageUrl and title to the callback
+                callback(true, imageUrl);
+                // dispatch(getAllLeads());
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data?.message;
+            }
+            callback(false);
+            // toast.error(message);
+        }
+    };
+};
+
+
+export const uploadAIQuesPaper = ({
+    formData,
+    callback = () => { },
+}) => {
+    return async (dispatch) => {
+        let toastId = null;
+        try {
+            // Start loading toast
+            toastId = toast.loading("Uploading the file");
+
+            // Make API call
+            const response = await axiosInstance.postForm("/product/savePreviousYearPdf", formData);
+
+            if (response.status === 201) {
+                const message = response.data?.message || "Added successfully!";
+                toast.success(message);
+                toast.dismiss(toastId); // Dismiss loading toast
+                callback(true);
+            }
+        } catch (error) {
+            const message = error?.response?.data?.message || "An error occurred.";
+            toast.error(message);
+            toast.dismiss(toastId); // Dismiss loading toast even if there's an error
+            callback(false);
+        }
+    };
+};
+
+export const deleteEnglishAIQuesPaper = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+
+            const response = await axiosInstance.post("/product/deletePreviousPdf", payload);
+            if (response.status === 200) {
+                console.log("response is ", response)
+                const message = response.data?.message || "Deleted successfully!";
+                callback(true);
+
+                toast.success(message);
+                // dispatch(getAllLeads());
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data?.message;
+            }
+            callback(false);
+            toast.error(message);
+        } finally {
+
+        }
+    };
+};
+
+export const deleteHindiAIQuesPaper = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+
+            const response = await axiosInstance.post("/product/deleteHindiAIQuestionPaper", payload);
+            if (response.status === 200) {
+                console.log("response is ", response)
+                const message = response.data?.message || "Deleted successfully!";
+                callback(true);
+
+                toast.success(message);
+                // dispatch(getAllLeads());
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data?.message;
+            }
+            callback(false);
+            toast.error(message);
+        } finally {
+
+        }
+    };
+};
+
+
+
+
 
 export const updateBook = ({ formData }, callback = () => { }) => {
     return async (dispatch) => {

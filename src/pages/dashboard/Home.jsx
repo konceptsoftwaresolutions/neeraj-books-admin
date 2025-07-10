@@ -12,6 +12,42 @@ import { getDashboardData } from "../../redux/features/dashboard";
 import MonthChart from "./charts/MonthChart";
 import { getAllCategories } from "../../redux/features/category";
 
+import {
+  FaBox,
+  FaMoneyBillAlt,
+  FaTruck,
+  FaUndoAlt,
+  FaBan,
+  FaUserPlus,
+  FaUsers,
+  FaBook,
+  FaFileAlt,
+  FaShippingFast,
+  FaRegMoneyBillAlt,
+  FaCashRegister,
+} from "react-icons/fa";
+import { MdOutlineAssignment, MdOutlineCancel } from "react-icons/md";
+import { BsCartCheck, BsCartX } from "react-icons/bs";
+import ShipmentPdf from "../pdf/ShipmentPdf";
+
+import orderImg from "../../assets/icons/order.png";
+import codImg from "../../assets/icons/cod.png";
+import prepaidImg from "../../assets/icons/prepaid.png";
+import bulkImg from "../../assets/icons/bulk.png";
+import pendingImg from "../../assets/icons/pending.png";
+import transitImg from "../../assets/icons/transit.png";
+import returnImg from "../../assets/icons/return.png";
+import cancelImg from "../../assets/icons/cancel.png";
+import teamImg from "../../assets/icons/team.png";
+import purchaseImg from "../../assets/icons/purchase.png";
+import booksImg from "../../assets/icons/books.png";
+import searchImg from "../../assets/icons/search.png";
+import qaImg from "../../assets/icons/qa.png";
+import sampleImg from "../../assets/icons/sample.png";
+import buyerImg from "../../assets/icons/programmer.png";
+import rupee from "../../assets/icons/rupee.png";
+import refundImg from "../../assets/icons/commercial.png";
+
 const Home = () => {
   const dispatch = useDispatch();
 
@@ -24,6 +60,7 @@ const Home = () => {
 
   const { dashboardData } = useSelector((state) => state.dashboard);
   const { allCategory } = useSelector((state) => state.category);
+  const { userData } = useSelector((state) => state.user);
 
   useEffect(() => {
     dispatch(getAllCategories());
@@ -107,95 +144,149 @@ const Home = () => {
           />
         </div>
       </div>
-      <div className="grid grid-cols-4 gap-4 my-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4 my-10">
         <StatsCard
+          icon={FaBox}
+          profile={userData?.profile}
           firstTitle="Total orders"
           firstAmount={dashboardData?.totalOrders}
           secondTitle="Total Orders Sale"
-          secondAmount={dashboardData?.totalOrderSales}
+          secondAmount={`₹ ${dashboardData?.totalOrderSales}`}
+          image={orderImg}
         />
         <StatsCard
+          icon={FaMoneyBillAlt}
+          profile={userData?.profile}
           firstTitle="COD Orders"
           firstAmount={dashboardData?.codOrders}
           secondTitle="COD Sale"
-          secondAmount={dashboardData?.codOrdersSales}
+          secondAmount={`₹ ${dashboardData?.codOrdersSales}`}
+          image={codImg}
         />
         <StatsCard
+          icon={FaRegMoneyBillAlt}
+          profile={userData?.profile}
           firstTitle="Prepaid Orders"
           firstAmount={dashboardData?.prepaidOrders}
           secondTitle="Prepaid Sale"
-          secondAmount={dashboardData?.prepaidOrdersSales}
+          secondAmount={`₹ ${dashboardData?.prepaidOrdersSales}`}
+          image={prepaidImg}
         />
         <StatsCard
+          icon={BsCartCheck}
+          profile={userData?.profile}
           firstTitle="Bulk Orders"
           firstAmount="456"
           secondTitle="Bulk Sale"
-          secondAmount="45678"
+          secondAmount="₹ 45678"
+          image={bulkImg}
         />
         <StatsCard
+          icon={BsCartX}
+          profile={userData?.profile}
           firstTitle="Pending Orders"
           firstAmount={dashboardData?.pendingOrders}
           secondTitle="Pending Sale"
-          secondAmount={dashboardData?.pendingOrdersSales}
+          secondAmount={`₹ ${dashboardData?.pendingOrdersSales}`}
+          image={pendingImg}
         />
         <StatsCard
+          icon={FaTruck}
+          profile={userData?.profile}
           firstTitle="In Transit Orders"
           firstAmount={dashboardData?.inTransitOrders}
           secondTitle="In Transit Sale"
-          secondAmount={dashboardData?.inTransitOrdersSales}
+          secondAmount={`₹ ${dashboardData?.inTransitOrdersSales}`}
+          image={transitImg}
         />
         <StatsCard
+          icon={FaUndoAlt}
+          profile={userData?.profile}
           firstTitle="Returned Orders"
           firstAmount={dashboardData?.returnedOrders}
           secondTitle="Returned Sale"
-          secondAmount={dashboardData?.returnedOrdersSales}
+          secondAmount={`₹ ${dashboardData?.returnedOrdersSales}`}
+          image={returnImg}
         />
         <StatsCard
+          icon={MdOutlineCancel}
+          profile={userData?.profile}
           firstTitle="Refund Orders"
           firstAmount={dashboardData?.refundOrders}
           secondTitle="Refund Sale"
-          secondAmount={dashboardData?.refundOrdersSales}
+          secondAmount={`₹ ${dashboardData?.refundOrdersSales}`}
+          image={refundImg}
         />
         <StatsCard
+          icon={FaBan}
+          profile={userData?.profile}
           firstTitle="Cancel Orders"
           firstAmount={dashboardData?.cancelOrders}
           secondTitle="Cancel Sale"
-          secondAmount={dashboardData?.cancelOrdersSales}
+          secondAmount={`₹ ${dashboardData?.cancelOrdersSales}`}
+          image={cancelImg}
         />
         <StatsCard
+          icon={FaUserPlus}
+          profile={userData?.profile}
           firstTitle="Total Registered"
           firstAmount={dashboardData?.totalRegistered}
+          image={teamImg}
         />
         <StatsCard
+          icon={FaUsers}
+          profile={userData?.profile}
           firstTitle="Total Purchasers"
           firstAmount={dashboardData?.totalPurchasers}
+          image={orderImg}
         />
         <StatsCard
+          icon={FaBook}
+          profile={userData?.profile}
           firstTitle="Total Products"
           firstAmount={dashboardData?.totalProducts}
+          image={booksImg}
         />
         <StatsCard
+          icon={FaFileAlt}
+          profile={userData?.profile}
           firstTitle="Ebook Orders"
           firstAmount={dashboardData?.eBookOrders}
           secondTitle="Ebook Sale"
-          secondAmount={dashboardData?.eBookSales}
+          secondAmount={`₹ ${dashboardData?.eBookSales}`}
+          image={searchImg}
         />
         <StatsCard
+          icon={MdOutlineAssignment}
+          profile={userData?.profile}
           firstTitle="Assignment Orders"
           firstAmount="0"
           secondTitle="Assignment Sale"
-          secondAmount="0"
+          secondAmount="₹ 0"
+          image={qaImg}
         />
         <StatsCard
+          icon={FaFileAlt}
+          profile={userData?.profile}
           firstTitle="Sample Paper Orders"
           firstAmount="0"
           secondTitle="Sample Paper Sale"
-          secondAmount="0"
+          secondAmount="₹ 0"
+          image={sampleImg}
         />
-        <StatsCard firstTitle="Bulk Buyers" firstAmount="0" />
         <StatsCard
+          icon={FaUsers}
+          profile={userData?.profile}
+          firstTitle="Bulk Buyers"
+          firstAmount="0"
+          image={purchaseImg}
+        />
+        <StatsCard
+          icon={FaShippingFast}
+          profile={userData?.profile}
           firstTitle="Shipping Paid"
-          firstAmount={dashboardData?.shippingPaid}
+          firstAmount={`₹ ${dashboardData?.shippingPaid}`}
+          image={rupee}
         />
       </div>
       <MonthChart dashboardData={dashboardData} />
@@ -219,7 +310,9 @@ const Home = () => {
           ))}
         </div>
       </div>
+
       <Category />
+      {/* <ShipmentPdf /> */}
     </PageCont>
   );
 };

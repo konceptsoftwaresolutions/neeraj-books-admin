@@ -23,15 +23,15 @@ const quizSlice = createSlice({
 export const { setQuiz } = quizSlice.actions;
 export default quizSlice.reducer;
 
-export const getAllQuiz = () => {
+export const getAllQuiz = (callback = () => { }) => {
     return async (dispatch) => {
         try {
 
             const response = await axiosInstance.get("/product/getQuizzes");
             if (response.status === 200) {
                 const allQuiz = response.data.quizzesByBook;
-                console.log(allQuiz)
-                dispatch(setQuiz({ allQuiz: allQuiz }))
+                callback(true, allQuiz)
+                // dispatch(setQuiz({ allQuiz: allQuiz }))
             }
         } catch (error) {
             console.log(error);

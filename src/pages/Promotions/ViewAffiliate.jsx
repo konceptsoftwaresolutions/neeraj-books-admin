@@ -171,74 +171,80 @@ const ViewAffiliate = () => {
 
       {/* Display affiliate data below the form */}
       {affiliateData && (
-        <div className="mt-10 p-6 border rounded-lg bg-white shadow">
-          <h2 className="text-xl font-semibold mb-4 text-gray-700">
-            Affiliate Details
-          </h2>
-          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-            <p>
-              <strong>Name:</strong> {affiliateData.firstName}{" "}
-              {affiliateData.lastName}
-            </p>
-            <p>
-              <strong>Email:</strong> {affiliateData.email}
-            </p>
-            <p>
-              <strong>Mobile:</strong> {affiliateData.mobile}
-            </p>
-            <p>
-              <strong>Institution:</strong> {affiliateData.institutionName}
-            </p>
-            <p>
-              <strong>Address:</strong> {affiliateData.address}
-            </p>
-            <p>
-              <strong>City:</strong> {affiliateData.city}
-            </p>
-            <p>
-              <strong>State:</strong> {affiliateData.state}
-            </p>
-            <p>
-              <strong>Country:</strong> {affiliateData.country}
-            </p>
-            <p>
-              <strong>Account Number:</strong> {affiliateData.accountNumber}
-            </p>
-            <p>
-              <strong>Bank Name:</strong> {affiliateData.bankName}
-            </p>
-            <p>
-              <strong>Branch Name:</strong> {affiliateData.branchName}
-            </p>
-            <p>
-              <strong>UPI ID:</strong> {affiliateData.upiId}
-            </p>
-            <p>
-              <strong>Approved:</strong> {affiliateData.approved ? "Yes" : "No"}
-            </p>
-            <p>
-              <strong>About:</strong> {affiliateData.aboutYourself}
-            </p>
-            <p>
-              <strong>Created At:</strong>{" "}
-              {new Date(affiliateData.createdAt).toLocaleString()}
-            </p>
-            <p>
-              <strong>Updated At:</strong>{" "}
-              {new Date(affiliateData.updatedAt).toLocaleString()}
-            </p>
-            <p className="col-span-2">
-              <strong>Payment QR:</strong>{" "}
-              {affiliateData.paymentPicture ? (
-                <img
-                  src={imgUrl}
-                  alt="QR Code"
-                  className="w-28 h-28 object-cover mt-2"
-                />
-              ) : (
-                "N/A"
-              )}
-            </p>
+        <div className="mt-10 p-6 border rounded-lg bg-white shadow space-y-8">
+          {/* Section: Personal Info */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-gray-700">
+              Affiliate Personal Details
+            </h2>
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+              <p>
+                <strong>Name:</strong> {affiliateData.firstName}{" "}
+                {affiliateData.lastName}
+              </p>
+              <p>
+                <strong>Email:</strong> {affiliateData.email}
+              </p>
+              <p>
+                <strong>Mobile:</strong> {affiliateData.mobile}
+              </p>
+              <p>
+                <strong>Institution:</strong> {affiliateData.institutionName}
+              </p>
+              <p className="col-span-2">
+                <strong>Address:</strong> {affiliateData.address},{" "}
+                {affiliateData.city}, {affiliateData.state},{" "}
+                {affiliateData.country}
+              </p>
+              <p>
+                <strong>Approved:</strong>{" "}
+                {affiliateData.approved ? "Yes" : "No"}
+              </p>
+              <p>
+                <strong>About:</strong> {affiliateData.aboutYourself}
+              </p>
+              <p>
+                <strong>Created At:</strong>{" "}
+                {new Date(affiliateData.createdAt).toLocaleString()}
+              </p>
+              <p>
+                <strong>Updated At:</strong>{" "}
+                {new Date(affiliateData.updatedAt).toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Section: Account Info */}
+          <div>
+            <h2 className="text-xl font-semibold mb-4 text-gray-700">
+              Affiliate Account Details
+            </h2>
+            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+              <p>
+                <strong>Account Number:</strong> {affiliateData.accountNumber}
+              </p>
+              <p>
+                <strong>Bank Name:</strong> {affiliateData.bankName}
+              </p>
+              <p>
+                <strong>Branch Name:</strong> {affiliateData.branchName}
+              </p>
+              <p>
+                <strong>UPI ID:</strong> {affiliateData.upiId}
+              </p>
+              <p className="col-span-2">
+                <strong>Payment QR:</strong>{" "}
+                {affiliateData.paymentPicture ? (
+                  <img
+                    src={imgUrl}
+                    alt="QR Code"
+                    className="w-28 h-28 object-cover mt-2"
+                  />
+                ) : (
+                  "N/A"
+                )}
+              </p>
+            </div>
           </div>
         </div>
       )}

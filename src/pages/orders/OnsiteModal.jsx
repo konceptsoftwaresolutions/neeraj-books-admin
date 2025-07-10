@@ -53,7 +53,7 @@ const OnsiteModal = ({ openModal, setOpenModal, id, getTheOrderbyId }) => {
     >
       <DialogHeader className="text-xl primary-gradient text-white poppins-font">
         <div className="flex justify-between w-full items-center">
-          Onsite Discount
+          Admin Discount
           <IoIosCloseCircle
             className="h-6 w-6 cursor-pointer"
             onClick={() => setOpenModal(false)}

@@ -275,7 +275,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
             flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
-            marginTop: "-10px",
+            marginTop: "-15px",
             paddingBottom: "10px",
             borderBottom: 1,
           }}
@@ -284,8 +284,9 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
             <Image
               src={neerajLogo}
               style={{
-                width: 80,
-                height: 50, // add height to maintain aspect ratio or size
+                width: 100,
+                paddingTop: 3,
+                height: 60, // add height to maintain aspect ratio or size
               }}
             />
           </View>
@@ -297,29 +298,58 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               alignItems: "center",
             }}
           >
-            <Text style={{ fontSize: "10px", fontStyle: "italic" }}>
-              Based on Various Courses of
-            </Text>{" "}
-            <Text style={{ fontSize: "10px" }}>
-              IGNOU - (BA , B.Com , MA , M.Com., MBA , BCA , MCA etc)
-            </Text>{" "}
-            <Text style={{ fontSize: "10px" }}>
-              NIOS - Class - X & XII , IP Universtiy, Skill Courses{" "}
-            </Text>
-            <Text style={{ fontSize: "10px" }}>
-              M. : 8510009872 , 9510009878
-            </Text>
-            <Text style={{ fontSize: "10px" }}>
-              {" "}
-              E-mail : info@neerajbooks.com
-            </Text>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+              }}
+            >
+              <Text style={{ fontSize: "10px", fontStyle: "italic" }}>
+                Based on Various Courses of
+              </Text>{" "}
+              <Text style={{ fontSize: "10px" }}>
+                IGNOU - (BA , B.Com , MA , M.Com., MBA , BCA , MCA etc)
+              </Text>{" "}
+              <Text style={{ fontSize: "10px" }}>
+                NIOS - Class - X & XII , IP Universtiy, Skill Courses{" "}
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: 1,
+                marginTop: "6px",
+              }}
+            >
+              <Text style={{ fontSize: "10px" }}>
+                M. : 8510009872 , 9510009878 , E-mail : info@neerajbooks.com
+              </Text>
+
+              <Text
+                style={{
+                  fontSize: "10px",
+                  // paddingTop: "8px",
+                  fontWeight: 600,
+                }}
+              >
+                {" "}
+                Website : neerajbooks.com
+              </Text>
+            </View>
           </View>
+
           <Text>
             <Image
               src={hatlogo}
               style={{
-                width: 65,
-                height: 65, // add height to maintain aspect ratio or size
+                width: 70,
+                height: 70, // add height to maintain aspect ratio or size
               }}
             />
           </Text>
@@ -400,10 +430,10 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
 
             <View
               style={{
-                width: "100px",
+                width: "180px",
                 borderRight: 1,
                 borderColor: "#efefef",
-                textAlign: "center",
+                textAlign: "left",
                 paddingVertical: 5,
                 display: "flex",
                 flexDirection: "column",
@@ -415,12 +445,11 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               </Text>
               {paymentMode === "Prepaid" && (
                 <>
-                  <Text style={{ fontSize: "9px" }}>
-                    Txn ID: - {paymentMode}
-                  </Text>
+                  <Text style={{ fontSize: "9px" }}>Txn ID: - {txnid}</Text>
                   <Text style={{ fontSize: "9px" }}>Mode: - UPI</Text>
                 </>
               )}
+
               <Text style={{ fontSize: "9px" }}>
                 Net Payable - Rs.{" "}
                 {Math.round(

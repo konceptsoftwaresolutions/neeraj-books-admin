@@ -7,7 +7,9 @@ const axiosInstance = createAxiosInstance();
 const initialState = {
     allOrders: null,
     shipNowBtnLoader: false,
-    generateLabelLoder: false
+    generateLabelLoder: false,
+    filters: {},
+
 };
 
 const orderSlice = createSlice({
@@ -19,10 +21,13 @@ const orderSlice = createSlice({
                 state[key] = action.payload[key];
             });
         },
+        setOrderFilters: (state, action) => {
+            state.filters = action.payload;
+        },
     },
 });
 
-export const { setOrder } = orderSlice.actions;
+export const { setOrder, setOrderFilters } = orderSlice.actions;
 export default orderSlice.reducer;
 
 export const getAllOrders = (payload, callback = () => { }) => {
@@ -287,3 +292,25 @@ export const createOnSiteDiscount = (payload, callback = () => { }) => {
         }
     };
 };
+
+
+
+export const getAllCustomerUser = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post('/order/getAllOrders', payload);
+            if (response.status === 200) {
+                const data = response?.data?.orders;
+                console.log(response)
+                dispatch(setOrder({ allOrders: data }))
+                callback(true, data)
+            }
+        } catch (error) {
+            let message = "ERROR";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}

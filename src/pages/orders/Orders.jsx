@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,7 +9,11 @@ import { allOrdersColumn } from "../../constant/tableColumns";
 import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
 import usePath from "../../hooks/usePath";
-import { getAllOrders, getFilteredOrders } from "../../redux/features/orders";
+import {
+  getAllOrders,
+  getFilteredOrders,
+  setOrderFilters,
+} from "../../redux/features/orders";
 import AllOrdersPdf from "./AllOrdersPdf";
 import { FaFileCsv } from "react-icons/fa6";
 import { FaFilePdf } from "react-icons/fa6";
@@ -33,7 +37,7 @@ const Orders = () => {
   const navigate = useNavigate();
   const path = usePath();
 
-  const [currentPage, setCurrentPage] = useState(1);
+  // const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false); // Drawer visibility state
   const [filters, setFilters] = useState({}); // Applied filters state
@@ -42,10 +46,23 @@ const Orders = () => {
 
   const { role } = useSelector((state) => state.auth);
   const { allOrders } = useSelector((state) => state.order);
+  const storedFilters = useSelector((state) => state.order.filters);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(
+    parseInt(searchParams.get("page")) || 1
+  );
 
   const handlePageChange = (page) => {
+    setSearchParams({ page });
     setCurrentPage(page);
   };
+
+  useEffect(() => {
+    if (storedFilters && Object.keys(storedFilters).length > 0) {
+      setFilters(storedFilters);
+    }
+  }, [storedFilters]);
 
   const handlePerRowsChange = (newPerPage, page) => {
     setRowsPerPage(newPerPage);
@@ -89,7 +106,7 @@ const Orders = () => {
   };
 
   const handleInvoiceClick = async (data) => {
-    console.log(data);
+    // console.log(data);
     try {
       let couponPercentage = 0;
 
@@ -121,6 +138,7 @@ const Orders = () => {
   // Handle filter changes
   const onApplyFilter = (filterPayload) => {
     setFilters(filterPayload);
+    dispatch(setOrderFilters(filterPayload));
   };
 
   const exportToExcel = () => {
@@ -399,7 +417,7 @@ const Orders = () => {
 
         {ordersData ? (
           <DataTable
-            data={ordersData ? ordersData : []}
+            data={ordersData || []}
             columns={allOrdersColumn(handleInvoiceClick, handleRowClick)}
             customStyles={tableStyle}
             onRowClicked={handleRowClick}
@@ -428,6 +446,7 @@ const Orders = () => {
         onClose={closeDrawer}
         onApplyFilter={onApplyFilter}
         onCancelFilter={onCancelFilter} // 🆕 pass down
+        initialFilters={storedFilters} // ← Accept initial filters
       />
       <OrderModal showModal={showBulkModal} setShowModal={setShowBulkModal} />
       {/* <ShipmentPdf /> */}

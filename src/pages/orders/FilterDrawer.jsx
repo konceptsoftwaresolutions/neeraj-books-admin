@@ -1,5 +1,8 @@
 import React from "react";
 import { Drawer, Form, Input, Select, DatePicker, Button } from "antd";
+import dayjs from "dayjs";
+import { useDispatch } from "react-redux";
+import { setOrderFilters } from "../../redux/features/orders";
 
 const { Option } = Select;
 
@@ -8,8 +11,29 @@ const FilterDrawer = ({
   onClose,
   onApplyFilter,
   onCancelFilter,
+  initialFilters = {}, // ← Accept initial filters
 }) => {
   const [form] = Form.useForm();
+
+  const dispatch = useDispatch();
+
+  console.log(initialFilters);
+
+  // Set initial values when drawer becomes visible or filters change
+  React.useEffect(() => {
+    if (isVisible) {
+      const transformed = {
+        ...initialFilters,
+        fromDate: initialFilters.fromDate
+          ? dayjs(initialFilters.fromDate)
+          : undefined,
+        toDate: initialFilters.toDate
+          ? dayjs(initialFilters.toDate)
+          : undefined,
+      };
+      form.setFieldsValue(transformed);
+    }
+  }, [isVisible, initialFilters, form]);
 
   const onFinishFilter = (values) => {
     const filterPayload = {
@@ -25,7 +49,15 @@ const FilterDrawer = ({
     };
 
     onApplyFilter(filterPayload);
+    console.log(filterPayload);
     onClose();
+  };
+
+  const handleReset = () => {
+    form.resetFields(); // 🔹 Reset the Ant Design form inputs
+    dispatch(setOrderFilters({})); // 🔹 Clear Redux state
+    onCancelFilter(); // 🔹 Update parent component's local state
+    onClose(); // 🔹 Close the drawer
   };
 
   return (
@@ -71,13 +103,7 @@ const FilterDrawer = ({
         </Form.Item>
 
         <div className="flex justify-end gap-2">
-          <Button
-            onClick={() => {
-              onClose();
-              onCancelFilter();
-            }}
-            className="bg-gray-400 text-white"
-          >
+          <Button onClick={handleReset} className="bg-gray-400 text-white">
             Reset
           </Button>
           <Button

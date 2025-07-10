@@ -27,6 +27,7 @@ import {
   getCategory,
   getSubcategoryOptionsByIds,
 } from "../../constant/utilityfunction";
+import AIQuesPaperUpload from "./AIQuesPaperUpload";
 const { RangePicker } = DatePicker;
 
 const CreateBook = () => {
@@ -386,7 +387,11 @@ const CreateBook = () => {
         metaTitle: data?.engMetaTitle,
         metaDescription: data?.engMetaDescription,
         metaTags: data?.engMetaTags,
-
+        youtubeVideoPreview: data?.engYoutubeVideoPreview,
+        youtubeQuestionPaperVideo: data?.engYoutubeQuestionPaperVideo,
+        totalNoOfPapers: data?.engTotalPapers,
+        totalPages: data?.engTotalPages,
+        authorName: data?.engAuthorName,
         viewParentCategory: data?.engParentCategory,
         viewSubCategory: data?.engSubCategory,
         viewSubSubCategory: data?.engSubSubCategory,
@@ -472,11 +477,16 @@ const CreateBook = () => {
         viewParentCategory: data?.hindiParentCategory,
         viewSubCategory: data?.hindiSubCategory,
         viewSubSubCategory: data?.hindiSubSubCategory,
+        youtubeVideoPreview: data?.hindiYoutubeVideoPreview,
+        youtubeQuestionPaperVideo: data?.hindiYoutubeQuestionPaperVideo,
         categories: getCategory(
           data?.hindiParentCategory,
           data?.hindiSubCategory,
           data?.hindiSubSubCategory
         ),
+        totalNoOfPapers: data?.hindiTotalPapers,
+        totalPages: data?.hindiTotalPages,
+        authorName: data?.hindiAuthorName,
 
         eBookIsDownloadable: data?.eBookHindiIsDownloadable,
         isDownloadableEngSolvedPaper: data?.isDownloadableHindiSolvedPaper,
@@ -797,15 +807,20 @@ const CreateBook = () => {
                     type="desc"
                   />
                 )}
-                {selectedMedium?.includes("English") && (
-                  <InputField
-                    control={control}
-                    errors={errors}
-                    name="videoPreview"
-                    label="English Video Preview "
-                    type="file"
-                  />
-                )}
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="engYoutubeVideoPreview"
+                  label="YT Video Preview "
+                  type="text"
+                />
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="engYoutubeQuestionPaperVideo"
+                  label="YT Ques. Paper Video "
+                  type="text"
+                />
                 {/* {selectedMedium?.includes("English") && (
                   <InputField
                     control={control}
@@ -887,6 +902,27 @@ const CreateBook = () => {
                   label="Is Ebook Downloadable"
                   type="option"
                   options={discountOptions}
+                />
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="engTotalPages"
+                  label="Total Pages"
+                  type="number"
+                />
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="engTotalPapers"
+                  label="Total No. Of Papers"
+                  type="number"
+                />
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name="engAuthorName"
+                  label="Author Name"
+                  type="text"
                 />
               </div>
               {/* <div>
@@ -1205,6 +1241,7 @@ const CreateBook = () => {
                   />
                 </div>
               </div>
+              {/* <AIQuesPaperUpload medium="english" /> */}
             </div>
           )}
           {selectedMedium?.includes("Hindi") && (
@@ -1468,15 +1505,21 @@ const CreateBook = () => {
                     />
                   )}
 
-                  {selectedMedium?.includes("Hindi") && (
-                    <InputField
-                      control={control}
-                      errors={errors}
-                      name="hVideoPreview"
-                      label="Video Preview"
-                      type="file"
-                    />
-                  )}
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="hindiYoutubeVideoPreview"
+                    label="YT Video Preview "
+                    type="text"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="hindiYoutubeQuestionPaperVideo"
+                    label="YT Ques. Paper Video "
+                    type="text"
+                  />
+
                   {/* {selectedMedium?.includes("Hindi") && (
                     <InputField
                       control={control}
@@ -1548,6 +1591,27 @@ const CreateBook = () => {
                       label="Is Ebook Downloadable"
                       type="option"
                       options={discountOptions}
+                    />
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="hindiTotalPages"
+                      label="Total Pages"
+                      type="number"
+                    />
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="hindiTotalPapers"
+                      label="Total No. Of Papers"
+                      type="number"
+                    />
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="hindiAuthorName"
+                      label="Author Name"
+                      type="text"
                     />
                   </div>
                 </div>
@@ -1895,6 +1959,7 @@ const CreateBook = () => {
                     />
                   </div>
                 </div>
+                {/* <AIQuesPaperUpload medium="hindi" /> */}
               </div>
             </>
           )}

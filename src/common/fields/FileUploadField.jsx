@@ -57,8 +57,8 @@ const FileUploadField = ({
             <div className="border border-solid border-gray-500 rounded-md sm:p-3">
               {/* File list */}
               <div className="flex flex-col gap-4 w-full">
-                {value.length > 0 &&
-                  value.map((file, index) => (
+                {value?.length > 0 &&
+                  value?.map((file, index) => (
                     <div
                       key={index}
                       className="flex justify-between items-center border border-gray-300 p-2 rounded-md"
@@ -73,7 +73,9 @@ const FileUploadField = ({
                         color="red"
                         className="p-1"
                         onClick={() => {
-                          const updatedFiles = value.filter((_, i) => i !== index);
+                          const updatedFiles = value?.filter(
+                            (_, i) => i !== index
+                          );
                           onChange(updatedFiles);
                         }}
                       >
@@ -84,7 +86,7 @@ const FileUploadField = ({
               </div>
 
               {/* Add files button */}
-              {value.length < maxFiles && (
+              {value?.length < maxFiles && (
                 <div
                   className="flex justify-center items-center w-full py-12 border border-dashed text-slate-600 border-slate-600 cursor-pointer rounded-lg mt-4"
                   onClick={handleClick}
@@ -126,11 +128,14 @@ const FileUploadField = ({
                 }));
 
                 // Ensure the maxFiles limit isn't exceeded
-                if (value.length + newFiles.length <= maxFiles) {
+                if (value?.length + newFiles.length <= maxFiles) {
                   onChange([...(value || []), ...newFiles]);
                 } else {
-                  const remainingSlots = maxFiles - value.length;
-                  onChange([...(value || []), ...newFiles.slice(0, remainingSlots)]);
+                  const remainingSlots = maxFiles - value?.length;
+                  onChange([
+                    ...(value || []),
+                    ...newFiles.slice(0, remainingSlots),
+                  ]);
                 }
 
                 fileInputRef.current.value = ""; // Clear the file input

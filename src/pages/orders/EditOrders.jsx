@@ -357,14 +357,14 @@ const EditOrders = () => {
                 Invoice
               </Button>
               {/* {(orderdata?.paymentMode === "Prepaid") && (orderdata?.paymentStatus === 'Paid') && ( */}
-              {orderdata?.paymentMode !== "COD" && 
-              <Button
-              className="capitalize"
-              onClick={() => setShowRefundModal(!showRefundModal)}
-              >
-                Refund
-              </Button>
-              }
+              {orderdata?.paymentMode !== "COD" && (
+                <Button
+                  className="capitalize"
+                  onClick={() => setShowRefundModal(!showRefundModal)}
+                >
+                  Refund
+                </Button>
+              )}
               {/* )} */}
 
               {orderdata?.orderStatus === "Shipped" && (
@@ -689,25 +689,25 @@ const EditOrders = () => {
               <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5">
                 <div className="flex justify-between items-center border-b border-black  mb-5 pb-3">
                   <p className="text-2xl ">Total</p>
-                  {orderdata.paymentMode !== "Prepaid" && (
-                      <Button
-                        className="capitalize"
-                        onClick={() => setShowOnsiteModal(!showOnsiteModal)}
-                      >
-                        Onsite discount
-                      </Button>
-                    )}
+                  {orderdata?.paymentMode !== "Prepaid" && (
+                    <Button
+                      className="capitalize"
+                      onClick={() => setShowOnsiteModal(!showOnsiteModal)}
+                    >
+                      Admin discount
+                    </Button>
+                  )}
                 </div>
                 {totalPaperbackQuantity > 0 && (
                   <>
-                    <p className="text-lg mt-2">Printed Book</p>
+                    <p className="text-lg mt-2">Printed Books Amount</p>
                     <div className="border border-black">
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> Total Items</p>
+                        <p> No. of Books:</p>
                         <p>{totalPaperbackQuantity}</p>
                       </div>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> Total</p>
+                        <p> MRP Amount:</p>
                         <p>₹{totalPaperbackOriginalAmount}/-</p>
                       </div>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
@@ -728,7 +728,7 @@ const EditOrders = () => {
                         </div>
                       )}
                       <div className="flex justify-between  border-black p-2 text-md">
-                        <p> Total</p>
+                        <p> Printed Books Total Amount:</p>
                         <p>₹{paperbackAmountAfterSpecialDiscount}/-</p>
                       </div>
                     </div>
@@ -736,14 +736,14 @@ const EditOrders = () => {
                 )}
                 {totalEbookQuantity > 0 && (
                   <>
-                    <p className="text-lg mt-4">E Book</p>
+                    <p className="text-lg mt-4">E-books Amount</p>
                     <div className="border border-black">
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> Total Items</p>
+                        <p> No. of E-books:</p>
                         <p>{totalEbookQuantity}</p>
                       </div>
                       <div className="flex justify-between  border-black p-2 text-md">
-                        <p> Total </p>
+                        <p> E-books total amount:</p>
                         <p>₹{totalEbookAmount}/-</p>
                       </div>
                     </div>
@@ -752,7 +752,16 @@ const EditOrders = () => {
 
                 <div className="border border-black mt-6">
                   <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                    <p className="font-semibold"> Grand Total</p>
+                    <p className="font-semibold"> {" "}
+                  {`Net Amount ${
+                    totalPaperbackQuantity > 0 && totalEbookQuantity > 0
+                      ? "(Printed + E-book)"
+                      : totalPaperbackQuantity > 0
+                      ? "(Printed)"
+                      : totalEbookQuantity > 0
+                      ? "(E-book)"
+                      : ""
+                  }`}</p>
                     <p>
                       ₹{totalEbookAmount + paperbackAmountAfterSpecialDiscount}
                       /-
@@ -760,7 +769,7 @@ const EditOrders = () => {
                   </div>
                   {orderdata?.appliedCoupon && (
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                      <p className="font-semibold"> Coupon Discount</p>
+                      <p className="font-semibold"> Coupon Code Discount</p>
                       <p>{couponDiscountPercent}%</p>
                     </div>
                   )}

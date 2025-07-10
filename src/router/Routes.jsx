@@ -48,6 +48,12 @@ import AffiliateOrder from "../pages/Promotions/AffiliateOrder";
 import AffiliatePayment from "../pages/Promotions/AffiliatePayment";
 import AddCustomer from "../pages/customer/AddCustomer";
 import AboutUsPage from "../pages/about/AboutUsPage";
+import CustomerOrder from "../pages/customer/CustomerOrder";
+import Sections from "../pages/sections/Sections";
+import OldBooks from "../pages/oldbooks/OldBooks";
+import AllBulkClients from "../pages/bulkClients/AllBulkClients";
+import AddBulkClient from "../pages/bulkClients/AddBulkClient";
+import EditBulkClient from "../pages/bulkClients/EditBulkClient";
 
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
@@ -100,6 +106,8 @@ const Routes = () => {
           ),
         },
         { path: "/:type/books", element: <Books /> },
+
+        { path: "/:type/oldbooks", element: <OldBooks /> },
         { path: "/:type/quiz", element: <Quiz /> },
         { path: "/:type/:parent/addquiz", element: <AddQuiz /> },
         { path: "/:type/:parent/editquiz", element: <EditQuiz /> },
@@ -116,6 +124,11 @@ const Routes = () => {
         { path: "/:type/invoice", element: <ShipmentPdf /> },
         { path: "/:type/editOrders", element: <EditOrders /> },
         { path: "/:type/addbulkOrders", element: <AddOrders /> },
+        { path: "/:type/bulk-orders-client", element: <AllBulkClients /> },
+
+        { path: "/:type/add-bulk-orders-client", element: <AddBulkClient /> },
+        { path: "/:type/edit-bulk-orders-client", element: <EditBulkClient /> },
+
         { path: "/:type/teamMembers", element: <TeamMembers /> },
         { path: "/:type/editMembers", element: <EditMembers /> },
         { path: "/:type/addMembers", element: <AddMembers /> },
@@ -144,6 +157,8 @@ const Routes = () => {
         { path: "/:type/abandoned-detail", element: <AbandonedDetail /> },
         { path: "/:type/coupons", element: <AllCoupons /> },
         { path: "/:type/about", element: <AboutUsPage /> },
+        { path: "/:type/sections", element: <Sections /> },
+        // { path: "/:type/customer-order", element: <CustomerOrder /> },
         { path: "*", element: <Navigate to="/" replace /> }, // Redirects to /home
       ],
     },

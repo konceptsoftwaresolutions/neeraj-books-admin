@@ -29,7 +29,14 @@ const formats = [
   "image",
 ];
 
-const RichTextEditor = ({ name, control, label, errors, defaultValue = "", required = false }) => {
+const RichTextEditor = ({
+  name,
+  control,
+  label,
+  errors,
+  defaultValue = "",
+  required = false,
+}) => {
   return (
     <div className="col-span-2 lg:col-span-4">
       {label && (

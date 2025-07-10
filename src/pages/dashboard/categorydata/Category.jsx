@@ -85,7 +85,7 @@ const Category = () => {
       <div className="grid grid-cols-2 gap-5 mt-10">
         <div>
           {dashboardLoader ? (
-           <div className="w-full h-[200px] rounded-lg bg-gray-200 animate-pulse" />
+            <div className="w-full h-[200px] rounded-lg bg-gray-200 animate-pulse" />
           ) : (
             <HorizontalBarChart
               title="Orders by state"
@@ -125,7 +125,7 @@ const Category = () => {
             <PieChart
               data={booksSold}
               labels={bookLabels}
-              title="Books Distribution"
+              title="Repeat Purchasers"
               colors={bookColors}
             />
           )}

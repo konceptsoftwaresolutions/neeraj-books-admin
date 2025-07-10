@@ -58,6 +58,7 @@ import {
   getCategories,
   getSubcategoryOptionsByIds,
 } from "../../constant/utilityfunction";
+import AIQuesPaperUpload from "./AIQuesPaperUpload";
 
 const UpdateBook = () => {
   const { allCategory } = useSelector((state) => state.category);
@@ -66,7 +67,17 @@ const UpdateBook = () => {
   console.log(location.state, " location is this");
   // const { bookData, medium, outerId } = location.state || {};
 
+  const [showDeleteBtn, setShowDeleteBtn] = useState(true);
+
+  useEffect(() => {
+    if (location.state.data.oldbookdata === true) {
+      setShowDeleteBtn(false);
+    }
+  }, [location]);
+
   const { bookId: bookData, medium, outerId } = useParams();
+
+  // console.log(bookData , medium , outerId)
 
   const parentCategoryOptions = allCategory?.map((category, index) => {
     return {
@@ -271,6 +282,11 @@ const UpdateBook = () => {
     if (rowData) {
       console.log(rowData);
       reset({
+        youtubeQuestionPaperVideo: rowData?.youtubeQuestionPaperVideo,
+        youtubeVideoPreview: rowData?.youtubeVideoPreview,
+        totalNoOfPapers: rowData?.totalNoOfPapers,
+        totalPages: rowData?.totalPages,
+        authorName: rowData?.authorName,
         viewParentCategory: rowData?.viewParentCategory,
         viewSubCategory: rowData?.viewSubCategory,
         viewSubSubCategory: rowData?.viewSubSubCategory,
@@ -296,7 +312,7 @@ const UpdateBook = () => {
         eBookOriginalPrice: rowData?.eBookOriginalPrice || "",
         eBookDiscountedPrice: rowData?.eBookDiscountedPrice || "",
         addEbookPrice: rowData?.addEbookPrice || "",
-        descriptionPara: rowData?.descriptionPara || "",
+        // descriptionPara: rowData?.descriptionPara || "",
         titleOfFirstSemesterSolvedPaper:
           rowData?.titleOfFirstSemesterSolvedPaper || "",
         linkOfFirstSemesterSolvedPaper:
@@ -513,6 +529,11 @@ const UpdateBook = () => {
     const slug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
     const bookData = {
+      youtubeQuestionPaperVideo: data?.youtubeQuestionPaperVideo,
+      youtubeVideoPreview: data?.youtubeVideoPreview,
+      totalNoOfPapers: data?.totalNoOfPapers,
+      totalPages: data?.totalPages,
+      authorName: data?.authorName,
       metaTitle: data?.metaTitle,
       metaDescription: data?.metaDescription,
       metaTag: data?.metaTag,
@@ -548,7 +569,7 @@ const UpdateBook = () => {
       bookCode: data?.bookCode,
       edition: data?.edition,
       commonLine: data?.commonLine,
-      descriptionPara: data?.descriptionPara,
+      // descriptionPara: data?.descriptionPara,
       whatYouGetInBook: data?.whatYouGetInBook,
       stock: data?.stock,
       isBestSeller: data?.isBestSeller,
@@ -795,6 +816,7 @@ const UpdateBook = () => {
       fetchPdfUrls();
     }
   }, [rowData, dispatch, medium, outerId]);
+  
   const deleteSolvedPaperFile = (index) => {
     const payload = {
       solvedPaperId: rowData?.solvedSamplePapers[0].localizedId,
@@ -807,13 +829,15 @@ const UpdateBook = () => {
     <PageCont>
       <div className="flex justify-between">
         <Heading text="Book Details" />
-        <Button
-          type="button"
-          className="primary-gradient mt-4 mb-4 capitalize"
-          onClick={handleWholeBookDelete}
-        >
-          Delete English + Hindi Book
-        </Button>
+        {showDeleteBtn && (
+          <Button
+            type="button"
+            className="primary-gradient mt-4 mb-4 capitalize"
+            onClick={handleWholeBookDelete}
+          >
+            Delete English + Hindi Book
+          </Button>
+        )}
       </div>
       {rowData ? (
         <>
@@ -1065,8 +1089,8 @@ const UpdateBook = () => {
                     disabled={!isEditable}
                   />
                   {/* <p>{videoSrc}</p> */}
-                  <div className="relative">
-                    {/* <a
+                  {/* <div className="relative"> */}
+                  {/* <a
                   href={videoSrc}
                   target="_blank"
                   className="absolute right-0 top-1"
@@ -1074,7 +1098,7 @@ const UpdateBook = () => {
                   <FaLink />
                 </a> */}
 
-                    {!videoSrc && !isEditable && (
+                  {/* {!videoSrc && !isEditable && (
                       <div>
                         <p className="font-medium ml-0.5 text-[#000000]">
                           Video Preview
@@ -1093,11 +1117,13 @@ const UpdateBook = () => {
                             <BsFillEyeFill size={20} />
                           </a>
                         </Tooltip>
-                        <div onClick={handleVideoDelete} className="w-max">
-                          <Tooltip title="Delete Video">
-                            <MdDelete size={20} className="" />
-                          </Tooltip>
-                        </div>
+                        {showDeleteBtn && (
+                          <div onClick={handleVideoDelete} className="w-max">
+                            <Tooltip title="Delete Video">
+                              <MdDelete size={20} className="" />
+                            </Tooltip>
+                          </div>
+                        )}
                       </div>
                     )}
                     {isEditable && (
@@ -1109,17 +1135,61 @@ const UpdateBook = () => {
                         type="file"
                         disabled={!isEditable}
                       />
+                    )} */}
+                  {/* </div> */}
+                  <div className="relative">
+                    {rowData?.youtubeVideoPreview && (
+                      <div className="absolute right-0">
+                        <Tooltip title="View Video">
+                          <a
+                            target="_blank"
+                            href={rowData?.youtubeVideoPreview}
+                            className=""
+                          >
+                            <BsFillEyeFill size={20} />
+                          </a>
+                        </Tooltip>
+                      </div>
                     )}
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="youtubeVideoPreview"
+                      label="YT Video Preview "
+                      type="text"
+                    />
+                  </div>
+                  <div className="relative">
+                    {rowData?.youtubeQuestionPaperVideo && (
+                      <div className="absolute right-0">
+                        <Tooltip title="View Video">
+                          <a
+                            target="_blank"
+                            href={rowData?.youtubeQuestionPaperVideo}
+                            className=""
+                          >
+                            <BsFillEyeFill size={20} />
+                          </a>
+                        </Tooltip>
+                      </div>
+                    )}
+                    <InputField
+                      control={control}
+                      errors={errors}
+                      name="youtubeQuestionPaperVideo"
+                      label="YT Ques. Paper Video "
+                      type="text"
+                    />
                   </div>
 
-                  <InputField
+                  {/* <InputField
                     control={control}
                     errors={errors}
                     name="descriptionPara"
                     label="Book Description"
                     type="description"
                     disabled={!isEditable}
-                  />
+                  /> */}
 
                   {/* <InputField
                 control={control}
@@ -1211,13 +1281,15 @@ const UpdateBook = () => {
                             >
                               <img src={url} alt="Product" />
                             </a>
-                            <Tooltip title="Delete Image">
-                              <MdDelete
-                                size={25}
-                                onClick={() => handleBookImgDelete(index)}
-                                className="absolute top-1 right-1 text-white cursor-pointer py-1 bg-red-500 hover:shadow-lg rounded-md border-blue-gray-500"
-                              />
-                            </Tooltip>
+                            {showDeleteBtn && (
+                              <Tooltip title="Delete Image">
+                                <MdDelete
+                                  size={25}
+                                  onClick={() => handleBookImgDelete(index)}
+                                  className="absolute top-1 right-1 text-white cursor-pointer py-1 bg-red-500 hover:shadow-lg rounded-md border-blue-gray-500"
+                                />
+                              </Tooltip>
+                            )}
                           </div>
                         ))
                       )}
@@ -1258,14 +1330,16 @@ const UpdateBook = () => {
                           </a>
                         </Tooltip>
                       </div>
-                      <div
-                        onClick={handleEbookDelete}
-                        className="cursor-pointer"
-                      >
-                        <Tooltip title="Delete E-book">
-                          <MdDelete size={20} className="" />
-                        </Tooltip>
-                      </div>
+                      {showDeleteBtn && (
+                        <div
+                          onClick={handleEbookDelete}
+                          className="cursor-pointer"
+                        >
+                          <Tooltip title="Delete E-book">
+                            <MdDelete size={20} className="" />
+                          </Tooltip>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -1280,7 +1354,7 @@ const UpdateBook = () => {
                     />
                   )}
                 </div>
-                <div className="grid grid-cols-3">
+                <div className="grid grid-cols-3 gap-3">
                   <InputField
                     control={control}
                     errors={errors}
@@ -1289,6 +1363,27 @@ const UpdateBook = () => {
                     type="option"
                     options={discountOptions}
                     // required={true}
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="totalPages"
+                    label="Total Pages"
+                    type="number"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="totalNoOfPapers"
+                    label="Total No. Of Papers"
+                    type="number"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="authorName"
+                    label="Author Name"
+                    type="text"
                   />
                 </div>
                 {/* <InputField
@@ -1346,17 +1441,19 @@ const UpdateBook = () => {
                         />
                       </div>
                       {/* Remove Button */}
-                      <div className="flex justify-end pr-3">
-                        <Button
-                          size="sm"
-                          variant="outlined"
-                          color="white"
-                          className="bg-red-500 w-max p-2 ml-2 "
-                          onClick={() => removeChapter(index)} // Remove field
-                        >
-                          <MdDelete size={17} />
-                        </Button>
-                      </div>
+                      {showDeleteBtn && (
+                        <div className="flex justify-end pr-3">
+                          <Button
+                            size="sm"
+                            variant="outlined"
+                            color="white"
+                            className="bg-red-500 w-max p-2 ml-2 "
+                            onClick={() => removeChapter(index)} // Remove field
+                          >
+                            <MdDelete size={17} />
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -1459,20 +1556,22 @@ const UpdateBook = () => {
                             />
                           </div>
                           {/* Remove Button */}
-                          <div className="flex justify-end pr-3">
-                            <Button
-                              size="sm"
-                              variant="outlined"
-                              color="white"
-                              className="bg-red-500 w-max p-2 ml-2 "
-                              onClick={() => {
-                                removeSamplePaper(index);
-                                deleteSolvedPaperFile(index);
-                              }} // Remove field
-                            >
-                              <MdDelete size={17} />
-                            </Button>
-                          </div>
+                          {showDeleteBtn && (
+                            <div className="flex justify-end pr-3">
+                              <Button
+                                size="sm"
+                                variant="outlined"
+                                color="white"
+                                className="bg-red-500 w-max p-2 ml-2 "
+                                onClick={() => {
+                                  removeSamplePaper(index);
+                                  deleteSolvedPaperFile(index);
+                                }} // Remove field
+                              >
+                                <MdDelete size={17} />
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
@@ -1643,29 +1742,35 @@ const UpdateBook = () => {
                     /> */}
                         </div>
                         {/* Remove Button */}
-                        <div className="flex justify-end pr-3">
-                          <Button
-                            size="sm"
-                            variant="outlined"
-                            color="white"
-                            className="bg-red-500 w-max p-2 ml-2 "
-                            onClick={() => {
-                              removeSolvedAssignment(index);
-                              handleAssignmentProductDelete(index);
-                            }} // Remove field
-                          >
-                            <MdDelete size={17} />
-                          </Button>
-                        </div>
+                        {showDeleteBtn && (
+                          <div className="flex justify-end pr-3">
+                            <Button
+                              size="sm"
+                              variant="outlined"
+                              color="white"
+                              className="bg-red-500 w-max p-2 ml-2 "
+                              onClick={() => {
+                                removeSolvedAssignment(index);
+                                handleAssignmentProductDelete(index);
+                              }} // Remove field
+                            >
+                              <MdDelete size={17} />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
                 </div>
 
+                <AIQuesPaperUpload
+                  innerId={bookData}
+                  medium={medium}
+                  outerId={outerId}
+                />
+
                 <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md mt-5">
-                  <p className="font-semibold py-2 ">
-                    English Book Meta Details
-                  </p>
+                  <p className="font-semibold py-2 ">Book Meta Details</p>
                 </div>
                 <div className="grid grid-cols-2 gap-3 bg-[#f5f7fb] rounded-lg mt-2 p-3">
                   <InputField
@@ -1745,31 +1850,34 @@ const UpdateBook = () => {
                           placeholder="Enter Comment"
                           disabled={!isEditable}
                         />
-
-                        <div className="w-full flex justify-end ">
-                          <Button
-                            size="sm"
-                            variant="outlined"
-                            color="white"
-                            className="bg-red-500 w-max p-2 ml-2 "
-                            onClick={() => removeReview(index)}
-                          >
-                            <MdDelete size={17} />
-                          </Button>
-                        </div>
+                        {showDeleteBtn && (
+                          <div className="w-full flex justify-end ">
+                            <Button
+                              size="sm"
+                              variant="outlined"
+                              color="white"
+                              className="bg-red-500 w-max p-2 ml-2 "
+                              onClick={() => removeReview(index)}
+                            >
+                              <MdDelete size={17} />
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="flex justify-end">
-                  <Button
-                    type="button"
-                    className="primary-gradient mt-4 mb-4 capitalize"
-                    onClick={handleMediumDelete}
-                  >
-                    Delete {medium} book
-                  </Button>
-                </div>
+                {showDeleteBtn && (
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      className="primary-gradient mt-4 mb-4 capitalize"
+                      onClick={handleMediumDelete}
+                    >
+                      Delete {medium} book
+                    </Button>
+                  </div>
+                )}
               </div>
 
               <div></div>

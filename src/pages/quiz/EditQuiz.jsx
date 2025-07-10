@@ -21,39 +21,6 @@ const EditQuiz = () => {
 
   const { allBooks } = useSelector((state) => state.books);
 
-  const defaultQuizData = [
-    {
-      question: "Qui minus accusamus ",
-      correctAnswer: "Explicabo Numquam d",
-      options: [
-        "Voluptatibus magni a",
-        "Esse autem sunt tem",
-        "Doloremque quisquam ",
-        "Fugiat repudiandae ",
-      ],
-    },
-    {
-      question: "Ab nisi aut perspici",
-      correctAnswer: "Hic ut sit cumque am",
-      options: [
-        "Odit neque dolorem m",
-        "Natus odio veniam n",
-        "Quia incididunt ut r",
-        "Impedit beatae cupi",
-      ],
-    },
-    {
-      question: "Numquam dolorem at s",
-      correctAnswer: "Et quasi animi nisi",
-      options: [
-        "Error similique iust",
-        "Labore beatae irure ",
-        "Quos labore adipisci",
-        "Incidunt dignissimo",
-      ],
-    },
-  ];
-
   const {
     handleSubmit,
     formState: { errors },
