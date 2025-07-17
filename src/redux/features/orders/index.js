@@ -51,6 +51,72 @@ export const getAllOrders = (payload, callback = () => { }) => {
 }
 
 
+
+
+export const getAllBulkOrders = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get('/bulkOrder/getAll', payload);
+            if (response.status === 200) {
+                const data = response?.data?.orders;
+                dispatch(setOrder({ allBulkOrders: data }))
+                callback(true, data)
+            }
+        } catch (error) {
+            let message = "ERROR";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+
+
+export const getBulkOrderById = (id, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post('/bulkOrder/getById', { id: id });
+            if (response.status === 200) {
+                callback(true, response.data.order)
+            }
+        } catch (error) {
+            let message = "ERROR";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+
+export const getShippingCharges = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/order/getShippingCharges", payload);
+            if (response.status === 200) {
+                console.log("response is ", response)
+                toast.success('Shipping Updated')
+                callback(true, response.data.rate);
+            }
+
+        } catch (error) {
+            console.log(error)
+            if (error.status === 500) {
+                callback(false, "not_available")
+            }
+            let message = "error";
+            if (error?.hasOwnProperty("message")) {
+                message = error?.message;
+            }
+        }
+    };
+};
+
+
+
 export const getFilteredOrders = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
@@ -183,6 +249,45 @@ export const cancelOrder = (payload, callback = () => { }, setCancelOrderLoader)
     };
 };
 
+
+export const bulkOrderCancel = (payload, setLoader, callback = () => { },) => {
+    return async (dispatch) => {
+        try {
+            setLoader((prev) => ({
+                ...prev,
+                cancelLoader: true,
+            }));
+            const response = await axiosInstance.post("/bulkOrder/makeOrderCancel", { id: payload });
+            if (response.status === 200) {
+                setLoader((prev) => ({
+                    ...prev,
+                    cancelLoader: false,
+                }));
+                const message = response.data?.message || "Order Cancelled successfully!";
+                toast.success(message);
+                callback(true)
+
+            }
+        } catch (error) {
+            setLoader((prev) => ({
+                ...prev,
+                cancelLoader: false,
+            }));
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data;
+            }
+            toast.error(message);
+
+        } finally {
+            setLoader((prev) => ({
+                ...prev,
+                cancelLoader: false,
+            }));
+        }
+    };
+};
+
 export const createShippingOrder = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
@@ -206,6 +311,41 @@ export const createShippingOrder = (payload, callback = () => { }) => {
             toast.error(message);
         } finally {
             dispatch(setOrder({ shipNowBtnLoader: false }))
+        }
+    };
+};
+
+
+export const createShippingBulkOrder = (payload, setLoader, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setLoader((prev) => ({
+                ...prev,
+                shipNowLoader: true
+            }))
+            const response = await axiosInstance.post("/bulkOrder/create-shipping-order", payload);
+            if (response.status === 200) {
+                setLoader((prev) => ({
+                    ...prev,
+                    shipNowLoader: false
+                }))
+                console.log("response is ", response)
+                const message = response.data?.message || "Successfull !";
+                callback(true)
+                toast.success(message);
+            }
+        } catch (error) {
+            console.log(error)
+            setLoader((prev) => ({
+                ...prev,
+                shipNowLoader: false
+            }))
+            toast.error(error.response.data.error);
+        } finally {
+            setLoader((prev) => ({
+                ...prev,
+                shipNowLoader: false
+            }))
         }
     };
 };
@@ -240,6 +380,46 @@ export const generateLabelShiprocket = (payload, callback = () => { }) => {
 
 
 
+export const generateLabelBulkOrderShiprocket = (payload, setLoader, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setLoader((prev) => ({
+                ...prev,
+                labelLoader: true,
+            }));
+            const response = await axiosInstance.post("/bulkOrder/generate-label", payload);
+            if (response.status === 200) {
+                setLoader((prev) => ({
+                    ...prev,
+                    labelLoader: false,
+                }));
+                const link = response.data
+                console.log(link)
+                window.open(link, "_blank");
+
+            }
+        } catch (error) {
+            setLoader((prev) => ({
+                ...prev,
+                labelLoader: false,
+            }));
+
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data;
+            }
+            // callback(error);
+            toast.error(message);
+        } finally {
+            setLoader((prev) => ({
+                ...prev,
+                labelLoader: false,
+            }));
+        }
+    };
+};
+
+
 
 
 export const getTrackingOrder = (code, callback = () => { }) => {
@@ -265,6 +445,39 @@ export const getTrackingOrder = (code, callback = () => { }) => {
             toast.error(message);
         } finally {
             dispatch(setOrder({ generateLabelLoder: false }))
+        }
+    };
+};
+
+
+export const getTrackingOrderForBulk = (code, setLoader, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setLoader((prev) => ({
+                ...prev,
+                trackLoader: true,
+            }));
+            const response = await axiosInstance.post(`/bulkOrder/track-order-website`, {
+                orderId: code
+            });
+            if (response.status === 200) {
+                callback(true, response.data)
+                setLoader((prev) => ({
+                    ...prev,
+                    trackLoader: false,
+                }));
+            }
+        } catch (error) {
+            setLoader((prev) => ({
+                ...prev,
+                trackLoader: false,
+            }));
+            toast.error(error.response.data.error);
+        } finally {
+            setLoader((prev) => ({
+                ...prev,
+                trackLoader: false,
+            }));
         }
     };
 };
@@ -314,3 +527,68 @@ export const getAllCustomerUser = (payload, callback = () => { }) => {
         }
     }
 }
+
+
+
+
+export const generateSingleBulkOrder = (payload, setIsLoading, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setIsLoading(true)
+            const response = await axiosInstance.post('/bulkOrder/create', payload);
+            if (response.status === 201) {
+                setIsLoading(false)
+                console.log(response)
+                callback(true)
+                toast.success(response.data.message || 'Created Successfully');
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.response.data.message)
+            // setIsLoading(false)
+            // let message = "ERROR";
+            // if (error?.hasOwnProperty("response")) {
+            //     message = error?.response?.data
+            // }
+            // toast.error(message)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+}
+
+
+
+
+export const bulkOrderUpdate = (payload, setLoader, callback = () => { },) => {
+    return async (dispatch) => {
+        try {
+            setLoader((prev) => ({
+                ...prev,
+                updateLoader: true
+            }))
+            const response = await axiosInstance.post("/bulkOrder/update", payload);
+            if (response.status === 200) {
+                setLoader((prev) => ({
+                    ...prev,
+                    updateLoader: false
+                }))
+                const message = response.data?.message || "Order Updated successfully!";
+                toast.success(message);
+                callback(true)
+
+            }
+        } catch (error) {
+            setLoader((prev) => ({
+                ...prev,
+                updateLoader: false
+            }))
+            toast.error(error.response.data.message);
+        } finally {
+            setLoader((prev) => ({
+                ...prev,
+                updateLoader: false
+            }))
+        }
+    };
+};

@@ -1,22 +1,114 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import InputField from "../../common/fields/InputField";
 import { Button } from "@material-tailwind/react";
-import { stateOptions } from "../../constant/options";
+import {
+  blulkClientCategoryOptions,
+  stateOptions,
+} from "../../constant/options";
+import { useDispatch } from "react-redux";
+import { addBulkClient } from "../../redux/features/customers";
+import { useNavigate } from "react-router-dom";
+
+import {
+  westBengalCities,
+  uttarakhandCities,
+  uttarPradeshCities,
+  tripuraCities,
+  telanganaCities,
+  tamilNaduCities,
+  sikkimCities,
+  rajasthanCities,
+  puducherryCities,
+  odishaCities,
+  nagalandCities,
+  mizoramCities,
+  meghalayaCities,
+  manipurCities,
+  madhyaPradeshCities,
+  lakshadweepCities,
+  ladakhCities,
+  keralaCities,
+  karnatakaCities,
+  jharkhandCities,
+  jammuAndKashmirCities,
+  himachalPradeshCities,
+  haryanaCities,
+  gujaratCities,
+  goaCities,
+  delhiCities,
+  chhattisgarhCities,
+  punjabCities,
+  biharCities,
+  assamCities,
+  arunachalPradeshCities,
+  maharashtraCities,
+  andhraPradeshCities,
+} from "../../constant/options";
 
 function AddBulkClient() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState();
   const {
     handleSubmit,
     formState: { errors },
     control,
     reset,
+    watch,
   } = useForm();
 
   const onSubmit = (data) => {
-    console.log(data);
+    dispatch(
+      addBulkClient(data, setIsLoading, (success) => {
+        if (success) {
+          navigate(-1);
+        }
+      })
+    );
   };
+
+  const selectedState = watch("state");
+
+  const stateCityMap = {
+    "Andhra Pradesh": andhraPradeshCities,
+    "Arunachal Pradesh": arunachalPradeshCities,
+    Assam: assamCities,
+    Bihar: biharCities,
+    Punjab: punjabCities,
+    Chhattisgarh: chhattisgarhCities,
+    Delhi: delhiCities,
+    Goa: goaCities,
+    Gujarat: gujaratCities,
+    Haryana: haryanaCities,
+    "Himachal Pradesh": himachalPradeshCities,
+    "Jammu and Kashmir": jammuAndKashmirCities,
+    Jharkhand: jharkhandCities,
+    Karnataka: karnatakaCities,
+    Kerala: keralaCities,
+    Ladakh: ladakhCities,
+    Lakshadweep: lakshadweepCities,
+    "Madhya Pradesh": madhyaPradeshCities,
+    Maharashtra: maharashtraCities,
+    Manipur: manipurCities,
+    Meghalaya: meghalayaCities,
+    Mizoram: mizoramCities,
+    Nagaland: nagalandCities,
+    Odisha: odishaCities,
+    Puducherry: puducherryCities,
+    Rajasthan: rajasthanCities,
+    Sikkim: sikkimCities,
+    "Tamil Nadu": tamilNaduCities,
+    Telangana: telanganaCities,
+    Tripura: tripuraCities,
+    "Uttar Pradesh": uttarPradeshCities,
+    Uttarakhand: uttarakhandCities,
+    "West Bengal": westBengalCities,
+  };
+
+  const cityOptions = stateCityMap[selectedState] || [];
 
   return (
     <PageCont>
@@ -27,23 +119,32 @@ function AddBulkClient() {
             <InputField
               control={control}
               errors={errors}
-              name="firstName"
-              label="First Name"
+              name="companyName"
+              label="Company Name"
               type="text"
             />
             <InputField
+              control={control}
+              errors={errors}
+              name="firstName"
+              label="Name"
+              type="text"
+            />
+            {/* <InputField
               control={control}
               errors={errors}
               name="lastName"
               label="Last Name"
               type="text"
-            />
+            /> */}
+
             <InputField
               control={control}
               errors={errors}
-              name="companyName"
-              label="Company Name"
-              type="text"
+              name="category"
+              label="Category"
+              type="option"
+              options={blulkClientCategoryOptions}
             />
             <InputField
               control={control}
@@ -87,13 +188,7 @@ function AddBulkClient() {
               label="Pincode"
               type="text"
             />
-            <InputField
-              control={control}
-              errors={errors}
-              name="city"
-              label="City"
-              type="text"
-            />
+
             <InputField
               control={control}
               errors={errors}
@@ -101,6 +196,15 @@ function AddBulkClient() {
               label="States"
               type="option"
               options={stateOptions}
+            />
+
+            <InputField
+              control={control}
+              errors={errors}
+              name="city"
+              label="City"
+              type={`${selectedState === "Delhi" ? "text" : "option"}`}
+              options={selectedState !== "Delhi" ? cityOptions : undefined}
             />
             <InputField
               control={control}
@@ -110,7 +214,11 @@ function AddBulkClient() {
               type="text"
             />
           </div>
-          <Button type="submit" className="primary-gradient mt-4 capitalize">
+          <Button
+            loading={isLoading}
+            type="submit"
+            className="primary-gradient mt-4 capitalize"
+          >
             Add
           </Button>
         </form>

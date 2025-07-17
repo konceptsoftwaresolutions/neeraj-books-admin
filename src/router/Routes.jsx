@@ -54,6 +54,8 @@ import OldBooks from "../pages/oldbooks/OldBooks";
 import AllBulkClients from "../pages/bulkClients/AllBulkClients";
 import AddBulkClient from "../pages/bulkClients/AddBulkClient";
 import EditBulkClient from "../pages/bulkClients/EditBulkClient";
+import AllBUlkOrders from "../pages/orders/bulk/AllBulkOrders";
+import EditBulkOrder from "../pages/orders/bulk/EditBulkOrder";
 
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
@@ -123,6 +125,9 @@ const Routes = () => {
         { path: "/:type/orders", element: <Orders /> },
         { path: "/:type/invoice", element: <ShipmentPdf /> },
         { path: "/:type/editOrders", element: <EditOrders /> },
+
+        { path: "/:type/allbulkOrders", element: <AllBUlkOrders /> },
+        { path: "/:type/editbulkOrders", element: <EditBulkOrder /> },
         { path: "/:type/addbulkOrders", element: <AddOrders /> },
         { path: "/:type/bulk-orders-client", element: <AllBulkClients /> },
 

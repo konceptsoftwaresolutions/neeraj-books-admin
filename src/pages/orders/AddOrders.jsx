@@ -1,16 +1,46 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, {
+  useEffect,
+  useMemo,
+  useState,
+  useCallback,
+  useRef,
+} from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
 import InputField from "../../common/fields/InputField";
 import { Button } from "@material-tailwind/react";
 import { RxCross2 } from "react-icons/rx";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAllProducts } from "../../redux/features/books";
+import {
+  generateSingleBulkOrder,
+  getShippingCharges,
+} from "../../redux/features/orders";
+import { useNavigate } from "react-router-dom";
+import { paymentModeOptions } from "../../constant/options";
+import {
+  getAllBulkClient,
+  getBulkClientById,
+} from "../../redux/features/customers";
 
 function AddOrders() {
   const dispatch = useDispatch();
   const [allProducts, setAllProducts] = useState([]);
+  const { bulkClientOptions } = useSelector((state) => state.customer);
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalWithoutShipping, setTotalWithoutShipping] = useState();
+  const [clientPincode, setClientPincode] = useState();
+  const [amountAfterAllDiscount, setAmountAfterAllDiscounts] = useState();
+  const [shippingValue, setShippingValue] = useState(null);
+
+  const prevShippingPayload = useRef({
+    totalBooks: null,
+    totalWithoutShipping: null,
+  });
+
+  const [totalBooks, setTotalBooks] = useState();
+  const [totalWeight, setTotalWeight] = useState();
 
   const fetchAllProductsData = useCallback(() => {
     dispatch(
@@ -20,6 +50,7 @@ function AddOrders() {
         }
       })
     );
+    dispatch(getAllBulkClient());
   }, [dispatch]);
 
   useEffect(() => {
@@ -28,7 +59,6 @@ function AddOrders() {
 
   const generateDropdownOptions = (bookData) => {
     const options = [];
-
     if (bookData.english) {
       options.push({
         label: `${bookData.english.title} - ${bookData.english.bookCode}`,
@@ -54,12 +84,13 @@ function AddOrders() {
     handleSubmit,
     formState: { errors },
     control,
+    watch,
     reset,
     setValue,
   } = useForm({
     defaultValues: {
       client: "",
-      date: "",
+      date: new Date().toISOString().split("T")[0], // ⬅️ sets today's date in "YYYY-MM-DD"
       books: [
         {
           product: "",
@@ -67,12 +98,13 @@ function AddOrders() {
           qty: "",
           discount1: "",
           discount2: "",
+          discount3: "",
           amt: "",
         },
       ],
       weight: "",
-      length: "",
-      width: "",
+      length: "24",
+      width: "18",
       height: "",
       shipping: "",
       grandTotal: "",
@@ -85,43 +117,240 @@ function AddOrders() {
   });
 
   const books = useWatch({ control, name: "books" });
+  const adjustmentPlus = useWatch({ control, name: "adjustmentPlus" });
+  const adjustmentMinus = useWatch({ control, name: "adjustmentMinus" });
+  const enteredShipping = watch("shipping");
+  const paymentMode = useWatch({ control, name: "paymentMode" });
+  const client = watch("client");
+
+  useEffect(() => {
+    if (client) {
+      dispatch(
+        getBulkClientById({ id: client }, (success, data) => {
+          if (success && data) {
+            setClientPincode(data.pincode);
+          }
+        })
+      );
+    }
+  }, [client]);
 
   useEffect(() => {
     let total = 0;
+    let totalBooks = 0;
+    let totalWeight = 0;
 
-    books.forEach((book, index) => {
+    books?.forEach((book, index) => {
+      // 🟡 Auto-fill price & qty when product is selected
+      let matchedProduct;
+      if (book.product) {
+        matchedProduct = allProducts.find(
+          (prod) =>
+            prod?.english?._id === book.product ||
+            prod?.hindi?._id === book.product
+        );
+
+        const selected =
+          matchedProduct?.english?._id === book.product
+            ? matchedProduct?.english
+            : matchedProduct?.hindi;
+
+        if (selected) {
+          const selectedPrice = selected.paperBackOriginalPrice?.toString();
+
+          if (
+            selectedPrice &&
+            (book.price === "" ||
+              book.price === undefined ||
+              book.price === null)
+          ) {
+            setValue(`books.${index}.price`, selectedPrice, {
+              shouldValidate: false,
+              shouldDirty: true,
+            });
+          }
+
+          if (!book.qty) {
+            setValue(`books.${index}.qty`, "1", {
+              shouldValidate: false,
+              shouldDirty: true,
+            });
+          }
+        }
+      }
+
       const price = parseFloat(book.price) || 0;
       const qty = parseFloat(book.qty) || 0;
+
+      const weight =
+        parseFloat(
+          matchedProduct?.english?.weight || matchedProduct?.hindi?.weight
+        ) || 0;
+
+      totalWeight += weight * qty;
+
       const d1 = parseFloat(book.discount1) || 0;
       const d2 = parseFloat(book.discount2) || 0;
+      const d3 = parseFloat(book.discount3) || 0;
+      // ✅ Progressive discount logic
+      let amt = price * qty;
+      amt -= (amt * d1) / 100;
+      amt -= (amt * d2) / 100;
+      amt -= (amt * d3) / 100;
 
-      const amt = +(price * qty - d1 - d2).toFixed(2); // final amount
+      amt = +amt.toFixed(2);
       total += amt;
+      totalBooks += qty;
+      setTotalBooks(totalBooks);
+      setValue("height", totalBooks);
 
       const currentAmt = parseFloat(book.amt) || 0;
 
-      // Only update amt if it has changed
       if (amt !== currentAmt) {
         setValue(`books.${index}.amt`, amt.toFixed(2), {
           shouldValidate: false,
           shouldDirty: false,
         });
       }
+
+      setValue("weight", totalWeight.toFixed(3), {
+        shouldValidate: false,
+        shouldDirty: true,
+      });
+      setTotalWeight(totalWeight.toFixed(3));
     });
 
-    const grandTotal = +total.toFixed(2);
-    const currentGrandTotal = parseFloat(books?.grandTotal) || 0;
+    const shipping = parseFloat(enteredShipping) || 0;
+    const plus = parseFloat(adjustmentPlus) || 0;
+    const minus = parseFloat(adjustmentMinus) || 0;
+    const bookTotalAmount = total;
+    setTotalWithoutShipping(bookTotalAmount);
 
-    if (grandTotal !== currentGrandTotal) {
-      setValue("grandTotal", grandTotal.toFixed(2), {
-        shouldValidate: false,
-        shouldDirty: false,
-      });
+    const grandTotal = +(bookTotalAmount + shipping + plus - minus).toFixed(2);
+    setValue("grandTotal", grandTotal);
+  }, [
+    books,
+    setValue,
+    allProducts,
+    enteredShipping,
+    adjustmentPlus,
+    adjustmentMinus,
+  ]);
+
+  // ----------------------------------------function for calculating the shipping charges
+  useEffect(() => {
+    if (
+      !totalBooks ||
+      !totalWeight ||
+      !totalWithoutShipping ||
+      !paymentMode ||
+      !clientPincode
+    ) {
+      return;
     }
-  }, [books, setValue]);
+
+    const booksCount = Number(totalBooks);
+    const orderTotal = Number(totalWithoutShipping);
+
+    const payload = {
+      deliveryPincode: "110009",
+      isCod: paymentMode === "cod",
+      noOfBooksWithoutEbook: booksCount,
+      orderWeight: totalWeight,
+      totalOrderValueAfterDiscount: orderTotal,
+    };
+
+    dispatch(
+      getShippingCharges(payload, (success, data) => {
+        if (success) {
+          setShippingValue(data);
+          setValue("shipping", data, {
+            shouldValidate: false,
+            shouldDirty: true,
+          });
+          setValue("grandTotal", data + orderTotal);
+        }
+      })
+    );
+  }, [
+    totalBooks,
+    totalWeight,
+    clientPincode,
+    totalWithoutShipping,
+    paymentMode,
+
+    dispatch,
+    setValue,
+  ]);
 
   const onSubmit = (data) => {
-    console.log("Submitted Data:", data);
+    const transformedBooks = data.books.map((book) => {
+      const matchedProduct = allProducts.find(
+        (prod) =>
+          prod?.english?._id === book.product ||
+          prod?.hindi?._id === book.product
+      );
+
+      let localizedId = "";
+      let language = "";
+      let productId = "";
+
+      if (matchedProduct?.english?._id === book.product) {
+        localizedId = matchedProduct.english._id;
+        language = "english";
+        productId = matchedProduct._id;
+      } else if (matchedProduct?.hindi?._id === book.product) {
+        localizedId = matchedProduct.hindi._id;
+        language = "hindi";
+        productId = matchedProduct._id;
+      }
+
+      return {
+        product: productId,
+        localizedId,
+        language,
+        price: parseFloat(book.price),
+        qty: parseFloat(book.qty),
+        hsnCode: book.hsnCode,
+
+        ...(book.discount1 && { discount1: parseFloat(book.discount1) }),
+        ...(book.discount2 && { discount2: parseFloat(book.discount2) }),
+        ...(book.discount3 && { discount3: parseFloat(book.discount3) }),
+      };
+    });
+
+    const finalPayload = {
+      // ...data,
+      client: data.client,
+      date: data.date,
+      shipping: {
+        height: data.height,
+        length: data.length,
+        shippingCharges: data.shipping,
+        weight: data.weight,
+        width: data.width,
+        total: totalWithoutShipping,
+        paymentMode: data.paymentMode,
+      },
+      grandTotal: data.grandTotal,
+      adjustmentMinus: data.adjustmentMinus,
+      adjustmentPlus: data.adjustmentPlus,
+      plusRemark: data.plusRemark,
+      minusRemark: data.minusRemark,
+      books: transformedBooks,
+    };
+
+    console.log(finalPayload);
+
+    dispatch(
+      generateSingleBulkOrder(finalPayload, setIsLoading, (success) => {
+        if (success) {
+          // alert("done");
+          // navigate(-1);
+        }
+      })
+    );
+    // submit finalPayload to API
   };
 
   const handleAddBook = () =>
@@ -131,14 +360,33 @@ function AddOrders() {
       qty: "",
       discount1: "",
       discount2: "",
+      discount3: "",
+      hsnCode: "",
       amt: "",
     });
 
   const handleRemoveBook = (index) => remove(index);
 
+  const getShippingRate = (totalBooks, grandTotal) => {
+    const payload = {
+      deliveryPincode: "110009",
+      isCod: true,
+      noOfBooksWithoutEbook: totalBooks,
+      orderWeight: 2.3,
+      totalOrderValueAfterDiscount: grandTotal,
+    };
+    dispatch(
+      getShippingCharges(payload, (success, data) => {
+        if (success) {
+          setValue("shipping", data);
+        }
+      })
+    );
+  };
+
   return (
     <PageCont>
-      <Heading text="Add Order" />
+      <Heading text="Add Orders" />
       <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
         {/* Client Information */}
         <Section title="Client Information">
@@ -148,7 +396,9 @@ function AddOrders() {
               errors={errors}
               name="client"
               label="Client"
-              type="option"
+              type="select"
+              mode="single"
+              options={bulkClientOptions}
             />
             <InputField
               control={control}
@@ -166,7 +416,7 @@ function AddOrders() {
           actionText="+ Add Book"
           onAction={handleAddBook}
         >
-          {fields.map((item, index) => (
+          {fields?.map((item, index) => (
             <div
               key={item.id}
               className="relative w-full bg-white border rounded-md p-4 mb-4"
@@ -182,16 +432,18 @@ function AddOrders() {
                   <RxCross2 color="red" />
                 </Button>
               </div>
-              <Grid columns={4}>
-                <InputField
-                  control={control}
-                  errors={errors}
-                  name={`books.${index}.product`}
-                  label="Product"
-                  type="select"
-                  mode="single"
-                  options={productOptions}
-                />
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                <div className="col-span-full">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name={`books.${index}.product`}
+                    label="Product"
+                    type="select"
+                    mode="single"
+                    options={productOptions}
+                  />
+                </div>
                 <InputField
                   control={control}
                   errors={errors}
@@ -210,15 +462,29 @@ function AddOrders() {
                   control={control}
                   errors={errors}
                   name={`books.${index}.discount1`}
-                  label="Discount 1"
+                  label="Discount 1 (%)"
                   type="number"
                 />
                 <InputField
                   control={control}
                   errors={errors}
                   name={`books.${index}.discount2`}
-                  label="Discount 2"
+                  label="Discount 2 (%)"
                   type="number"
+                />
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name={`books.${index}.discount3`}
+                  label="Discount 3 (%)"
+                  type="number"
+                />
+                <InputField
+                  control={control}
+                  errors={errors}
+                  name={`books.${index}.hsnCode`}
+                  label="HSN"
+                  type="text"
                 />
                 <InputField
                   control={control}
@@ -228,7 +494,7 @@ function AddOrders() {
                   type="number"
                   disabled
                 />
-              </Grid>
+              </div>
             </div>
           ))}
         </Section>
@@ -236,6 +502,14 @@ function AddOrders() {
         {/* Shipping Info */}
         <Section title="Shipping Information">
           <Grid columns={3}>
+            <InputField
+              control={control}
+              errors={errors}
+              name="paymentMode"
+              label="Payment Mode"
+              type="option"
+              options={paymentModeOptions}
+            />
             <InputField
               control={control}
               errors={errors}
@@ -270,13 +544,44 @@ function AddOrders() {
               name="shipping"
               label="Shipping Charges"
               type="number"
+              disabled={true}
             />
           </Grid>
         </Section>
 
         {/* Total */}
         <Section title="Total">
-          <Grid columns={3}>
+          <div className="grid grid-cols-2 gap-3">
+            <InputField
+              control={control}
+              errors={errors}
+              name="adjustmentPlus"
+              label="ADJ +"
+              type="number"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="plusRemark"
+              label="Remark"
+              type="description"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="adjustmentMinus"
+              label="ADJ -"
+              type="number"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="minusRemark"
+              label="Remark"
+              type="description"
+            />
+          </div>
+          <div className="mt-3 grid grid-cols-2">
             <InputField
               control={control}
               errors={errors}
@@ -284,11 +589,16 @@ function AddOrders() {
               label="Grand Total"
               type="number"
               disabled
+              className=""
             />
-          </Grid>
+          </div>
         </Section>
 
-        <Button type="submit" className="primary-gradient mt-6 capitalize">
+        <Button
+          loading={isLoading}
+          type="submit"
+          className="primary-gradient mt-6 capitalize"
+        >
           Create Order
         </Button>
       </form>

@@ -32,6 +32,7 @@ import RefundModal from "./RefundModal";
 import useCartCalculations from "../../hooks/useCartCalculations";
 import OnsiteModal from "./OnsiteModal";
 import { checkCouponAvailability } from "../../redux/features/books";
+import OrderSummaryTable from "./OrderSummaryTable";
 
 const items = [
   {
@@ -106,9 +107,10 @@ const EditOrders = () => {
   const [showRefundModal, setShowRefundModal] = useState();
   const [showOnsiteModal, setShowOnsiteModal] = useState();
   const [couponPercentage, setCouponPercentage] = useState(0);
+  const [orderItems, setOrderItems] = useState([]);
 
   const location = useLocation();
-  // console.log(location?.state?.data);
+  console.log(orderItems);
 
   useEffect(() => {
     if (orderdata) {
@@ -159,6 +161,7 @@ const EditOrders = () => {
       getOrderById(id, (success, data) => {
         if (success) {
           setOrderData(data?.order);
+          setOrderItems(data?.order.items);
         }
       })
     );
@@ -246,7 +249,6 @@ const EditOrders = () => {
     const payload = {
       shipment_id: orderdata?.shipment_id,
     };
-    console.log(payload);
     dispatch(generateLabelShiprocket(payload));
   };
 
@@ -286,57 +288,10 @@ const EditOrders = () => {
       <Heading text="Orders Details" />
       <div className="mt-4">
         <div>
-          <div className="flex justify-start items-center gap-2 mt-2">
-            {/* <p className="flex items-center  text-sm gap-1 text-[#677788] cursor-pointer">
-              <IoPrintOutline size={18} /> Print Order
-            </p> */}
-            {/* <Dropdown menu={{ items }}>
-              <a
-                onClick={(e) => e.preventDefault()}
-                className="text-[#677788] text-sm cursor-pointer"
-              >
-                More Options
-                <DownOutlined />
-              </a>
-            </Dropdown> */}
-          </div>
+          <div className="flex justify-start items-center gap-2 mt-2"></div>
         </div>
       </div>
 
-      {/* <div className="border-t-[1px] border-solid border-gray-200 mt-5 pt-5">
-        <div className="flex justify-center items-start gap-5">
-          <div className="w-[65%] border-[1px] border-solid border-gray-200 rounded-md ">
-            <p className="border-b-[1px] p-3 border-solid border-gray-200">
-              Order Details
-            </p>
-            <div className="px-5">
-              <SummaryCard />
-            </div>
-          </div>
-          <div className="w-[35%] border border-gray-200 rounded-md sticky top-5 h-fit ">
-            <div>
-              <p className="border-b-[1px] p-3 border-solid border-gray-200">
-                Customer Details
-              </p>
-              <div className="px-5">
-                <CustomerCard />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="flex justify-start items-start gap-5 ">
-        <div className="w-[65%] border-[1px] border-solid border-gray-200 rounded-md mt-9">
-          <ShippingCard />
-        </div>
-        <div className="w-[35%] "></div>
-      </div>
-      <div className="flex justify-start items-start gap-5 ">
-        <div className="w-[65%] border-[1px] border-solid border-gray-200 rounded-md mt-9">
-          <CancelOrder />
-        </div>
-        <div className="w-[35%] "></div>
-      </div> */}
       {orderdata ? (
         <>
           <div className="mt-10">
@@ -354,7 +309,7 @@ const EditOrders = () => {
                 onClick={() => handleInvoiceClick(orderdata)}
                 className="capitalize"
               >
-                Invoice
+                Print Invoice
               </Button>
               {/* {(orderdata?.paymentMode === "Prepaid") && (orderdata?.paymentStatus === 'Paid') && ( */}
               {orderdata?.paymentMode !== "COD" && (
@@ -435,7 +390,7 @@ const EditOrders = () => {
                       {orderdata?.paymentStatus}
                     </span>
                   </li>
-                  <li>Shipped By : </li>
+                  <li>Shipped By : {orderdata?.courier}</li>
                 </ul>
                 <div className="w-full flex flex-col items-end   justify-end gap-y-2">
                   <p className="p-2 rounded-md text-white px-3 bg-red-400 my-2 cursor-pointer capitalize">
@@ -447,6 +402,11 @@ const EditOrders = () => {
               </div>
             </div>
             <div>
+              {/* <OrderSummaryTable
+                orderData={orderItems}
+                onUpdate={setOrderItems}
+              /> */}
+
               <table className="cart-summary-table w-full border-collapse mt-10">
                 <thead className="bg-gray-100 text-xs md:text-sm text-black-700 font-semibold">
                   <tr>
@@ -601,35 +561,6 @@ const EditOrders = () => {
                       </>
                     );
                   })}
-
-                  {/* <tr className="text-right border-b text-sm md:text-base font-medium">
-                <td className="py-2 px-4" colSpan={4}>
-                  <div className="flex justify-end gap-4">
-                    <span>SubTotal:</span>
-                    <span>₹1,100.00</span>
-                  </div>
-                </td>
-              </tr>
-
-              
-              <tr className="text-right border-b text-sm md:text-base font-medium">
-                <td className="py-2 px-4" colSpan={4}>
-                  <div className="flex justify-end gap-4">
-                    <span>Shipping & Handling Charges:</span>
-                    <span>₹100.00</span>
-                  </div>
-                </td>
-              </tr>
-
-              
-              <tr className="text-right border-b text-sm md:text-base font-semibold">
-                <td className="py-2 px-4" colSpan={4}>
-                  <div className="flex justify-end gap-4">
-                    <span>Grand Total:</span>
-                    <span>₹1,200.00</span>
-                  </div>
-                </td>
-              </tr> */}
                 </tbody>
               </table>
             </div>
@@ -752,16 +683,18 @@ const EditOrders = () => {
 
                 <div className="border border-black mt-6">
                   <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                    <p className="font-semibold"> {" "}
-                  {`Net Amount ${
-                    totalPaperbackQuantity > 0 && totalEbookQuantity > 0
-                      ? "(Printed + E-book)"
-                      : totalPaperbackQuantity > 0
-                      ? "(Printed)"
-                      : totalEbookQuantity > 0
-                      ? "(E-book)"
-                      : ""
-                  }`}</p>
+                    <p className="font-semibold">
+                      {" "}
+                      {`Net Amount ${
+                        totalPaperbackQuantity > 0 && totalEbookQuantity > 0
+                          ? "(Printed + E-book)"
+                          : totalPaperbackQuantity > 0
+                          ? "(Printed)"
+                          : totalEbookQuantity > 0
+                          ? "(E-book)"
+                          : ""
+                      }`}
+                    </p>
                     <p>
                       ₹{totalEbookAmount + paperbackAmountAfterSpecialDiscount}
                       /-

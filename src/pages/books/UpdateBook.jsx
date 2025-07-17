@@ -4,6 +4,9 @@ import { useFieldArray, useForm } from "react-hook-form";
 import InputField from "../../common/fields/InputField";
 import {
   bestSellerOptions,
+  bookSizeOptions,
+  bookTypeOptions,
+  colourOptions,
   discountOptions,
   mediumOptions,
   statusOptions,
@@ -272,6 +275,7 @@ const UpdateBook = () => {
     control,
     watch,
     reset,
+    setValue,
   } = useForm({
     defaultValues: {
       medium: medium || "",
@@ -282,10 +286,35 @@ const UpdateBook = () => {
     if (rowData) {
       console.log(rowData);
       reset({
+        // startPages: 10,
+        // quesPaperPages: 100,
+        // bookPages: 200,
+        // totalPages: 310,
+        // noOfForms: rowData?.noOfForms || 0,
+        // editorRevisor: "hindiEditorRevisor",
+        // bookType: "guide",
+        // bookSize: "medium-regular",
+        // bookColour: "singleColour",
+
+        startPages: rowData?.startPages,
+        quesPaperPages: rowData?.quesPaperPages,
+        bookPages: rowData?.bookPages,
+        extraPages: rowData?.extraPages,
+        totalPages: rowData?.totalPages,
+        noOfForms: rowData?.noOfForms,
+        editorRevisor: rowData?.editorRevisor,
+        bookType: rowData?.bookType,
+        bookSize: rowData?.bookSize,
+        bookColour: rowData?.bookColour,
+
+        first: rowData?.first,
+        revisedUpdated: rowData?.revisedUpdated,
+        reprint: rowData?.reprint,
+
         youtubeQuestionPaperVideo: rowData?.youtubeQuestionPaperVideo,
         youtubeVideoPreview: rowData?.youtubeVideoPreview,
         totalNoOfPapers: rowData?.totalNoOfPapers,
-        totalPages: rowData?.totalPages,
+        // totalPages: rowData?.totalPages,
         authorName: rowData?.authorName,
         viewParentCategory: rowData?.viewParentCategory,
         viewSubCategory: rowData?.viewSubCategory,
@@ -358,6 +387,38 @@ const UpdateBook = () => {
       });
     }
   }, [rowData, reset]);
+
+  const startPages = watch("startPages");
+  const quesPaperPages = watch("quesPaperPages");
+  const bookPages = watch("bookPages");
+  const extraPages = watch("extraPages");
+  const totalPages = watch("totalPages");
+  const bookSize = watch("bookSize");
+
+  useEffect(() => {
+    const s = parseInt(startPages) || 0;
+    const q = parseInt(quesPaperPages) || 0;
+    const b = parseInt(bookPages) || 0;
+    const e = parseInt(extraPages) || 0;
+
+    setValue("totalPages", s + q + b + e);
+  }, [startPages, quesPaperPages, bookPages, extraPages, setValue]);
+
+  useEffect(() => {
+    if (bookSize && totalPages) {
+      let noOfForms;
+      if (bookSize === "medium-regular") {
+        noOfForms = totalPages / 8;
+      } else if (bookSize === "large-slim") {
+        noOfForms = totalPages / 8;
+      } else if (bookSize === "small-hos") {
+        noOfForms = totalPages / 16;
+      } else {
+        noOfForms = totalPages / 16;
+      }
+      setValue("noOfForms", Math.floor(noOfForms));
+    }
+  }, [bookSize, totalPages]);
 
   // Reset form values when rowData is available
   // useEffect(() => {
@@ -529,6 +590,21 @@ const UpdateBook = () => {
     const slug = data.title.toLowerCase().replace(/\s+/g, "-"); // Convert to lowercase & replace spaces with "-"
 
     const bookData = {
+      first: data?.first,
+      revisedUpdated: data?.revisedUpdated,
+      reprint: data?.reprint,
+
+      startPages: data?.startPages,
+      quesPaperPages: data?.quesPaperPages,
+      bookPages: data?.bookPages,
+      extraPages: data?.extraPages,
+      totalPages: data?.totalPages,
+      noOfForms: data?.noOfForms,
+      editorRevisor: data?.editorRevisor,
+      bookType: data?.bookType,
+      bookSize: data?.bookSize,
+      bookColour: data?.bookColour,
+
       youtubeQuestionPaperVideo: data?.youtubeQuestionPaperVideo,
       youtubeVideoPreview: data?.youtubeVideoPreview,
       totalNoOfPapers: data?.totalNoOfPapers,
@@ -816,7 +892,7 @@ const UpdateBook = () => {
       fetchPdfUrls();
     }
   }, [rowData, dispatch, medium, outerId]);
-  
+
   const deleteSolvedPaperFile = (index) => {
     const payload = {
       solvedPaperId: rowData?.solvedSamplePapers[0].localizedId,
@@ -1219,6 +1295,34 @@ const UpdateBook = () => {
                     mode="single"
                     disabled={!isEditable}
                   />
+
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="bookType"
+                    label="Book Type"
+                    options={bookTypeOptions}
+                    type="select"
+                    mode="single"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="bookSize"
+                    label="Book Size"
+                    options={bookSizeOptions}
+                    type="select"
+                    mode="single"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="bookColour"
+                    label="Book Colour"
+                    options={colourOptions}
+                    type="select"
+                    mode="single"
+                  />
                   {/* <div className="relative">
                 {assignmentUrl && (
                   <Tooltip title="View Assignment">
@@ -1364,7 +1468,7 @@ const UpdateBook = () => {
                     options={discountOptions}
                     // required={true}
                   />
-                  <InputField
+                  {/* <InputField
                     control={control}
                     errors={errors}
                     name="totalPages"
@@ -1377,22 +1481,73 @@ const UpdateBook = () => {
                     name="totalNoOfPapers"
                     label="Total No. Of Papers"
                     type="number"
-                  />
-                  <InputField
+                  /> */}
+                  {/* <InputField
                     control={control}
                     errors={errors}
                     name="authorName"
                     label="Author Name"
                     type="text"
+                  /> */}
+                </div>
+                <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 mt-5">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="startPages"
+                    label="Start Pages"
+                    type="numeric"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="quesPaperPages"
+                    label="Ques Papers"
+                    type="numeric"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="bookPages"
+                    label="Book Pages"
+                    type="numeric"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="extraPages"
+                    label="Extra Pages"
+                    type="numeric"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="totalPages"
+                    label="Total Pages"
+                    type="number"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="noOfForms"
+                    label="No. Of Forms"
+                    type="numeric"
+                    disabled="true"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="authorName"
+                    label="Author"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="editorRevisor"
+                    label="Editor/Revisor"
+                    type="text"
                   />
                 </div>
-                {/* <InputField
-              type="textEditor"
-              control={control}
-              errors={errors}
-              label="What book includes"
-              name="whatYouGetInBook"
-            /> */}
                 <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md mt-8">
                   <p className="font-semibold">About The Book</p>
                   <Tooltip title="Add More Content" placement="left">
@@ -1456,6 +1611,30 @@ const UpdateBook = () => {
                       )}
                     </div>
                   ))}
+                </div>
+
+                <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">
+                  <p className="font-semibold py-2">Edition</p>
+                </div>
+                <div className="grid grid-col-2 md:grid-cols-3 gap-3 bg-[#f5f7fb] rounded-lg mt-2 p-3 mb-3">
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="first"
+                    label="First"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="revisedUpdated"
+                    label="Revised/Updated"
+                  />
+                  <InputField
+                    control={control}
+                    errors={errors}
+                    name="reprint"
+                    label="Reprint"
+                  />
                 </div>
 
                 <div className="flex justify-between items-center bg-[#dadada82] p-2 rounded-md">

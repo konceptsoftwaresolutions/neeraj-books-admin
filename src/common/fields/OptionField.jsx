@@ -44,8 +44,8 @@ const OptionField = ({
             onBlur={onBlur}
             disabled={disabled}
             ref={ref}
-            className={`w-full custom-select border-[#6E6E6E] ${
-              disabled ? "" : "bg-white"
+            className={`w-full custom-select !bg-transparent border-[#6E6E6E] ${
+              disabled ? "" : "bg-transparent"
             } custom-select rounded-sm disabled:border ${className}`}
             value={value ?? defaultValue} // Ensure correct default value handling
           >

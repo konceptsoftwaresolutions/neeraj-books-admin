@@ -81,7 +81,7 @@ export const getCustomerById = (payload, callback = () => { }, setCustomerDataLo
                 setCustomerDataLoading(false)
                 console.log("response is ", response.data)
                 // toast.success(message);
-                callback(true , response.data)
+                callback(true, response.data)
             }
         } catch (error) {
             setCustomerDataLoading(false)
@@ -170,10 +170,121 @@ export const deleteTeamMember = (payload) => {
             }
             // callback(error);
             toast.error(message);
-        } finally {
+        }
+    };
+};
+
+
+
+export const addBulkClient = (payload, setIsLoading, callback = () => {
+
+}) => {
+    return async (dispatch) => {
+        try {
+            setIsLoading(true)
+            const response = await axiosInstance.post("/bulkOrderClient/create", payload);
+            if (response.status === 201) {
+                callback(true)
+                toast.success(response.data.message || 'Created Succesfully')
+                setIsLoading(false)
+            }
+        } catch (error) {
+            toast.error(error.response.data.message || "Something went wrong")
+            setIsLoading(false)
+        }
+    };
+};
+
+
+
+export const getAllBulkClient = (callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/bulkOrderClient/getAll");
+            if (response.status === 200) {
+
+                const allClients = response?.data?.clients
+                console.log(allClients)
+                const bulkCustomerOptions = allClients.map((item, index) => {
+                    return ({
+                        label: item.companyName, value: item._id
+                    })
+                })
+                dispatch(setCustomers({ bulkClientOptions: bulkCustomerOptions }))
+                callback(true, allClients)
+            }
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }
+    };
+};
+
+
+
+export const getBulkClientById = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/bulkOrderClient/getById", payload);
+            if (response.status === 200) {
+
+                callback(true, response.data.client)
+            }
+        } catch (error) {
+            // console.log(error)
+            toast.error(error.response.data.message)
+
+        }
+    };
+};
+
+export const updateBulkClient = (payload, setUpdateLoader, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setUpdateLoader(true)
+            const response = await axiosInstance.post("/bulkOrderClient/update", payload);
+            if (response.status === 200) {
+                setUpdateLoader(false)
+                toast.success(response.data.message || 'Updated Succesfully')
+                callback(true)
+            }
+        } catch (error) {
+            setUpdateLoader(false)
+            toast.error(error.response.data.message)
 
         }
     };
 };
 
 
+export const deletBulkClient = (payload, setDeleteLoader, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setDeleteLoader(true)
+            const response = await axiosInstance.post("/bulkOrderClient/delete", payload);
+            if (response.status === 200) {
+                setDeleteLoader(false)
+                toast.success(response.data.message)
+                callback(true)
+            }
+        } catch (error) {
+            setDeleteLoader(false)
+            toast.error(error.response.data.message)
+
+        }
+    };
+};
+
+
+
+export const bulkClientOrders = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/bulkOrderClient/ordersOfClient", payload);
+            if (response.status === 200) {
+                callback(true, response.data)
+            }
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }
+    };
+};

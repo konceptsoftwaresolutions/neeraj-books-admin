@@ -127,9 +127,13 @@ const Navbar = () => {
                   to={getRoute("/testimonials")}
                 />
                 <SidebarItem
+                  text="All Bulk Orders"
+                  to={getRoute("/allbulkOrders")}
+                />
+                {/* <SidebarItem
                   text="Bulk Orders"
                   to={getRoute("/addbulkOrders")}
-                />
+                /> */}
                 <SidebarItem
                   text="Bulk Orders Client"
                   to={getRoute("/bulk-orders-client")}

@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
-import PageCont from "../../components/PageCont";
-import Heading from "../../components/Heading";
+import PageCont from "../../../components/PageCont";
+import Heading from "../../../components/Heading";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import DataTable from "react-data-table-component";
-import { tableStyle } from "../../constant/tableStyle";
+import { tableStyle } from "../../../constant/tableStyle";
 import { useDispatch, useSelector } from "react-redux";
-import { allOrdersColumn } from "../../constant/tableColumns";
+import {
+  allOrdersColumn,
+  bulkOrderColumns,
+} from "../../../constant/tableColumns";
 import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
-import usePath from "../../hooks/usePath";
+import usePath from "../../../hooks/usePath";
 import {
+  getAllBulkOrders,
   getAllOrders,
   getFilteredOrders,
   setOrderFilters,
-} from "../../redux/features/orders";
-import AllOrdersPdf from "./AllOrdersPdf";
+} from "../../../redux/features/orders";
+import AllOrdersPdf from "../AllOrdersPdf";
 import { FaFileCsv } from "react-icons/fa6";
 import { FaFilePdf } from "react-icons/fa6";
 import { IoMdPrint } from "react-icons/io";
@@ -25,14 +29,15 @@ import { FaFileExcel, FaFilter } from "react-icons/fa";
 import { Spinner } from "@material-tailwind/react";
 
 // Import the FilterDrawer component
-import FilterDrawer from "./FilterDrawer"; // 🆕 Import the Drawer component
-import OrderModal from "./OrderModal";
-import ShipmentPdf from "../pdf/ShipmentPdf";
+import FilterDrawer from "../FilterDrawer"; // 🆕 Import the Drawer component
+import OrderModal from "../OrderModal";
+import ShipmentPdf from "../../pdf/ShipmentPdf";
 
 import Papa from "papaparse";
-import { checkCouponAvailability } from "../../redux/features/books";
+import { checkCouponAvailability } from "../../../redux/features/books";
+import BulkClientInvoice from "../../pdf/BulkClientInvoice";
 
-const Orders = () => {
+const AllBUlkOrders = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const path = usePath();
@@ -45,7 +50,7 @@ const Orders = () => {
   const [showBulkModal, setShowBulkModal] = useState(false);
 
   const { role } = useSelector((state) => state.auth);
-  const { allOrders } = useSelector((state) => state.order);
+  const { allBulkOrders } = useSelector((state) => state.order);
   const storedFilters = useSelector((state) => state.order.filters);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -73,22 +78,17 @@ const Orders = () => {
     const payload = {
       page: currentPage,
       limit: rowsPerPage,
-      ...filters,
     };
 
-    const isFilterApplied = Object.keys(filters).length > 0;
-
-    const fetchData = isFilterApplied ? getFilteredOrders : getAllOrders;
-
     dispatch(
-      fetchData(payload, (success, data) => {
+      getAllBulkOrders(payload, (success, data) => {
         setOrdersData(data);
       })
     );
-  }, [dispatch, currentPage, rowsPerPage, filters]);
+  }, [dispatch, currentPage, rowsPerPage]);
 
   const handleRowClick = (data) => {
-    navigate(`/${role}/editOrders`, { state: { data } });
+    navigate(`/${role}/editbulkOrders`, { state: { data } });
   };
 
   const fetchCouponPercentage = (couponCode) => {
@@ -106,17 +106,9 @@ const Orders = () => {
   };
 
   const handleInvoiceClick = async (data) => {
+    console.log(data);
     try {
-      let couponPercentage = 0;
-
-      if (data.appliedCoupon) {
-        couponPercentage = await fetchCouponPercentage(data.appliedCoupon);
-      }
-
-      const blob = await pdf(
-        <ShipmentPdf data={data} couponPercentage={couponPercentage} />
-      ).toBlob();
-
+      const blob = await pdf(<BulkClientInvoice data={data} />).toBlob();
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, "_blank");
     } catch (error) {
@@ -339,30 +331,34 @@ const Orders = () => {
     printWindow.close();
   };
 
+  const handleAddBulkOrder = () => {
+    navigate(`/${role}/addbulkOrders`);
+  };
+
   return (
     <PageCont>
       <div className="flex justify-between items-center">
         <div className="flex justify-center items-center gap-3">
-          <Heading text="All Orders" />
+          <Heading text="Bulk Orders" />
         </div>
         <div className="flex gap-3">
           <Button
             type="submit"
             variant="filled"
             className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
-            onClick={() => setShowBulkModal(!showBulkModal)}
+            onClick={handleAddBulkOrder}
           >
-            Bulk Order
+            Create
           </Button>
 
-          <Button
+          {/* <Button
             variant="filled"
             className="bg-gray-700 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center justify-center gap-1"
             onClick={showDrawer}
           >
             <FaFilter size={16} />
             Filter / Search
-          </Button>
+          </Button> */}
           {/* <Button
             type="submit"
             variant="filled"
@@ -376,7 +372,7 @@ const Orders = () => {
       </div>
 
       <div className="mt-4">
-        {Object.values(filters).some((val) => val) && (
+        {/* {Object.values(filters).some((val) => val) && (
           <p className="bg-red-300 text-white w-max p-2 rounded-md mb-3">
             Filter is active
           </p>
@@ -412,14 +408,14 @@ const Orders = () => {
             <IoMdPrint size={17} />
             Print Table
           </Button>
-        </div>
+        </div> */}
 
         {ordersData ? (
           <DataTable
             data={ordersData || []}
-            columns={allOrdersColumn(handleInvoiceClick, handleRowClick)}
+            columns={bulkOrderColumns(handleInvoiceClick, handleRowClick)}
             customStyles={tableStyle}
-            onRowClicked={handleRowClick}
+            // onRowClicked={handleRowClick}
             pagination
             paginationPerPage={rowsPerPage}
             paginationDefaultPage={currentPage}
@@ -449,8 +445,9 @@ const Orders = () => {
       />
       <OrderModal showModal={showBulkModal} setShowModal={setShowBulkModal} />
       {/* <ShipmentPdf /> */}
+      {/* <BulkClientInvoice /> */}
     </PageCont>
   );
 };
 
-export default Orders;
+export default AllBUlkOrders;

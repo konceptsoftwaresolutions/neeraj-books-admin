@@ -497,10 +497,10 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
             <IoEye size={17} /> View
           </button>
           <button
-            className=" text-white px-3 py-2 rounded primary-gradient transition m-3 w-[100px] flex items-center gap-2"
+            className=" text-white px-3 py-2 rounded primary-gradient transition m-3 w-max flex items-center gap-2"
             onClick={() => handleInvoiceClick(row)}
           >
-            <IoIosDocument size={17} /> Invoice
+            <IoIosDocument size={17} /> Print Invoice
           </button>
         </div>
       ),
@@ -1030,3 +1030,140 @@ export const couponColumns = [
     },
   },
 ];
+export const bulkCustomerColumns = [
+  {
+    name: "Company",
+    selector: (row) => row.companyName || "N/A",
+    wrap: true,
+  },
+  {
+    name: "Name",
+    selector: (row) => row.firstName || "N/A",
+    wrap: true,
+  },
+  // {
+  //   name: "Last Name",
+  //   selector: (row) => row.lastName || "N/A",
+  //   wrap: true,
+  // },
+
+  {
+    name: "Location",
+    selector: (row) => `${row.city || "N/A"}, ${row.state || "N/A"}`,
+    wrap: true,
+  },
+
+  {
+    name: "Mobile",
+    selector: (row) => row.mobile || "N/A",
+    wrap: true,
+  },
+
+  {
+    name: "Total Sum",
+    selector: (row) => row.totalSum || "N/A",
+    wrap: true,
+  },
+  {
+    name: "Notes",
+    selector: (row) => row.notes || "N/A",
+    wrap: true,
+  },
+  {
+    name: "Created At",
+    selector: (row) =>
+      row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
+    wrap: true,
+  },
+];
+
+export const bulkOrderColumns = (handleInvoiceClick, handleRowClick) => {
+  return [
+    {
+      name: "OrderId",
+      selector: (row) => row.orderId,
+      sortable: true,
+      width: "160px",
+      wrap: true,
+    },
+
+    {
+      name: "Date",
+      selector: (row) =>
+        row.date ? format(new Date(row.date), "dd MMM yyyy") : "N/A",
+      sortable: true,
+      width: "120px",
+    },
+    {
+      name: "Company",
+      selector: (row) => row.client?.companyName || "-",
+      sortable: true,
+      width: "200px",
+      wrap: true,
+    },
+    {
+      name: "State",
+      selector: (row) => row.state || "-",
+      sortable: true,
+      width: "200px",
+      wrap: true,
+    },
+    {
+      name: "Order Total",
+      selector: (row) => row.grandTotal || "-",
+      sortable: true,
+      width: "150px",
+      wrap: true,
+    },
+    // {
+    //   name: "Qty",
+    //   selector: (row) => row.books?.[0]?.qty || 0,
+    //   sortable: true,
+    //   center: true,
+    // },
+    // {
+    //   name: "Amount",
+    //   selector: (row) => `₹${row.books?.[0]?.amount || 0}`,
+    //   sortable: true,
+    //   width: "120px",
+    //   right: true,
+    // },
+    // {
+    //   name: "Shipping",
+    //   selector: (row) => `₹${row.shipping?.shippingCharges || 0}`,
+    //   sortable: true,
+    //   right: true,
+    //   width: "120px",
+    //   wrap: true,
+    // },
+    // {
+    //   name: "Grand Total",
+    //   selector: (row) => `₹${row.grandTotal || 0}`,
+    //   sortable: true,
+    //   right: true,
+    //   width: "190px",
+    //   wrap: true,
+    // },
+    {
+      name: "Action",
+      width: "300px",
+      wrap: true,
+      cell: (row) => (
+        <div className="flex justify-start items-center">
+          <button
+            className=" text-white px-3 py-2 rounded primary-gradient transition m-3 w-[80px] flex items-center gap-2"
+            onClick={() => handleRowClick(row)}
+          >
+            <IoEye size={17} /> View
+          </button>
+          <button
+            className=" text-white px-3 w-max py-2 rounded primary-gradient transition m-3 flex items-center gap-2"
+            onClick={() => handleInvoiceClick(row)}
+          >
+            <IoIosDocument size={17} /> Print Invoice
+          </button>
+        </div>
+      ),
+    },
+  ];
+};

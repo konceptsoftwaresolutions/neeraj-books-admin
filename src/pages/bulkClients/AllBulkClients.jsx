@@ -3,26 +3,95 @@ import PageCont from "../../components/PageCont";
 import { Plus } from "lucide-react";
 import Heading from "../../components/Heading";
 import { Button } from "@material-tailwind/react";
-import { useNavigate } from "react-router-dom";
-import { allCustomer, allMembers } from "../../constant/tableColumns";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { bulkCustomerColumns } from "../../constant/tableColumns";
 import usePath from "../../hooks/usePath";
 import { useDispatch, useSelector } from "react-redux";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
-import { getAllCustomers } from "../../redux/features/customers";
+import { getAllBulkClient } from "../../redux/features/customers";
+import { FaFilter } from "react-icons/fa6";
+import FilterDrawer from "./FilterDrawer";
 
-function AllBulkClients(props) {
+function AllBulkClients() {
   const navigate = useNavigate();
   const path = usePath();
   const dispatch = useDispatch();
   const { role } = useSelector((state) => state.auth);
-  const { allCustomers } = useSelector((state) => state.customer);
 
+  const [allBulkClients, setAllBulkClients] = useState([]);
+  const [filteredClients, setFilteredClients] = useState([]);
+  const [isDrawerVisible, setIsDrawerVisible] = useState(false);
+  const [filters, setFilters] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Pagination state from URL or defaults
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  const rowsPerPage = parseInt(searchParams.get("limit") || "10", 10);
+
+  // Mapping keys for filter fields
+  const fieldMap = {
+    name: "firstName",
+    companyName: "companyName",
+    mobile: "mobile",
+    state: "state",
+    city: "city",
+    notes: "notes",
+    createdAt: "createdAt",
+  };
+
+  // Load filters from URL on mount
   useEffect(() => {
-    dispatch(getAllCustomers(setIsLoading));
-  }, []);
+    const urlFilters = {};
+    for (const [key, value] of searchParams.entries()) {
+      if (key !== "page" && key !== "limit" && value) {
+        urlFilters[key] = value;
+      }
+    }
+    setFilters(urlFilters);
+  }, [searchParams]);
+
+  // Fetch data once
+  useEffect(() => {
+    setIsLoading(true);
+    dispatch(
+      getAllBulkClient((success, data) => {
+        if (success) {
+          setAllBulkClients(data);
+        }
+        setIsLoading(false);
+      })
+    );
+  }, [dispatch]);
+
+  // Apply filters
+  useEffect(() => {
+    let filtered = [...allBulkClients];
+
+    Object.entries(filters).forEach(([key, value]) => {
+      const actualKey = fieldMap[key];
+      if (!actualKey || !value) return;
+
+      if (key === "createdAt") {
+        filtered = filtered.filter((item) => {
+          if (!item.createdAt) return false;
+          const itemDate = new Date(item.createdAt).toISOString().split("T")[0];
+          return itemDate === value;
+        });
+      } else {
+        filtered = filtered.filter((item) =>
+          (item[actualKey] || "")
+            .toString()
+            .toLowerCase()
+            .includes(value.toString().toLowerCase())
+        );
+      }
+    });
+
+    setFilteredClients(filtered);
+  }, [filters, allBulkClients]);
 
   const handleRowClick = (data) => {
     navigate(`/${role}/edit-bulk-orders-client`, {
@@ -30,41 +99,98 @@ function AllBulkClients(props) {
     });
   };
 
+  // Update filters in URL
+  const onApplyFilter = (filterValues) => {
+    const params = new URLSearchParams();
+    Object.entries(filterValues).forEach(([key, value]) => {
+      if (value) params.set(key, value);
+    });
+    params.set("page", "1"); // reset to page 1 when filters change
+    params.set("limit", rowsPerPage);
+    setSearchParams(params);
+  };
+
+  const onCancelFilter = () => {
+    setSearchParams({ page: "1", limit: rowsPerPage.toString() });
+  };
+
+  // Update page and limit in URL
+  const handleChangePage = (page) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("page", page.toString());
+    setSearchParams(params);
+  };
+
+  const handleChangeRowsPerPage = (newLimit, page) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("limit", newLimit.toString());
+    params.set("page", "1"); // reset to first page when changing limit
+    setSearchParams(params);
+  };
+
+  // Calculate pagination slice
+  const paginatedData = filteredClients.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+
   return (
     <PageCont>
       <div className="flex justify-between items-center">
         <div className="flex justify-center items-center gap-3">
           <Heading text="Bulk Orders Clients" />
         </div>
-        <Button
-          type="submit"
-          variant="filled"
-          className="capitalize text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue "
-          onClick={() => path.changeEndPoint("add-bulk-orders-client")}
-        >
-          <Plus className="pr-1" />
-          Add Client
-        </Button>
-      </div>{" "}
+        <div className="flex justify-end gap-1">
+          <Button
+            type="submit"
+            variant="filled"
+            className="capitalize text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue"
+            onClick={() => path.changeEndPoint("add-bulk-orders-client")}
+          >
+            <Plus className="pr-1" />
+            Add Client
+          </Button>
+          <Button
+            variant="filled"
+            className="bg-gray-700 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center justify-center gap-1"
+            onClick={() => setIsDrawerVisible(true)}
+          >
+            <FaFilter size={16} />
+            Filter / Search
+          </Button>
+        </div>
+      </div>
+
       <div className="mt-4">
         {isLoading ? (
           <div className="py-10 flex items-center justify-center">
             <p>Loading ...</p>
           </div>
         ) : (
-          <>
-            <DataTable
-              data={allCustomers ? allCustomers : []}
-              columns={allMembers}
-              customStyles={tableStyle}
-              onRowClicked={handleRowClick}
-              pagination
-              paginationPerPage={10}
-              paginationRowsPerPageOptions={[10, 25, 50]}
-            />
-          </>
+          <DataTable
+            data={paginatedData}
+            columns={bulkCustomerColumns}
+            customStyles={tableStyle}
+            onRowClicked={handleRowClick}
+            pagination
+            paginationServer
+            paginationTotalRows={filteredClients.length}
+            paginationPerPage={rowsPerPage}
+            paginationDefaultPage={currentPage}
+            onChangePage={handleChangePage}
+            onChangeRowsPerPage={handleChangeRowsPerPage}
+            paginationRowsPerPageOptions={[10, 25, 50]}
+          />
         )}
       </div>
+
+      <FilterDrawer
+        isVisible={isDrawerVisible}
+        onClose={() => setIsDrawerVisible(false)}
+        onApplyFilter={onApplyFilter}
+        onCancelFilter={onCancelFilter}
+        initialFilters={filters}
+      />
     </PageCont>
   );
 }
