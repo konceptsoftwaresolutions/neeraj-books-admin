@@ -190,7 +190,6 @@ const EditableCartTable = ({ items = [], onChange, setBooksData }) => {
 
   const handleProductsChange = (value) => {
     setSelectedProducts(value);
-    console.log("Selected:", value);
   };
 
   const handleProductAdd = () => {

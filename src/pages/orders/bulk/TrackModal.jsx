@@ -1,15 +1,13 @@
 import React from "react";
-import {
-  Dialog,
-  DialogHeader,
-  DialogBody,
-} from "@material-tailwind/react";
+import { Dialog, DialogHeader, DialogBody } from "@material-tailwind/react";
 import { useForm } from "react-hook-form";
 import { IoIosCloseCircle } from "react-icons/io";
 import { useDispatch } from "react-redux";
 
 const TrackModal = ({ showModal, setShowModal, trackingData }) => {
   const dispatch = useDispatch();
+
+  console.log(trackingData);
 
   const {
     handleSubmit,
@@ -117,6 +115,11 @@ const TrackModal = ({ showModal, setShowModal, trackingData }) => {
             ) : (
               <p className="text-sm text-gray-600 italic mt-2">
                 No tracking activities available.
+                {trackingData?.tracking_data?.error && (
+                  <p className="text-center text-black font-semibold mt-4">
+                    {trackingData?.tracking_data?.error}
+                  </p>
+                )}
               </p>
             )}
           </div>

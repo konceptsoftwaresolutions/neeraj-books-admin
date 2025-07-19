@@ -25,7 +25,9 @@ import {
   createShippingOrder,
   generateLabelShiprocket,
   getOrderById,
+  getShippingCharges,
   getTrackingOrder,
+  normalOrderUpdate,
 } from "../../redux/features/orders";
 import ShipmentPdf from "../pdf/ShipmentPdf";
 import RefundModal from "./RefundModal";
@@ -33,64 +35,9 @@ import useCartCalculations from "../../hooks/useCartCalculations";
 import OnsiteModal from "./OnsiteModal";
 import { checkCouponAvailability } from "../../redux/features/books";
 import OrderSummaryTable from "./OrderSummaryTable";
-
-const items = [
-  {
-    key: "1",
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-        className="text-[#677788] text-[11px] flex items-center gap-1"
-      >
-        <IoClipboardOutline />
-        Duplicate
-      </a>
-    ),
-  },
-  {
-    key: "2",
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-        className="text-[#677788] text-[11px] flex items-center gap-1"
-      >
-        <MdOutlineCancel />
-        Cancel Order
-      </a>
-    ),
-  },
-  {
-    key: "3",
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-        className="text-[#677788] text-[11px] flex items-center gap-1"
-      >
-        <BiArchiveIn /> Archive
-      </a>
-    ),
-  },
-  {
-    key: "4",
-    label: (
-      <a
-        target="_blank"
-        rel="noopener noreferrer"
-        href="https://www.antgroup.com"
-        className="text-[#677788] text-[11px] flex items-center gap-1"
-      >
-        <CiEdit />
-        Edit Order
-      </a>
-    ),
-  },
-];
+import useProductDiscounts from "../../hooks/useProductDiscounts";
+import Swal from "sweetalert2";
+import TrackModal from "./bulk/TrackModal";
 
 const EditOrders = () => {
   const dispatch = useDispatch();
@@ -102,15 +49,21 @@ const EditOrders = () => {
   } = useForm();
 
   const [orderInitial, setOrderInitial] = useState();
+  const [openTrackModal, setOpenTrackModal] = useState(false);
+  const [trackingData, setTrackingData] = useState();
+  const [shippingPayload, setShippingPayload] = useState();
+
   const [orderdata, setOrderData] = useState();
   const [cancelOrderLoader, setCancelOrderLoader] = useState(false);
   const [showRefundModal, setShowRefundModal] = useState();
   const [showOnsiteModal, setShowOnsiteModal] = useState();
   const [couponPercentage, setCouponPercentage] = useState(0);
   const [orderItems, setOrderItems] = useState([]);
+  const [updateLoader, setUpdateLoader] = useState(false);
+  const [shippingRate, setShippingRate] = useState();
 
   const location = useLocation();
-  console.log(orderItems);
+  // console.log(orderItems, orderdata?.items);
 
   useEffect(() => {
     if (orderdata) {
@@ -162,6 +115,54 @@ const EditOrders = () => {
         if (success) {
           setOrderData(data?.order);
           setOrderItems(data?.order.items);
+          // setOrderItems([
+          //   {
+          //     productId: {
+          //       _id: "686643b1d9d1772d0638374b",
+          //       english: {
+          //         title: "Environmental Studies",
+          //         paperBackOriginalPrice: "280",
+          //         paperBackDiscountedPrice: "140",
+          //         slug: "environmental-studies",
+          //         categories: ["67b32bd891a8bde78bdf4bb3"],
+          //         weight: "0.235",
+          //       },
+          //       hindi: {
+          //         title: "Paryavaran Adhyan",
+          //         paperBackOriginalPrice: "280",
+          //         paperBackDiscountedPrice: "140",
+          //         slug: "paryavaran-adhyan",
+          //         categories: ["67b32bd891a8bde78bdf4bb3"],
+          //         weight: "0.245",
+          //       },
+          //     },
+          //     language: "english",
+          //     isEbookAlsoSelected: true,
+          //     ebookPrice: "70",
+          //     quantity: 1,
+          //     updatedAt: "2025-07-19T07:11:06.304Z",
+          //     _id: "687b450a201bb070a415cd7c",
+          //   },
+          //   {
+          //     productId: {
+          //       _id: "68554a244655c950714c9e78",
+          //       english: {
+          //         title: "European Classic Literature",
+          //         paperBackOriginalPrice: "300",
+          //         paperBackDiscountedPrice: "150",
+          //         slug: "european-classic-literature",
+          //         categories: ["67e5937fd9b8c24257aa3501"],
+          //         weight: "0.230",
+          //       },
+          //     },
+          //     language: "english",
+          //     isEbookAlsoSelected: true,
+          //     ebookPrice: "70",
+          //     quantity: 1,
+          //     updatedAt: "2025-07-19T07:11:41.920Z",
+          //     _id: "687b452d201bb070a415cdea",
+          //   },
+          // ]);
         }
       })
     );
@@ -183,7 +184,7 @@ const EditOrders = () => {
 
     return total;
   }, 0);
-  console.log(totalBooks);
+  // console.log(totalBooks);
 
   const totalWeight = orderdata?.items?.reduce((total, item) => {
     const isOnlyEbook = item.onlyEbookSelected;
@@ -213,7 +214,7 @@ const EditOrders = () => {
   }, [totalBooks, totalWeight]);
 
   const onSubmit = (data) => {
-    console.log(data);
+    // console.log(data);
     const payload = {
       order_id: orderdata?.orderId,
       billing_customer_name: orderdata?.shippingAddress?.firstName,
@@ -234,7 +235,7 @@ const EditOrders = () => {
       weight: data.weight,
       items: orderdata?.items,
     };
-    console.log(payload);
+    // console.log(payload);
     dispatch(
       createShippingOrder(payload, (success) => {
         if (success) {
@@ -253,7 +254,7 @@ const EditOrders = () => {
   };
 
   const handleInvoiceClick = async (data) => {
-    console.log(data);
+    // console.log(data);
     try {
       const blob = await pdf(
         <ShipmentPdf data={data} couponPercentage={couponPercentage} />
@@ -261,12 +262,19 @@ const EditOrders = () => {
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, "_blank");
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      // console.error("Error generating PDF:", error);
     }
   };
 
   const handleOrderTracking = () => {
-    dispatch(getTrackingOrder(1234));
+    dispatch(
+      getTrackingOrder(orderdata?.orderId, (success, data) => {
+        if (success) {
+          setOpenTrackModal(true);
+          setTrackingData(data);
+        }
+      })
+    );
   };
 
   const handleCancelOrder = () => {
@@ -281,6 +289,187 @@ const EditOrders = () => {
         setCancelOrderLoader
       )
     );
+  };
+
+  const { discountedItems, totalDiscount } = useProductDiscounts(orderItems);
+  // console.log(orderItems , );
+
+  const getShippingPayload = (
+    cartItems,
+    specialDiscount,
+    appliedCouponPercentage
+  ) => {
+    let totalPaperbackMRP = 0;
+    let totalPaperbackFinal = 0;
+    let totalPaperbackQty = 0;
+    let totalOrderWeight = 0;
+
+    let totalEbookFinal = 0;
+    let totalEbookQty = 0;
+
+    cartItems?.forEach((item) => {
+      const {
+        productId,
+        quantity,
+        isEbookAlsoSelected,
+        onlyEbookSelected,
+        ebookPrice,
+        language,
+      } = item;
+
+      const bookDetails = productId?.[language];
+
+      if (isEbookAlsoSelected && bookDetails) {
+        const mrp = parseFloat(bookDetails.paperBackOriginalPrice || 0);
+        const salePrice = parseFloat(bookDetails.paperBackDiscountedPrice || 0);
+        const weight = parseFloat(bookDetails.weight || 0);
+
+        const qty = Number(quantity);
+
+        totalPaperbackMRP += mrp * qty;
+        totalPaperbackFinal += salePrice * qty;
+        totalPaperbackQty += qty;
+        totalOrderWeight += weight * qty;
+      }
+
+      const ebookCost = parseFloat(ebookPrice || 0);
+
+      if (onlyEbookSelected) {
+        totalEbookFinal += ebookCost;
+        totalEbookQty += 1;
+      } else if (isEbookAlsoSelected) {
+        totalEbookFinal += ebookCost;
+        totalEbookQty += 1;
+      }
+    });
+
+    totalPaperbackMRP = Math.round(totalPaperbackMRP);
+    totalPaperbackFinal = Math.round(totalPaperbackFinal);
+    totalEbookFinal = Math.round(totalEbookFinal);
+    totalOrderWeight = Math.round(totalOrderWeight * 100) / 100; // round to 2 decimals
+
+    const specialDiscountValue = Math.round(parseFloat(specialDiscount || 0));
+
+    const paperbackTotalAfterSpecial = Math.round(
+      totalPaperbackFinal - specialDiscountValue
+    );
+
+    const preCouponSubtotal = Math.round(
+      paperbackTotalAfterSpecial + totalEbookFinal
+    );
+
+    const couponPercent = parseFloat(appliedCouponPercentage || 0);
+    const couponAmount = Math.round((couponPercent / 100) * preCouponSubtotal);
+
+    const finalTotalAmount = Math.round(preCouponSubtotal - couponAmount);
+
+    return {
+      finalTotalAmount,
+      totalOrderWeight,
+      totalPaperbackQty,
+    };
+  };
+
+  useEffect(() => {
+    // console.log(orderItems);
+    const data = getShippingPayload(
+      orderItems,
+      orderdata?.additionalDiscount,
+      couponPercentage || 0
+    );
+    setShippingPayload(data);
+  }, [orderItems]);
+
+  const getShippingRate = () => {
+    const data = getShippingPayload(
+      orderItems,
+      orderdata?.additionalDiscount,
+      couponPercentage || 0
+    );
+    const payload = {
+      deliveryPincode: clientData?.pincode,
+      isCod: orderdata?.paymentMode === "COD" ? true : false,
+      noOfBooksWithoutEbook: data?.totalPaperbackQty,
+      orderWeight: data?.totalOrderWeight,
+      totalOrderValueAfterDiscount: data?.finalTotalAmount,
+    };
+    dispatch(
+      getShippingCharges(payload, (success, data) => {
+        setShippingRate(data);
+      })
+    );
+  };
+
+  const handleOrderUpdate = () => {
+    // const data = getShippingPayload(
+    //   orderItems,
+    //   orderdata?.additionalDiscount,
+    //   couponPercentage || 0
+    // );
+
+    // console.log(data);
+    // const shippingPayload = {
+    //   deliveryPincode: orderdata?.shippingAddress?.pincode,
+    //   isCod: orderdata?.paymentMode === "COD" ? true : false,
+    //   noOfBooksWithoutEbook: data?.totalPaperbackQty,
+    //   orderWeight: data?.totalOrderWeight,
+    //   totalOrderValueAfterDiscount: data?.finalTotalAmount,
+    // };
+    // dispatch(
+    //   getShippingCharges(shippingPayload, (success, data) => {
+    //     setShippingRate(data);
+    //   })
+    // );
+    const payload = {
+      id: orderdata?._id,
+      orderStatus: orderdata?.orderStatus,
+      paymentStatus: orderdata?.paymentStatus,
+      shippingAddress: {
+        firstName: orderdata?.shippingAddress?.firstName,
+        lastName: orderdata?.shippingAddress?.lastName,
+        addressLine1: orderdata?.shippingAddress?.addressLine1,
+        city: orderdata?.shippingAddress?.city,
+        state: orderdata?.shippingAddress?.state,
+        country: orderdata?.shippingAddress?.country,
+        pincode: orderdata?.shippingAddress?.pincode,
+        mobile: orderdata?.shippingAddress?.mobile,
+      },
+      discountTotal: totalDiscount,
+      items: orderItems?.map((item) => {
+        const modifiedItem = {
+          ...item,
+          productId: item.productId?._id,
+          language: item.language,
+          quantity: item.quantity,
+          hsn: item.hsn,
+        };
+
+        if (item.isEbookAlsoSelected) {
+          delete modifiedItem.onlyEbookSelected;
+        }
+
+        return modifiedItem;
+      }),
+    };
+    Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to update this order?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, update it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(
+          normalOrderUpdate(payload, setUpdateLoader, (success) => {
+            if (success) {
+              getTheOrderbyId(orderInitial?._id);
+            }
+          })
+        );
+      }
+    });
   };
 
   return (
@@ -304,6 +493,13 @@ const EditOrders = () => {
               </p>
             </div>
             <div className="flex justify-end gap-1 mb-6">
+              <Button
+                className="bg-green-400 capitalize"
+                onClick={handleOrderUpdate}
+                loading={updateLoader}
+              >
+                Update Order
+              </Button>
               <Button className="capitalize">SMS</Button>
               <Button
                 onClick={() => handleInvoiceClick(orderdata)}
@@ -311,7 +507,6 @@ const EditOrders = () => {
               >
                 Print Invoice
               </Button>
-              {/* {(orderdata?.paymentMode === "Prepaid") && (orderdata?.paymentStatus === 'Paid') && ( */}
               {orderdata?.paymentMode !== "COD" && (
                 <Button
                   className="capitalize"
@@ -402,167 +597,10 @@ const EditOrders = () => {
               </div>
             </div>
             <div>
-              {/* <OrderSummaryTable
+              <OrderSummaryTable
                 orderData={orderItems}
                 onUpdate={setOrderItems}
-              /> */}
-
-              <table className="cart-summary-table w-full border-collapse mt-10">
-                <thead className="bg-gray-100 text-xs md:text-sm text-black-700 font-semibold">
-                  <tr>
-                    {/* Book Details Header */}
-                    <th className="py-3 px-4 text-left">Book Details</th>
-
-                    {/* Price Header */}
-                    <th className="py-3 px-4 text-right">Price</th>
-
-                    {/* Quantity Header */}
-                    <th className="py-3 px-4 text-right">Quantity</th>
-
-                    {/* Total Header */}
-                    <th className="py-3 px-4 text-right">Total</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {orderdata?.items?.map((product, index) => {
-                    const isOnlyEbook = product?.onlyEbookSelected;
-                    const isEbookAlsoAdded = product?.isEbookAlsoSelected;
-                    const medium = product.language;
-                    const bookTitle = product?.productId?.[medium]?.title;
-                    const originalSellingPrice = parseFloat(
-                      product?.productId?.[medium]?.paperBackOriginalPrice || 0
-                    );
-                    const quantity = parseFloat(product?.quantity || 0);
-                    return (
-                      <>
-                        {isEbookAlsoAdded && (
-                          <>
-                            <tr className="border-b text-xs md:text-sm">
-                              {/* Book Details */}
-                              <td className="py-4 px-4 text-gray-700">
-                                <p className="font-medium text-lg">
-                                  {bookTitle}
-                                </p>
-
-                                <p className="capitalize">
-                                  Medium:{" "}
-                                  <span className="capitalize">{medium}</span>
-                                </p>
-                              </td>
-
-                              {/* Price */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{originalSellingPrice}
-                              </td>
-
-                              {/* Quantity */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                {quantity}
-                              </td>
-
-                              {/* Total */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{originalSellingPrice * quantity}
-                              </td>
-                            </tr>
-                            <tr className="border-b text-xs md:text-sm">
-                              {/* Book Details */}
-                              <td className="py-4 px-4 text-gray-700">
-                                <p className="font-medium">
-                                  {bookTitle} - (Ebook)
-                                </p>
-
-                                <p className="capitalize">
-                                  Medium:{" "}
-                                  <span className="capitalize">{medium}</span>
-                                </p>
-                              </td>
-
-                              {/* Price */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{product?.ebookPrice}
-                              </td>
-
-                              {/* Quantity */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                1
-                              </td>
-
-                              {/* Total */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{product?.ebookPrice * 1}
-                              </td>
-                            </tr>
-                          </>
-                        )}
-                        {isOnlyEbook && (
-                          <>
-                            <tr className="border-b text-xs md:text-sm">
-                              {/* Book Details */}
-                              <td className="py-4 px-4 text-gray-700">
-                                <p className="font-medium text-lg">
-                                  {bookTitle} - (Ebook Only)
-                                </p>
-                                <p className="capitalize">
-                                  Medium:{" "}
-                                  <span className="capitalize">{medium}</span>
-                                </p>
-                              </td>
-
-                              {/* Price */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{product?.ebookPrice}
-                              </td>
-
-                              {/* Quantity */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                1
-                              </td>
-
-                              {/* Total */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{product?.ebookPrice * 1}
-                              </td>
-                            </tr>
-                          </>
-                        )}
-                        {isEbookAlsoAdded === false &&
-                          isOnlyEbook === false && (
-                            <tr className="border-b text-xs md:text-sm">
-                              {/* Book Details */}
-                              <td className="py-4 px-4 text-gray-700">
-                                <p className="font-medium text-lg">
-                                  {bookTitle}
-                                </p>
-
-                                <p className="capitalize text-base">
-                                  Medium:{" "}
-                                  <span className="capitalize">{medium}</span>
-                                </p>
-                              </td>
-
-                              {/* Price */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{originalSellingPrice}
-                              </td>
-
-                              {/* Quantity */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                {quantity}
-                              </td>
-
-                              {/* Total */}
-                              <td className="py-4 px-4 font-semibold text-black text-right">
-                                ₹{originalSellingPrice * quantity}
-                              </td>
-                            </tr>
-                          )}
-                      </>
-                    );
-                  })}
-                </tbody>
-              </table>
+              />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 justify-between w-full gap-10 mt-7 ">
               <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5">
@@ -763,6 +801,11 @@ const EditOrders = () => {
         setOpenModal={setShowOnsiteModal}
         id={orderdata?._id}
         getTheOrderbyId={getTheOrderbyId}
+      />
+      <TrackModal
+        showModal={openTrackModal}
+        setShowModal={setOpenTrackModal}
+        trackingData={trackingData}
       />
     </PageCont>
   );

@@ -426,12 +426,10 @@ export const getTrackingOrder = (code, callback = () => { }) => {
     return async (dispatch) => {
         try {
             dispatch(setOrder({ generateLabelLoder: true }))
-            const response = await axiosInstance.post(`/order/track-shipping-awb/${code}`);
+            const response = await axiosInstance.get(`/order/track-shipping-awb/${code}`);
             if (response.status === 200) {
-                dispatch(setOrder({ generateLabelLoder: false }))
-                const link = response.data
-                console.log(link)
-                window.open(link, "_blank");
+                // dispatch(setOrder({ generateLabelLoder: false }))
+                callback(true, response.data)
 
             }
         } catch (error) {
@@ -589,6 +587,28 @@ export const bulkOrderUpdate = (payload, setLoader, callback = () => { },) => {
                 ...prev,
                 updateLoader: false
             }))
+        }
+    };
+};
+
+
+export const normalOrderUpdate = (payload, setUpdateLoader, callback = () => { },) => {
+    return async (dispatch) => {
+        try {
+            setUpdateLoader(true)
+            const response = await axiosInstance.post("/order/editOrde", payload);
+            if (response.status === 200) {
+                setUpdateLoader(false)
+                const message = response.data?.message || "Order Updated successfully!";
+                toast.success(message);
+                callback(true)
+            }
+        } catch (error) {
+            console.log(error)
+            setUpdateLoader(false)
+            toast.error(error.response.data.message);
+        } finally {
+            setUpdateLoader(false)
         }
     };
 };

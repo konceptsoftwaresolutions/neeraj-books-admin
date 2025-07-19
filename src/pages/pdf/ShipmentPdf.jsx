@@ -696,7 +696,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     paddingHorizontal: "7px",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>Total Items : </Text>
+                  <Text style={{ fontSize: "9px" }}>No. of Books: </Text>
                   <Text style={{ fontSize: "9px" }}>
                     {totalPaperbackQuantity}
                   </Text>
@@ -712,7 +712,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     paddingHorizontal: "7px",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>Total</Text>
+                  <Text style={{ fontSize: "9px" }}>MRP Amount:</Text>
                   <Text style={{ fontSize: "9px" }}>
                     Rs. {totalPaperbackOriginalAmount}/-
                   </Text>
@@ -784,7 +784,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     paddingHorizontal: "7px",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>Total:</Text>
+                  <Text style={{ fontSize: "9px" }}>Printed Books Total Amount:</Text>
                   <Text style={{ fontSize: "9px" }}>
                     Rs. {paperbackAmountAfterSpecialDiscount}/-
                   </Text>
@@ -982,7 +982,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     paddingVertical: "7px",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>Total Items : </Text>
+                  <Text style={{ fontSize: "9px" }}>No. of E-books: </Text>
                   <Text style={{ fontSize: "9px" }}>{totalEbookQuantity}</Text>
                 </View>
                 <View
@@ -996,7 +996,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     paddingHorizontal: "7px",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>Total</Text>
+                  <Text style={{ fontSize: "9px" }}>E-books total amount:</Text>
                   <Text style={{ fontSize: "9px" }}>
                     Rs. {totalEbookAmount}/-
                   </Text>
@@ -1022,7 +1022,9 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
             }}
           >
             <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Grand Total
+
+              
+              Net Amount ( {totalPaperbackQuantity > 0 ? 'Printed' : ''}{(totalPaperbackQuantity > 0 && totalEbookQuantity > 0) ?  " + " :  null}{totalEbookAmount > 0 ? 'E-book' : null } )
             </Text>
             <Text style={{ fontSize: "11px", fontWeight: 600 }}>
               Rs. {totalEbookAmount + paperbackAmountAfterSpecialDiscount}
@@ -1121,7 +1123,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
             }}
           >
             <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Net Payable :
+              Net Payable Amount:
             </Text>
             <Text style={{ fontSize: "11px", fontWeight: 600 }}>
               Rs.{" "}

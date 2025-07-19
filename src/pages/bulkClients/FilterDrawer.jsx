@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 import { setOrderFilters } from "../../redux/features/orders";
 import dayjs from "dayjs";
 
+const { RangePicker } = DatePicker;
+
 const FilterDrawer = ({
   isVisible,
   onClose,
@@ -14,14 +16,14 @@ const FilterDrawer = ({
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
-  // Set initial values when drawer opens
   useEffect(() => {
     if (isVisible) {
       const values = {
         ...initialFilters,
-        createdAt: initialFilters.createdAt
-          ? dayjs(initialFilters.createdAt) // Convert string date to dayjs object
-          : null,
+        createdAtRange:
+          initialFilters.startDate && initialFilters.endDate
+            ? [dayjs(initialFilters.startDate), dayjs(initialFilters.endDate)]
+            : null,
       };
       form.setFieldsValue(values);
     }
@@ -42,10 +44,12 @@ const FilterDrawer = ({
       mobile: trimmedValues.mobile || undefined,
       city: trimmedValues.city || undefined,
       notes: trimmedValues.notes || undefined,
-      createdAt: trimmedValues.createdAt
-        ? trimmedValues.createdAt.format("YYYY-MM-DD") // format dayjs to string
-        : undefined,
     };
+
+    if (trimmedValues.createdAtRange) {
+      filterPayload.startDate = trimmedValues.createdAtRange[0].format("YYYY-MM-DD");
+      filterPayload.endDate = trimmedValues.createdAtRange[1].format("YYYY-MM-DD");
+    }
 
     onApplyFilter(filterPayload);
     onClose();
@@ -60,7 +64,7 @@ const FilterDrawer = ({
 
   return (
     <Drawer
-      title="Filter Orders"
+      title="Filter Clients"
       placement="right"
       onClose={onClose}
       open={isVisible}
@@ -91,8 +95,8 @@ const FilterDrawer = ({
           <Input placeholder="Enter notes" />
         </Form.Item>
 
-        <Form.Item name="createdAt" label="Created Date">
-          <DatePicker className="w-full" />
+        <Form.Item name="createdAtRange" label="Created Date Range">
+          <RangePicker className="w-full" />
         </Form.Item>
 
         <div className="flex justify-end gap-2">

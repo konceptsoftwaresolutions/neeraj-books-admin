@@ -39,7 +39,8 @@ function AllBulkClients() {
     state: "state",
     city: "city",
     notes: "notes",
-    createdAt: "createdAt",
+    startDate: "createdAt",
+    endDate: "createdAt",
   };
 
   // Load filters from URL on mount
@@ -74,11 +75,17 @@ function AllBulkClients() {
       const actualKey = fieldMap[key];
       if (!actualKey || !value) return;
 
-      if (key === "createdAt") {
+      if (key === "startDate") {
         filtered = filtered.filter((item) => {
           if (!item.createdAt) return false;
           const itemDate = new Date(item.createdAt).toISOString().split("T")[0];
-          return itemDate === value;
+          return itemDate >= value;
+        });
+      } else if (key === "endDate") {
+        filtered = filtered.filter((item) => {
+          if (!item.createdAt) return false;
+          const itemDate = new Date(item.createdAt).toISOString().split("T")[0];
+          return itemDate <= value;
         });
       } else {
         filtered = filtered.filter((item) =>
@@ -134,6 +141,20 @@ function AllBulkClients() {
     currentPage * rowsPerPage
   );
 
+  const filterKeys = [
+    "name",
+    "companyName",
+    "mobile",
+    "state",
+    "city",
+    "notes",
+    "startDate",
+    "endDate",
+  ]; // add your actual filter keys
+
+  // Check if any of the filter keys exist in the URL
+  const isFilterActive = filterKeys.some((key) => searchParams.has(key));
+
   return (
     <PageCont>
       <div className="flex justify-between items-center">
@@ -161,6 +182,11 @@ function AllBulkClients() {
         </div>
       </div>
 
+      {isFilterActive && (
+        <p className="primary-gradient w-max text-white px-3 py-1 rounded-md">
+          Filter Is Active
+        </p>
+      )}
       <div className="mt-4">
         {isLoading ? (
           <div className="py-10 flex items-center justify-center">

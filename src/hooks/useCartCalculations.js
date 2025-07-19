@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 
 const useCartCalculations = (cartItems, discountDetails, appliedCouponDiscount) => {
+
+
     return useMemo(() => {
         let totalPaperbackOriginalAmount = 0;
         let totalPaperbackAmount = 0;

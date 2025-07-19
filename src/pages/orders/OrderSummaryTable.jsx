@@ -1,17 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import DataTable from "react-data-table-component";
-import useProductOptions from "../../hooks/useProductOptions";
 import { Select } from "antd";
 import { Button } from "@material-tailwind/react";
 import { IoAddCircleOutline } from "react-icons/io5";
-import { getAllProducts } from "../../redux/features/books";
 import { useDispatch } from "react-redux";
+import { getAllProducts } from "../../redux/features/books";
+import { MdDelete } from "react-icons/md";
 
-const OrderSummaryTable = ({ orderData = [], onUpdate }) => {
-  const [selectedProducts, setSelectedProducts] = useState();
-  const [allProducts, setAllProducts] = useState();
+const OrderSummaryTable = ({ orderData, onUpdate }) => {
+  const [allProducts, setAllProducts] = useState([]);
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [formattedData, setFormattedData] = useState([]);
   const dispatch = useDispatch();
 
+  // Fetch all product data
   const fetchAllProductsData = useCallback(() => {
     dispatch(
       getAllProducts((success, data) => {
@@ -26,20 +28,164 @@ const OrderSummaryTable = ({ orderData = [], onUpdate }) => {
     fetchAllProductsData();
   }, [fetchAllProductsData]);
 
-  const handleInputChange = (index, field, value) => {
-    const updated = [...orderData];
-    const product = { ...updated[index] };
-
-    if (field === "price") {
-      product.paperBackOriginalPrice = parseFloat(value) || 0;
-    } else if (field === "quantity") {
-      product.quantity = parseInt(value) || 0;
+  // Dropdown options
+  const generateDropdownOptions = (bookData) => {
+    const options = [];
+    if (bookData.english) {
+      options.push({
+        label: `${bookData.english.title} - ${bookData.english.bookCode}`,
+        value: bookData.english._id,
+        language: "english",
+        book: bookData,
+      });
     }
-
-    updated[index] = product;
-    onUpdate(updated);
+    if (bookData.hindi) {
+      options.push({
+        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode}`,
+        value: bookData.hindi._id,
+        language: "hindi",
+        book: bookData,
+      });
+    }
+    return options;
   };
 
+  const productOptions = useMemo(() => {
+    return allProducts.flatMap(generateDropdownOptions);
+  }, [allProducts]);
+
+  // Format incoming orderData to rows
+  useEffect(() => {
+    const transformed = orderData?.flatMap((item) => {
+      // console.log(item);
+      if (item.isEbookAlsoSelected) {
+        return [
+          {
+            ...item,
+            isEbookAlsoSelected: true,
+            onlyEbookSelected: false,
+            isEbookOnlyRow: false,
+          },
+          {
+            ...item,
+            // onlyEbookSelected: true,
+            isEbookOnlyRow: true,
+            // isEbookAlsoSelected: false,
+          },
+        ];
+      }
+
+      if (item.onlyEbookSelected) {
+        return [{ ...item, isEbookOnlyRow: true }];
+      }
+
+      return [{ ...item, isEbookOnlyRow: false }];
+    });
+
+    setFormattedData(transformed);
+  }, [orderData]);
+
+  console.log(formattedData);
+
+  // Update editable fields
+  const handleInputChange = (index, field, value) => {
+    const updatedData = [...formattedData];
+    updatedData[index][field] = value;
+    setFormattedData(updatedData);
+
+    if (onUpdate) {
+      const mergedData = mergeEbooksWithPaperbacks(updatedData);
+      onUpdate(mergedData);
+    }
+  };
+
+  // Merge physical+ebook rows back to single objects
+  const mergeEbooksWithPaperbacks = (data) => {
+    const grouped = {};
+
+    data.forEach((item) => {
+      const id = item._id;
+      if (!grouped[id]) {
+        grouped[id] = { ...item };
+      }
+
+      if (item.isEbookOnlyRow) {
+        grouped[id].onlyEbookSelected = true;
+      } else {
+        grouped[id] = { ...grouped[id], ...item };
+      }
+    });
+
+    return Object.values(grouped);
+  };
+
+  // Add selected products
+  const handleProductAdd = () => {
+    const newProducts = selectedProducts.map((selectedId) => {
+      const match = productOptions.find((opt) => opt.value === selectedId);
+      if (!match) return null;
+
+      const book = match.book;
+      const lang = match.language;
+      const bookInfo = book[lang];
+
+      return {
+        // _id: selectedId + "-" + Date.now(), // Or generate UUID
+        productId: {
+          _id: book._id,
+          [lang]: {
+            title: bookInfo?.title || "",
+            paperBackOriginalPrice: bookInfo?.paperBackOriginalPrice || "0",
+            eBookOriginalPrice: bookInfo?.eBookOriginalPrice || "0",
+            paperBackDiscountedPrice: bookInfo?.paperBackDiscountedPrice || "0",
+            slug: bookInfo?.slug || "",
+            weight: bookInfo?.weight || "0",
+          },
+        },
+        language: lang,
+        quantity: 1,
+        hsn: "4901",
+        isEbookAlsoSelected: false,
+        onlyEbookSelected: false,
+      };
+    });
+
+    const filtered = newProducts.filter(Boolean);
+    const merged = [...orderData, ...filtered];
+
+    onUpdate(merged);
+    setSelectedProducts([]);
+  };
+
+  const handleProductsChange = (value) => {
+    setSelectedProducts(value);
+  };
+
+  const handleDeleteRow = (indexToDelete) => {
+    const updatedData = [...formattedData];
+    const rowToDelete = updatedData[indexToDelete];
+
+    // Remove both physical and ebook parts if needed
+    let filtered;
+
+    if (rowToDelete.isEbookOnlyRow) {
+      // Just remove this ebook row
+      filtered = updatedData.filter((_, idx) => idx !== indexToDelete);
+    } else {
+      // Remove both physical and its ebook row (if exists)
+      const targetId = rowToDelete._id;
+      filtered = updatedData.filter((item) => item._id !== targetId);
+    }
+
+    setFormattedData(filtered);
+
+    if (onUpdate) {
+      const mergedData = mergeEbooksWithPaperbacks(filtered);
+      onUpdate(mergedData);
+    }
+  };
+
+  console.log(formattedData);
   const columns = [
     {
       name: "Book Details",
@@ -50,8 +196,8 @@ const OrderSummaryTable = ({ orderData = [], onUpdate }) => {
             {row?.productId?.[row.language]?.title}
             {row?.onlyEbookSelected
               ? " - (Ebook Only)"
-              : row?.isEbookAlsoSelected
-              ? ""
+              : row?.isEbookOnlyRow
+              ? " - (Ebook)"
               : ""}
           </p>
           <p className="text-sm capitalize">Medium: {row.language}</p>
@@ -61,32 +207,23 @@ const OrderSummaryTable = ({ orderData = [], onUpdate }) => {
     },
     {
       name: "Price",
-      cell: (row, index) => {
-        const isEbookOnly = row.onlyEbookSelected;
-        const isEbookRow = row.isEbookAlsoSelected;
+      cell: (row) => {
+        const isEbookOnlyRow = row.onlyEbookSelected || row.isEbookOnlyRow;
+        const price = isEbookOnlyRow
+          ? row.ebookPrice
+          : row?.productId?.[row.language]?.paperBackOriginalPrice;
 
-        const price =
-          isEbookOnly || isEbookRow
-            ? row.ebookPrice
-            : row?.productId?.[row.language]?.paperBackOriginalPrice;
-
-        return (
-          <input
-            type="number"
-            className="w-20 border border-gray-300 rounded px-2 py-1 text-right"
-            value={price}
-            min={1}
-            onChange={(e) => handleInputChange(index, "price", e.target.value)}
-          />
-        );
+        return <span className="text-right block w-full">₹{price}</span>;
       },
       right: true,
     },
     {
       name: "Qty",
       cell: (row, index) => {
-        const quantity = row.onlyEbookSelected ? 1 : row.quantity || 1;
-        return row.onlyEbookSelected || row.isEbookAlsoSelected ? (
+        const isEbookOnlyRow = row.onlyEbookSelected || row.isEbookOnlyRow;
+        const quantity = isEbookOnlyRow ? 1 : row.quantity || 1;
+
+        return isEbookOnlyRow ? (
           <span className="text-right block w-full">1</span>
         ) : (
           <input
@@ -104,95 +241,43 @@ const OrderSummaryTable = ({ orderData = [], onUpdate }) => {
     {
       name: "Total",
       selector: (row) => {
-        const isEbookOnly = row.onlyEbookSelected;
-        const isEbookRow = row.isEbookAlsoSelected;
-
-        const price =
-          isEbookOnly || isEbookRow
-            ? parseFloat(row.ebookPrice || 0)
-            : parseFloat(
-                row?.productId?.[row.language]?.paperBackOriginalPrice || 0
-              );
-
-        const qty =
-          isEbookOnly || isEbookRow ? 1 : parseFloat(row?.quantity || 0);
+        const isEbookOnlyRow = row.onlyEbookSelected || row.isEbookOnlyRow;
+        const price = isEbookOnlyRow
+          ? parseFloat(row.ebookPrice || 0)
+          : parseFloat(
+              row?.productId?.[row.language]?.paperBackOriginalPrice || 0
+            );
+        const qty = isEbookOnlyRow ? 1 : parseFloat(row?.quantity || 1);
 
         return `₹${(price * qty).toFixed(2)}`;
       },
       right: true,
     },
+    {
+      name: "Action",
+      cell: (row, index) => {
+        if (row.onlyEbookSelected === false) {
+          return (
+            <button
+              onClick={() => handleDeleteRow(index)}
+              className="text-red-600 hover:underline"
+            >
+              <MdDelete size={20} />
+            </button>
+          );
+        } else {
+          return <p>-</p>;
+        }
+      },
+      ignoreRowClick: true,
+      allowOverflow: true,
+      button: true,
+    },
   ];
 
-  // Flatten ebook+physical rows into separate entries
-  const formattedData = orderData.flatMap((item) => {
-    const medium = item.language;
-    const title = item?.productId?.[medium]?.title;
-
-    const physicalBookRow =
-      item.isEbookAlsoSelected === false && item.onlyEbookSelected === false
-        ? [item]
-        : item.isEbookAlsoSelected
-        ? [
-            {
-              ...item,
-              isEbookAlsoSelected: false,
-              isEbookOnlyRow: false,
-            },
-            {
-              ...item,
-              onlyEbookSelected: true,
-              isEbookOnlyRow: true,
-              isEbookAlsoSelected: false,
-            },
-          ]
-        : item.onlyEbookSelected
-        ? [{ ...item, isEbookOnlyRow: true }]
-        : [];
-
-    return physicalBookRow;
-  });
-
-  const productOptions = useProductOptions();
-
-  const handleProductAdd = () => {
-    // 🟡 Auto-fill price & qty when product is selected
-    selectedProducts.map((item, index) => {
-      let matchedProduct;
-      if (item) {
-        matchedProduct = allProducts.find(
-          (prod) => prod?.english?._id === item || prod?.hindi?._id === item
-        );
-
-        const selected =
-          matchedProduct?.english?._id === item
-            ? matchedProduct?.english
-            : matchedProduct?.hindi;
-
-        const bookData = {
-          price: Number(selected?.paperBackOriginalPrice),
-          qty: 1,
-          localizedId: selected._id,
-          bookCode: selected.bookCode,
-          title: selected.title,
-          product: {
-            id: matchedProduct._id,
-          },
-        };
-        console.log(bookData);
-        
-        // setBooksData((prev) => [...prev, bookData]);
-      }
-    });
-  };
-
-  const handleProductsChange = (value) => {
-    setSelectedProducts(value);
-    console.log("Selected:", value);
-  };
-
   return (
-    <>
-      <div className="flex justify-between">
+    <div className="mt-6">
+      <div className="flex justify-between mb-4">
         <Select
           mode="multiple"
           allowClear
@@ -207,19 +292,21 @@ const OrderSummaryTable = ({ orderData = [], onUpdate }) => {
           }
         />
         <Button
-          className="flex items-center gap-1 capitalize"
+          className="flex items-center gap-1 capitalize py-2 px-4"
           onClick={handleProductAdd}
         >
-          {" "}
           <IoAddCircleOutline size={17} /> Add
         </Button>
       </div>
+
       <DataTable
+        // title="Order Summary"
         columns={columns}
         data={formattedData}
-        noHeader
-        highlightOnHover
         dense
+        highlightOnHover
+        responsive
+        persistTableHead
         customStyles={{
           rows: {
             style: {
@@ -235,7 +322,7 @@ const OrderSummaryTable = ({ orderData = [], onUpdate }) => {
           },
         }}
       />
-    </>
+    </div>
   );
 };
 

@@ -345,8 +345,7 @@ function AddOrders() {
     dispatch(
       generateSingleBulkOrder(finalPayload, setIsLoading, (success) => {
         if (success) {
-          // alert("done");
-          // navigate(-1);
+          navigate(-1);
         }
       })
     );
