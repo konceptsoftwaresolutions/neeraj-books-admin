@@ -15,6 +15,7 @@ import { MdDelete } from "react-icons/md";
 
 const AIQuesPaperUpload = ({ innerId, medium, outerId }) => {
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
 
   const [pdfUrl, setPdfUrl] = useState();
 
@@ -25,7 +26,7 @@ const AIQuesPaperUpload = ({ innerId, medium, outerId }) => {
       productId: outerId,
     };
     dispatch(
-      getAIQuesPaper(payload, (success, url) => {
+      getAIQuesPaper(payload, setLoading, (success, url) => {
         if (success) {
           // console.log(url);
           setPdfUrl(url);
@@ -98,22 +99,34 @@ const AIQuesPaperUpload = ({ innerId, medium, outerId }) => {
       </div>
       <form className="mt-3">
         <div className="relative">
-          {pdfUrl && (
-            <div className="absolute right-2 flex items-center justify-end gap-3">
-              <div className="cursor-pointer">
-                <Tooltip title="View Question Paper">
-                  <a href={pdfUrl} target="_blank" className="text-blue-700">
-                    View{" "}
-                  </a>
-                </Tooltip>
-              </div>
-              <div className="" onClick={handlePaperDelete}>
-                <Tooltip title="Delete">
-                  <MdDelete size={20} className="cursor-pointer" />
-                </Tooltip>
-              </div>
-            </div>
-          )}
+          <div className="absolute right-2 flex items-center justify-end gap-3">
+            {loading ? (
+              <p>Loading ..</p>
+            ) : pdfUrl ? (
+              <>
+                <div className="cursor-pointer">
+                  <Tooltip title="View Question Paper">
+                    <a
+                      href={pdfUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-700"
+                    >
+                      View
+                    </a>
+                  </Tooltip>
+                </div>
+                <div onClick={handlePaperDelete}>
+                  <Tooltip title="Delete">
+                    <MdDelete size={20} className="cursor-pointer" />
+                  </Tooltip>
+                </div>
+              </>
+            ) : (
+              <p>Not Added</p>
+            )}
+          </div>
+
           <InputField
             control={control}
             errors={errors}

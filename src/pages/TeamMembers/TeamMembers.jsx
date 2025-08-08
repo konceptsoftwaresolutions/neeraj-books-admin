@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import PageCont from "../../components/PageCont";
 import Heading from "../../components/Heading";
 import { useNavigate } from "react-router-dom";
@@ -13,17 +13,17 @@ import usePath from "../../hooks/usePath";
 import { getAllTeamMembers } from "../../redux/features/teamMembers";
 
 function TeamMembers(props) {
-  useEffect(() => {
-    dispatch(getAllTeamMembers());
-  }, []);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const { allUsers } = useSelector((state) => state.team);
+  const [isLoading, setIsLoading] = useState(false);
 
   const path = usePath();
   const { role } = useSelector((state) => state.auth);
+  // useEffect(() => {
+  //   dispatch(getAllTeamMembers(setIsLoading));
+  // }, []);
 
   //   const TeamMembers = [
   //     {
@@ -93,7 +93,7 @@ function TeamMembers(props) {
           Add Members
         </Button>
       </div>
-      {/* <div className="mt-4">
+      <div className="mt-4">
         <DataTable
           data={allUsers ? allUsers : []}
           columns={allMembers}
@@ -103,7 +103,7 @@ function TeamMembers(props) {
           paginationPerPage={10}
           paginationRowsPerPageOptions={[10, 25, 50]}
         />
-      </div> */}
+      </div>
     </PageCont>
   );
 }

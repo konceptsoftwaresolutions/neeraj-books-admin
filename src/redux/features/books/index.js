@@ -139,9 +139,10 @@ export const addBook = ({ formData, setAddLoader = () => { }, callback = () => {
 
 
 
-export const getAIQuesPaper = (payload, callback = () => { }) => {
+export const getAIQuesPaper = (payload, setLoading, callback = () => { }) => {
     return async (dispatch) => {
         try {
+            setLoading(true)
             const response = await axiosInstance.post("/product/fetchPreviousPdf", payload, {
                 responseType: 'blob', // Ensure you're expecting a blob response
             });
@@ -152,10 +153,12 @@ export const getAIQuesPaper = (payload, callback = () => { }) => {
                 // console.log(imageUrl)
                 // Pass imageUrl and title to the callback
                 callback(true, imageUrl);
+                setLoading(false)
                 // dispatch(getAllLeads());
             }
         } catch (error) {
             console.log(error)
+            setLoading(false)
             let message = "error";
             if (error?.hasOwnProperty("response")) {
                 message = error?.response?.data?.message;
@@ -256,14 +259,10 @@ export const deleteHindiAIQuesPaper = (payload, callback = () => { }) => {
 export const updateBook = ({ formData }, callback = () => { }) => {
     return async (dispatch) => {
         try {
-
             const response = await axiosInstance.postForm("/product/update", formData);
             if (response.status === 200) {
-                console.log("response is ", response)
                 const message = response.data?.message || "Book added successfully!";
-
                 callback(true);
-
                 toast.success(message);
                 dispatch(getAllBooks());
             }
@@ -354,8 +353,6 @@ export const getSamplePaperCover = (payload, callback = () => { }) => {
             if (error?.hasOwnProperty("response")) {
                 message = error?.response?.data?.message;
             }
-            // callback(error);
-            // toast.error(message);
         } finally {
 
         }
@@ -620,57 +617,169 @@ export const getHindiProductImagesName = (title, callback = () => { }) => {
     }
 }
 
-export const getEnglishProdImagesLink = (payload, callback = () => { }) => {
+
+export const getOldEngProductImagesName = (title, callback = () => { }) => {
     return async (dispatch) => {
         try {
+            const response = await axiosInstance.post("/product/getOldProductImagesByTitle", { title })
+            if (response.status === 200) {
+                console.log(response)
+                const imagesArray = response?.data?.images;
+                console.log("asdjhfglkdsjfh", imagesArray)
+                callback(imagesArray)
+            }
+        } catch (error) {
+            console.log(error);
+            let message = "error";
+            if (error?.hasOwnProperty("message")) {
+                message = error?.message;
+            }
+            // toast.error(message);
+        }
+    }
+}
+
+export const getOldHindiProductImagesName = (title, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/product/getOldProductHindiImagesByTitle", { title })
+            if (response.status === 200) {
+                console.log(response)
+                const imagesArray = response?.data?.images;
+
+                callback(imagesArray)
+            }
+        } catch (error) {
+            console.log(error);
+            let message = "error";
+            if (error?.hasOwnProperty("message")) {
+                message = error?.message;
+            }
+            // toast.error(message);
+        }
+    }
+}
+
+
+
+
+
+export const getEnglishProdImagesLink = (payload, setImgLoading = () => { }, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setImgLoading(true)
             const response = await axiosInstance.post("/product/getProductImageByFileName", payload, {
                 responseType: 'blob', // Ensure you're expecting a blob response
             });
 
             if (response.status === 200) {
+                setImgLoading(false)
                 const data = response?.data;
-                // Convert blob to a 
                 const imageUrl = URL.createObjectURL(data);
-                // Pass imageUrl and title to the callback
                 callback(imageUrl);
             }
 
         } catch (error) {
-            console.log(error);
+            setImgLoading(false)
             let message = "error";
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
+        } finally {
+            setImgLoading(false)
         }
     };
 };
 
-export const getHindiProdImagesLink = (payload, callback = () => { }) => {
+export const getHindiProdImagesLink = (payload, setImgLoading = () => { }, callback = () => { }) => {
     return async (dispatch) => {
         try {
+            setImgLoading(true)
             const response = await axiosInstance.post("/product/getProductHindiImageByFileName", payload, {
                 responseType: 'blob', // Ensure you're expecting a blob response
             });
 
             if (response.status === 200) {
+                setImgLoading(false)
                 const data = response?.data;
-                // Convert blob to a 
                 const imageUrl = URL.createObjectURL(data);
-                // Pass imageUrl and title to the callback
                 callback(imageUrl);
             }
 
         } catch (error) {
-            console.log(error);
+            setImgLoading(false)
             let message = "error";
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
+        } finally {
+            setImgLoading(true)
         }
     };
 };
+
+
+
+export const getOldEnglishProdImagesLink = (payload, setImgLoading = () => { }, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setImgLoading(true)
+            const response = await axiosInstance.post("/product/getOldProductImageByFileName", payload, {
+                responseType: 'blob', // Ensure you're expecting a blob response
+            });
+
+            if (response.status === 200) {
+                setImgLoading(false)
+                const data = response?.data;
+                const imageUrl = URL.createObjectURL(data);
+                callback(imageUrl);
+            }
+
+        } catch (error) {
+            setImgLoading(false)
+            let message = "error";
+            if (error?.hasOwnProperty("message")) {
+                message = error?.message;
+            }
+            // toast.error(message);
+        } finally {
+            setImgLoading(false)
+        }
+    };
+};
+
+export const getOldHindiProdImagesLink = (payload, setImgLoading = () => { }, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setImgLoading(true)
+            const response = await axiosInstance.post("/product/getOldProductHindiImageByFileName", payload, {
+                responseType: 'blob', // Ensure you're expecting a blob response
+            });
+
+            if (response.status === 200) {
+                setImgLoading(false)
+                const data = response?.data;
+                const imageUrl = URL.createObjectURL(data);
+                callback(imageUrl);
+            }
+
+        } catch (error) {
+            setImgLoading(false)
+            let message = "error";
+            if (error?.hasOwnProperty("message")) {
+                message = error?.message;
+            }
+            // toast.error(message);
+        } finally {
+            setImgLoading(true)
+        }
+    };
+};
+
+
+
 
 export const getEnglishAssignment = (title, callback = () => { }) => {
     return async (dispatch) => {
@@ -721,23 +830,27 @@ export const getHindiAssignment = (title, callback = () => { }) => {
 }
 
 
-export const getEnglishEbook = (title, callback = () => { }) => {
+export const getEnglishEbook = (title, setEbookLoader, callback = () => { }) => {
     return async (dispatch) => {
         try {
+            setEbookLoader(true)
             const response = await axiosInstance.post("/product/findProductEbookByTitle", { title }, {
                 responseType: 'blob', // Ensure you're expecting a blob response
             });
 
             if (response.status === 200) {
+
                 const data = response?.data;
                 // Convert blob to a 
                 const imageUrl = URL.createObjectURL(data);
                 // Pass imageUrl and title to the callback
                 callback(imageUrl);
+                setEbookLoader(false)
             }
 
         } catch (error) {
             console.log(error);
+            setEbookLoader(false)
             let message = "error";
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
@@ -747,9 +860,11 @@ export const getEnglishEbook = (title, callback = () => { }) => {
     };
 };
 
-export const getHindiEbook = (title, callback = () => { }) => {
+
+export const getHindiEbook = (title, setEbookLoader, callback = () => { }) => {
     return async (dispatch) => {
         try {
+            setEbookLoader(true)
             const response = await axiosInstance.post("/product/findHindiProductEbookByTitle", { title }, {
                 responseType: 'blob', // Ensure you're expecting a blob response
             });
@@ -760,10 +875,12 @@ export const getHindiEbook = (title, callback = () => { }) => {
                 const imageUrl = URL.createObjectURL(data);
                 // Pass imageUrl and title to the callback
                 callback(imageUrl);
+                setEbookLoader(false)
             }
 
         } catch (error) {
-            console.log(error);
+            // console.log(error);
+            setEbookLoader(false)
             let message = "error";
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
@@ -966,6 +1083,35 @@ export const deleteProductImage = (payload, callback = () => { }) => {
 };
 
 
+export const deleteOldProductImage = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+
+            const response = await axiosInstance.post("/product/deleteOldProductImage", payload);
+            if (response.status === 200) {
+                console.log("response is ", response)
+                const message = response.data?.message || "Deleted successfully!";
+                callback(true);
+
+                toast.success(message);
+
+                // dispatch(getAllLeads());
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "error";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data?.message;
+            }
+            // callback(error);
+            toast.error(message);
+        } finally {
+
+        }
+    };
+};
+
+
 
 export const handleBookOrder = (payload) => {
     return async (dispatch) => {
@@ -1083,6 +1229,70 @@ export const checkCouponAvailability = (title, callback = () => { }) => {
             }
         } catch (error) {
             callback(false)
+        }
+    };
+};
+
+
+export const getEbookNamesList = (payload, setEbookLoader, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setEbookLoader(true)
+            const response = await axiosInstance.post("/product/list-ebooks", payload);
+            if (response.status === 200) {
+                setEbookLoader(false)
+                callback(true, response.data.ebooks)
+                // dispatch(getAllLeads());
+            }
+        } catch (error) {
+            setEbookLoader(false)
+            console.log(error)
+
+        }
+    };
+};
+
+
+
+export const downloadSingleEbook = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post(
+                "/product/download-ebook",
+                payload,
+                { responseType: 'blob' } // Expect blob
+            );
+
+            if (response.status === 200) {
+                const data = response.data;
+                const fileUrl = URL.createObjectURL(data);
+
+                // Open in new tab
+                window.open(fileUrl, "_blank");
+
+                callback(true, fileUrl);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+};
+
+
+
+
+
+export const deleteSingleEbook = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/product/delete-ebook", payload);
+            if (response.status === 200) {
+                toast.success(response.data.message)
+                callback(true)
+            }
+        } catch (error) {
+            console.log(error.response.data.message)
+
         }
     };
 };

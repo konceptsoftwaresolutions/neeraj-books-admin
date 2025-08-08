@@ -26,12 +26,13 @@ export default teamMembersSlice.reducer;
 
 
 
-export const getAllTeamMembers = () => {
+export const getAllTeamMembers = (setIsLoading) => {
     return async (dispatch) => {
         try {
-
+            setIsLoading(true)
             const response = await axiosInstance.get("/user/getAll",);
             if (response.status === 200) {
+                setIsLoading(false)
                 console.log("response is ", response)
                 const data = response?.data;
                 // callback(null);
@@ -41,6 +42,7 @@ export const getAllTeamMembers = () => {
             }
         } catch (error) {
             console.log(error)
+            setIsLoading(false)
             let message = "error";
             if (error?.hasOwnProperty("response")) {
                 message = error?.response?.data?.message;
@@ -48,7 +50,7 @@ export const getAllTeamMembers = () => {
             // callback(error);
             toast.error(message);
         } finally {
-
+            setIsLoading(false)
         }
     };
 };

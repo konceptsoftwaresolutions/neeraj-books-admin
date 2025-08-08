@@ -7,6 +7,7 @@ const axiosInstance = createAxiosInstance();
 
 const initialState = {
     allCustomers: null,
+
 };
 
 const customerSlice = createSlice({
@@ -33,11 +34,8 @@ export const getAllCustomers = (setIsLoading) => {
             const response = await axiosInstance.get("/user/getAll");
 
             if (response.status === 200) {
-                // console.log("response is ", response);
                 setIsLoading(false)
                 const data = response?.data;
-
-                // Create new array with only required fields
                 const customers = data.map((item) => ({
                     _id: item?._id || "",
                     name: item?.name || "",
@@ -46,13 +44,7 @@ export const getAllCustomers = (setIsLoading) => {
                     mobile: item?.mobile || "",
                 }));
 
-                console.log("filtered customers:", customers);
-
-                // Dispatch new array
                 dispatch(setCustomers({ allCustomers: customers.reverse() }));
-
-                // You can also call getAllLeads if needed
-                // dispatch(getAllLeads());
             }
         } catch (error) {
             setIsLoading(false)

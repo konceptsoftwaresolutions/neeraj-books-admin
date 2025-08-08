@@ -198,9 +198,10 @@ export const getSingleCategoryBySearch = (payload) => {
 //     }
 // }
 
-export const getCategoryImage = (payload, callback = () => { }) => {
+export const getCategoryImage = (payload, setLoading, callback = () => { }) => {
     return async (dispatch) => {
         try {
+            setLoading(true)
             const response = await axiosInstance.post("/category/findCategoryImageByTitle", payload, {
                 responseType: 'blob', // Ensure you're expecting a blob response
             });
@@ -211,16 +212,23 @@ export const getCategoryImage = (payload, callback = () => { }) => {
                 const imageUrl = URL.createObjectURL(data);
 
                 // Pass imageUrl and title to the callback
+                setLoading(false)
+
                 callback(imageUrl, payload.title);
             }
 
         } catch (error) {
             console.log(error);
+            setLoading(false)
+
             let message = "error";
             if (error?.hasOwnProperty("message")) {
                 message = error?.message;
             }
-            toast.error(message);
+            // toast.error(message);
+        } finally {
+            setLoading(false)
+
         }
     };
 };

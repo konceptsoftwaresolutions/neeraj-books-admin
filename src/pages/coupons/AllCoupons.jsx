@@ -11,6 +11,8 @@ import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
 import EditCouponModal from "./EditCouponModal";
 import { getAllCoupons } from "../../redux/features/coupons";
+import { Input } from "antd";
+import { FaSearch } from "react-icons/fa";
 
 const AllCoupons = () => {
   const dispatch = useDispatch();
@@ -26,11 +28,18 @@ const AllCoupons = () => {
   const [openCouponModal, setOpenCouponModal] = useState(false);
   const [editCouponModal, setEditCouponModal] = useState(false);
   const [couponToEdit, setCouponToEdit] = useState();
+  const [searchText, setSearchText] = useState("");
 
   const handleRowClick = (e) => {
     setCouponToEdit(e);
     setEditCouponModal(!editCouponModal);
   };
+
+  const filteredCoupons = allCoupons?.filter(
+    (coupon) =>
+      coupon.couponCode?.toLowerCase().includes(searchText.toLowerCase()) ||
+      coupon.title?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
   return (
     <PageCont>
@@ -48,14 +57,24 @@ const AllCoupons = () => {
           </Button>
         </div>
       </div>
+
+      <div className="mt-4 relative">
+        <FaSearch className="absolute top-3 left-2 z-20 text-cstm-blue" />
+        <Input
+          type="text"
+          placeholder="Search by coupon code..."
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          className="w-full px-4 py-2 pl-7 border rounded-md shadow-sm focus:outline-none focus:ring-2 border-cstm-blue"
+        />
+      </div>
+
       <div className="my-5">
         <DataTable
           columns={couponColumns}
-          data={allCoupons ? allCoupons : []}
+          data={filteredCoupons || []}
           customStyles={tableStyle}
           onRowClicked={handleRowClick}
-          // selectableRows
-          // onSelectedRowsChange={handleSelectedRows}
           pagination
           highlightOnHover
           striped
@@ -64,6 +83,7 @@ const AllCoupons = () => {
           paginationRowsPerPageOptions={[5, 10, 15, 20]}
         />
       </div>
+
       <AddCouponModal
         openModal={openCouponModal}
         setOpenModal={setOpenCouponModal}

@@ -75,6 +75,7 @@ const InputField = ({
   maxFiles,
   value,
   picker = "date",
+  subLabel,
 }) => {
   const props = {
     required,
@@ -99,6 +100,7 @@ const InputField = ({
     modalHeadClass,
     modalClass,
     modalBodyClass,
+    subLabel,
     modalLabelClass,
     maxFiles,
     max,

@@ -15,14 +15,28 @@ const TextField = ({
   labelClass = "",
   disabled = false,
   required = false, // New prop for required validation
+  subLabel,
 }) => {
   return (
-    <div className={"flex flex-col w-full gap-2" + (parentClass ? ` ${parentClass}` : "")}>
-      {label && (
-        <label htmlFor={name} className={"font-medium ml-0.5 text-[#000000]" + (labelClass ? ` ${labelClass}` : "")}>
+    <div
+      className={
+        "flex flex-col w-full gap-2" + (parentClass ? ` ${parentClass}` : "")
+      }
+    >
+      <div className="flex justify-between items-center">
+        {label && (
+        <label
+          htmlFor={name}
+          className={
+            "font-medium ml-0.5 text-[#000000]" +
+            (labelClass ? ` ${labelClass}` : "")
+          }
+        >
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
+      {subLabel && <p className="text-red-600 text-sm">({subLabel})</p>}
+      </div>
       <div className="flex items-center border w-full border-solid border-[#6E6E6E] overflow-hidden bg-transparent rounded-sm">
         <Controller
           name={name}
@@ -44,7 +58,9 @@ const TextField = ({
           )}
         />
       </div>
-      {errors?.[name] && <p className="text-red-500 text-sm">{errors[name]?.message}</p>}
+      {errors?.[name] && (
+        <p className="text-red-500 text-sm">{errors[name]?.message}</p>
+      )}
     </div>
   );
 };

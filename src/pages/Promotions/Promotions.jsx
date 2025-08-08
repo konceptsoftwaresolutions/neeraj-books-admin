@@ -61,12 +61,17 @@ function Promotions(props) {
           </Button> */}
         </div>{" "}
         <div className="mt-4 mb-8">
-          <DataTable
-            data={allAffiliates ? allAffiliates : []}
-            columns={allPromotions(handleRowClick)}
-            customStyles={tableStyle}
-            onRowClicked={(row) => handleRowClick(row)}
-          />
+          <div className="mt-4 mb-8">
+            <DataTable
+              data={allAffiliates ? allAffiliates : []}
+              columns={allPromotions(handleRowClick)}
+              customStyles={tableStyle}
+              onRowClicked={handleRowClick}
+              pagination
+              paginationPerPage={10}
+              paginationRowsPerPageOptions={[10, 25, 50, 100]}
+            />
+          </div>
         </div>
       </PageCont>
     </div>

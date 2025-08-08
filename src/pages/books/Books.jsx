@@ -60,6 +60,7 @@ const Books = () => {
   const [excelModal, setExcelModal] = useState(false);
   const [searchText, setSearchText] = useState(""); // Search input state
   const [filteredBooks, setFilteredBooks] = useState([]);
+  console.log(filteredBooks);
 
   const transformData = (books) => {
     let rows = [];
@@ -117,6 +118,7 @@ const Books = () => {
     }
 
     const normalizedSearch = normalizeText(searchText);
+
     const filtered = tableData.filter((book) => {
       const bookCodeMatch = normalizeText(book.bookCode).includes(
         normalizedSearch
@@ -126,8 +128,17 @@ const Books = () => {
         String(book.paperBackPrice) === normalizedSearch;
       const eBookPriceMatch = String(book.eBookPrice) === normalizedSearch;
 
+      // New: check if any category name matches the search text
+      const categoryMatch = book.categoriesArray?.some((category) =>
+        normalizeText(category.name).includes(normalizedSearch)
+      );
+
       return (
-        bookCodeMatch || mediumMatch || paperBackPriceMatch || eBookPriceMatch
+        bookCodeMatch ||
+        mediumMatch ||
+        paperBackPriceMatch ||
+        eBookPriceMatch ||
+        categoryMatch
       );
     });
 

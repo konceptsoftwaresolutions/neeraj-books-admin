@@ -5,12 +5,15 @@ const HorizontalBarChart = ({
   data,
   categories,
   title = "Horizontal Bar Chart",
-  barColor = "#f99a00", // Default color if no color is passed
+  barColor = "#f99a00",
 }) => {
+  // Dynamically calculate height: ~40px per bar + padding
+  const dynamicHeight = data?.length * 40 + 50;
+
   const chartOptions = {
     chart: {
       type: "bar",
-      height: 350,
+      height: dynamicHeight,
     },
     title: {
       text: title,
@@ -28,7 +31,7 @@ const HorizontalBarChart = ({
     xaxis: {
       categories: categories,
     },
-    colors: [barColor], // ✅ Correct placement
+    colors: [barColor],
   };
 
   const chartSeries = [
@@ -43,7 +46,7 @@ const HorizontalBarChart = ({
         options={chartOptions}
         series={chartSeries}
         type="bar"
-        height={350}
+        height={dynamicHeight} // ✅ Now height changes based on number of bars
       />
     </div>
   );

@@ -61,7 +61,7 @@ const AbandonedCart = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(getAllUsers());
+    // dispatch(getAllUsers());
   }, []);
 
   const { role } = useSelector((state) => state.auth);

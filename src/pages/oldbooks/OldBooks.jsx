@@ -125,7 +125,7 @@ const OldBooks = () => {
     const bookId = row.bookDetail._id;
     const medium = row.medium;
     const outerId = row.outerId;
-    navigate(`/${role}/updatebook/${bookId}/${medium}/${outerId}`, {
+    navigate(`/${role}/updateoldbook/${bookId}/${medium}/${outerId}`, {
       state: { data: { bookId, outerId, oldbookdata: true } },
     });
   };
@@ -310,13 +310,11 @@ const OldBooks = () => {
     XLSX.writeFile(wb, "Books.xlsx"); // Trigger download
   };
 
-  // console.log(filteredBooks);
-
   return (
     <PageCont>
       <div className="flex justify-between items-center">
         <div className="flex justify-center items-center gap-3">
-          <Heading text="All Books" />
+          <Heading text="All Old Books" />
         </div>
       </div>
 

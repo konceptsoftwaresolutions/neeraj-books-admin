@@ -9,8 +9,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import toast from "react-hot-toast";
 import { addTestimonial } from "../../redux/features/testimonials";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const AddTestimonial = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const {
     handleSubmit,
@@ -33,7 +35,13 @@ const AddTestimonial = () => {
     formData.append("rating", data?.rating);
     formData.append("paragraph", data?.review);
 
-    dispatch(addTestimonial({ formData }));
+    dispatch(
+      addTestimonial({ formData }, (success) => {
+        if (success) {
+          navigate(-1)
+        }
+      })
+    );
   };
 
   return (

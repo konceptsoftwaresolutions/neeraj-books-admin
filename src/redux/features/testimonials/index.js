@@ -74,8 +74,8 @@ export const deleteTestimonial = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
 
-            const response = await axiosInstance.post("/testimonial/dele", payload);
-            if (response.status === 201) {
+            const response = await axiosInstance.post("/testimonial/delete", payload);
+            if (response.status === 200) {
                 console.log("response is ", response)
                 const message = response.data?.message || "Deleted successfully!";
                 callback(true);

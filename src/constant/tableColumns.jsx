@@ -669,16 +669,22 @@ export const allPromotions = (handleRowClick) => {
       name: "Name",
       selector: (row) => `${row.firstName} ${row.lastName}`,
       sortable: true,
+      width: "160px",
+      wrap: true,
     },
     {
       name: "Email",
       selector: (row) => row.email,
       sortable: true,
+      width: "180px",
+      wrap: true,
     },
     {
       name: "Mobile",
       selector: (row) => row.mobile,
       sortable: true,
+      width: "170px",
+      wrap: true,
     },
     {
       name: "Country",
@@ -700,12 +706,16 @@ export const allPromotions = (handleRowClick) => {
       name: "Approved",
       selector: (row) => (row.approved ? "Yes" : "No"),
       sortable: true,
+      width: "130px",
+      wrap: true,
     },
     {
       name: "Created At",
       selector: (row) =>
         row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
       sortable: true,
+      width: "150px",
+      wrap: true,
     },
     // {
     //   name: "Payment QR",
@@ -756,6 +766,16 @@ export const affiliateOrderColumns = [
         {row.orderStatus}
       </span>
     ),
+  },
+  {
+    name: "Payment Mode",
+    selector: (row) => row.paymentMode,
+    sortable: true,
+  },
+  {
+    name: "Payment Status",
+    selector: (row) => row.paymentStatus,
+    sortable: true,
   },
   {
     name: "Created At",

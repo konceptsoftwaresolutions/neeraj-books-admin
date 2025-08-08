@@ -18,7 +18,7 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
   const [imageUrl, setImageUrl] = useState();
   const [isEditable, setIsEditable] = useState(false);
   const dispatch = useDispatch();
-  console.log("2222222222", category);
+  const [loading, setLoading] = useState();
 
   const {
     handleSubmit,
@@ -30,6 +30,7 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
   });
 
   useEffect(() => {
+    setImageUrl(null);
     reset({
       name: category?.name,
       description1: category?.description1,
@@ -45,7 +46,7 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
         name: category?.name,
       };
       dispatch(
-        getCategoryImage(payload, (imageUrl) => {
+        getCategoryImage(payload, setLoading, (imageUrl) => {
           if (imageUrl) {
             console.log(imageUrl);
             setImageUrl(imageUrl);
@@ -115,7 +116,14 @@ const EditCategoryModal = ({ visible, onClose, category }) => {
       <div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div>
-            {imageUrl && <img src={imageUrl} />}
+            {loading ? (
+              <p className="text-center">Loading image ...</p>
+            ) : imageUrl ? (
+              <img src={imageUrl} alt="Preview" />
+            ) : (
+              <p className="text-center">No image found</p>
+            )}
+
             {isEditable && (
               <ImageField
                 control={control}

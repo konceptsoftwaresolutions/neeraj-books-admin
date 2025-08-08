@@ -4,14 +4,14 @@ import { Plus } from "lucide-react";
 import Heading from "../../components/Heading";
 import { Button } from "@material-tailwind/react";
 import { useNavigate } from "react-router-dom";
-import { allCustomer, allMembers } from "../../constant/tableColumns";
+import { allMembers } from "../../constant/tableColumns";
 import usePath from "../../hooks/usePath";
 import { useDispatch, useSelector } from "react-redux";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
 import { getAllCustomers } from "../../redux/features/customers";
 
-function Customer(props) {
+function Customer() {
   const navigate = useNavigate();
   const path = usePath();
   const dispatch = useDispatch();
@@ -21,8 +21,18 @@ function Customer(props) {
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    dispatch(getAllCustomers(setIsLoading));
-  }, []);
+    const cacheKey = "customerCacheTimestamp";
+    const cacheDuration = 5 * 60 * 1000; // 5 minutes
+
+    const lastFetched = localStorage.getItem(cacheKey);
+    const isStale =
+      !lastFetched || Date.now() - parseInt(lastFetched) > cacheDuration;
+
+    if (!allCustomers || allCustomers.length === 0 || isStale) {
+      dispatch(getAllCustomers(setIsLoading));
+      localStorage.setItem(cacheKey, Date.now().toString());
+    }
+  }, [allCustomers, dispatch]);
 
   const handleRowClick = (data) => {
     navigate(`/${role}/editcustomer`, { state: { customerId: data._id } });
@@ -43,24 +53,22 @@ function Customer(props) {
           <Plus className="pr-1" />
           Add Customer
         </Button>
-      </div>{" "}
+      </div>
       <div className="mt-4">
         {isLoading ? (
           <div className="py-10 flex items-center justify-center">
             <p>Loading ...</p>
           </div>
         ) : (
-          <>
-            <DataTable
-              data={allCustomers ? allCustomers : []}
-              columns={allMembers}
-              customStyles={tableStyle}
-              onRowClicked={handleRowClick}
-              pagination
-              paginationPerPage={10}
-              paginationRowsPerPageOptions={[10, 25, 50]}
-            />
-          </>
+          <DataTable
+            data={allCustomers || []}
+            columns={allMembers}
+            customStyles={tableStyle}
+            onRowClicked={handleRowClick}
+            pagination
+            paginationPerPage={10}
+            paginationRowsPerPageOptions={[10, 25, 50]}
+          />
         )}
       </div>
     </PageCont>

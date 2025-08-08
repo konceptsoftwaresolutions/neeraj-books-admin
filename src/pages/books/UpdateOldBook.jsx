@@ -24,23 +24,20 @@ import {
   deleteHindiAssignment,
   deleteHindiEbook,
   deleteMediumBook,
-  deleteProductImage,
+  deleteOldProductImage,
   deleteSamplePaperFilePDF,
-  deleteSingleEbook,
   deletProductAssignment,
-  downloadSingleEbook,
   getAssignmentFile,
   getAssignmentImage,
   getBrandName,
-  getEbookNamesList,
   getEnglishAssignment,
   getEnglishEbook,
-  getEnglishProdImagesLink,
-  getEngProductImagesName,
+  getOldEnglishProdImagesLink,
+  getOldEngProductImagesName,
   getHindiAssignment,
   getHindiEbook,
-  getHindiProdImagesLink,
-  getHindiProductImagesName,
+  getOldHindiProdImagesLink,
+  getOldHindiProductImagesName,
   getSamplePaperCover,
   getSamplePaperData,
   getSamplePaperPdfFile,
@@ -62,13 +59,12 @@ import {
 } from "../../constant/utilityfunction";
 import AIQuesPaperUpload from "./AIQuesPaperUpload";
 import ImageFieldWithNumber from "../../common/fields/ImageFieldWithNumber";
-import FileFieldWithText from "../../common/fields/FileFieldWithText";
 
-const UpdateBook = () => {
+const UpdateOldBook = () => {
   const { allCategory } = useSelector((state) => state.category);
   const dispatch = useDispatch();
   const location = useLocation();
-  console.log(location.state, " location is this");
+  //   console.log(location.state, " location is this");
   // const { bookData, medium, outerId } = location.state || {};
 
   const [showDeleteBtn, setShowDeleteBtn] = useState(true);
@@ -81,7 +77,7 @@ const UpdateBook = () => {
 
   const { bookId: bookData, medium, outerId } = useParams();
 
-  // console.log(bookData , medium , outerId)
+  console.log(bookData, medium, outerId);
 
   const parentCategoryOptions = allCategory?.map((category, index) => {
     return {
@@ -106,10 +102,6 @@ const UpdateBook = () => {
   const [rowData, setRowData] = useState(null);
   const [samplePaperCoverUrl, setSamplePaperCoverUrl] = useState();
 
-  const [ebookLoader, setEbookLoader] = useState(false);
-
-  console.log(productImageUrls);
-
   const [solvedSamplePaperData, setSolvedSamplePaperData] = useState();
 
   const [assignmetnImageUrls, setAssignmentImageUrls] = useState({}); // Store image URLs
@@ -131,7 +123,7 @@ const UpdateBook = () => {
     dispatch(
       getSingleBook(payload, (success, data) => {
         if (success) {
-          console.log("fetched", data);
+          //   console.log("fetched", data);
           setRowData(data);
         }
       })
@@ -158,7 +150,7 @@ const UpdateBook = () => {
       dispatch(
         getEnglishAssignment(payload, (url) => {
           if (url) {
-            console.log("6666", url);
+            // console.log("6666", url);
 
             setAssignmentUrl(url);
           }
@@ -172,7 +164,7 @@ const UpdateBook = () => {
       dispatch(
         getHindiAssignment(payload, (url) => {
           if (url) {
-            console.log("6666", url);
+            // console.log("6666", url);
 
             setAssignmentUrl(url);
           }
@@ -193,16 +185,16 @@ const UpdateBook = () => {
   useEffect(() => {
     if (rowData?.title && medium === "English") {
       dispatch(
-        getEngProductImagesName(rowData?.title, (array) => {
-          console.log("fetched array", array);
+        getOldEngProductImagesName(rowData?.title, (array) => {
+          //   console.log("fetched array", array);
           setProductImages(array); // Store the fetched array in the state
         })
       );
     }
     if (rowData?.title && medium === "Hindi") {
       dispatch(
-        getHindiProductImagesName(rowData?.title, (array) => {
-          console.log("fetched array", array);
+        getOldHindiProductImagesName(rowData?.title, (array) => {
+          //   console.log("fetched array", array);
           setProductImages(array); // Store the fetched array in the state
         })
       );
@@ -226,8 +218,8 @@ const UpdateBook = () => {
           // Choose the appropriate action based on the medium
           const action =
             medium === "English"
-              ? getEnglishProdImagesLink
-              : getHindiProdImagesLink;
+              ? getOldEnglishProdImagesLink
+              : getOldHindiProdImagesLink;
 
           const url = await new Promise((resolve) => {
             dispatch(action(payload, setImgLoading, (url) => resolve(url)));
@@ -239,6 +231,7 @@ const UpdateBook = () => {
         }
 
         setProductImageUrls(fetchedUrls);
+        // console.log(fetchedUrls)
       };
 
       fetchProductImages();
@@ -247,51 +240,26 @@ const UpdateBook = () => {
 
   useEffect(() => {
     if (rowData?.title && medium === "English") {
-      const payload = {
-        localizedId: location?.state?.data?.outerId,
-        language: "english",
-      };
+      //   console.log("if condition called");
       dispatch(
-        getEbookNamesList(payload, setEbookLoader, (success, data) => {
-          if (success) {
-            setEbookNamesList(data);
+        getEnglishEbook(rowData.title, (url) => {
+          if (url) {
+            // console.log("xxxx ", url);
+            setEbookLink(url);
           } else {
-            setEbookNamesList(null);
+            setEbookLink(null);
           }
         })
       );
-      // dispatch(
-      //   getEnglishEbook(rowData.title, setEbookLoader, (url) => {
-      //     if (url) {
-      //       console.log("xxxx ", url);
-      //       setEbookLink(url);
-      //     } else {
-      //       setEbookLink(null);
-      //     }
-      //   })
-      // );
     }
     if (rowData?.title && medium === "Hindi") {
-      // dispatch(
-      //   getHindiEbook(rowData.title, setEbookLoader, (url) => {
-      //     if (url) {
-      //       console.log("yyy", url);
-      //       setEbookLink(url);
-      //     } else {
-      //       setEbookLink(url);
-      //     }
-      //   })
-      // );
-      const payload = {
-        localizedId: location?.state?.data?.bookId,
-        language: "hindi",
-      };
       dispatch(
-        getEbookNamesList(payload, setEbookLoader, (success, data) => {
-          if (success) {
-            setEbookNamesList(data);
+        getHindiEbook(rowData.title, (url) => {
+          if (url) {
+            // console.log("yyy", url);
+            setEbookLink(url);
           } else {
-            setEbookNamesList(null);
+            setEbookLink(url);
           }
         })
       );
@@ -313,7 +281,7 @@ const UpdateBook = () => {
 
   useEffect(() => {
     if (rowData) {
-      console.log(rowData);
+      //   console.log(rowData);
       reset({
         // startPages: 10,
         // quesPaperPages: 100,
@@ -462,7 +430,6 @@ const UpdateBook = () => {
 
   const [subCategoryOptions, setSubCategoryOptions] = useState();
   const [subSubCategoryOptions, setSubSubCategoryOptions] = useState();
-  const [ebookNamesList, setEbookNamesList] = useState([]);
 
   const selectedParentCategory = watch("viewParentCategory");
   const selectedSubCategory = watch("viewSubCategory");
@@ -483,7 +450,7 @@ const UpdateBook = () => {
         allCategory,
         selectedSubCategory
       );
-      console.log(result);
+      //   console.log(result);
       setSubSubCategoryOptions(result);
     }
   }, [selectedSubCategory]);
@@ -565,7 +532,7 @@ const UpdateBook = () => {
       if (obj.hasOwnProperty(key)) {
         const value = obj[key];
         const formKey = parentKey ? `${parentKey}[${key}]` : key;
-        console.log(obj);
+        // console.log(obj);
 
         // Skip 'fileName' key
         if (key === "fileName") {
@@ -614,7 +581,7 @@ const UpdateBook = () => {
 
   const onSubmit = (data) => {
     setIsLoading(true);
-    console.log(data);
+    // console.log(data);
 
     // Initialize payload
 
@@ -624,6 +591,7 @@ const UpdateBook = () => {
       first: data?.first,
       revisedUpdated: data?.revisedUpdated,
       reprint: data?.reprint,
+
       startPages: data?.startPages,
       quesPaperPages: data?.quesPaperPages,
       bookPages: data?.bookPages,
@@ -683,7 +651,7 @@ const UpdateBook = () => {
         data?.assignment,
       [selectedMedium === "English" ? "videoPreview" : "hindiVideoPreview"]:
         data?.videoPreview,
-      [selectedMedium === "English" ? "ebook" : "ebook"]: data?.ebook,
+      [selectedMedium === "English" ? "ebook" : "hindiEbook"]: data?.ebook,
       [selectedMedium === "English" ? "image" : "hindiImage"]: data?.image,
       singleImage: data?.singleImage,
       linkOfFirstSemesterSolvedPaper: data?.linkOfFirstSemesterSolvedPaper,
@@ -706,13 +674,15 @@ const UpdateBook = () => {
     const formData = convertToFormData(payload);
     // To verify the result
     for (const pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
+      //   console.log(pair[0], pair[1]);
     }
 
     dispatch(
       updateBook({ formData: formData }, (success, data) => {
         if (success) {
           setIsLoading(false);
+          //   console.log(data, location, "final");
+          // window.location.reload();
           fetchSingleBookData(
             location?.state?.data?.bookId,
             location?.state?.data?.outerId
@@ -741,29 +711,29 @@ const UpdateBook = () => {
     }
   };
 
-  // const handleEbookDelete = () => {
-  //   const payload = {
-  //     productId: outerId,
-  //   };
-  //   if (medium === "English") {
-  //     dispatch(
-  //       deleteEnglishEbook(payload, (success) => {
-  //         if (success) {
-  //           setEbookLink(null);
-  //         }
-  //       })
-  //     );
-  //   }
-  //   if (medium === "Hindi") {
-  //     dispatch(
-  //       deleteHindiEbook(payload, (success) => {
-  //         if (success) {
-  //           setEbookLink(null);
-  //         }
-  //       })
-  //     );
-  //   }
-  // };
+  const handleEbookDelete = () => {
+    const payload = {
+      productId: outerId,
+    };
+    if (medium === "English") {
+      dispatch(
+        deleteEnglishEbook(payload, (success) => {
+          if (success) {
+            setEbookLink(null);
+          }
+        })
+      );
+    }
+    if (medium === "Hindi") {
+      dispatch(
+        deleteHindiEbook(payload, (success) => {
+          if (success) {
+            setEbookLink(null);
+          }
+        })
+      );
+    }
+  };
 
   const handleAssignmentDelete = () => {
     const payload = {
@@ -779,15 +749,15 @@ const UpdateBook = () => {
 
   const handleBookImgDelete = (index) => {
     const imgName = productImages[index];
-    console.log(imgName);
+    // console.log(imgName);
     const payload = {
       language: medium === "English" ? "english" : "hindi",
       productId: outerId,
       fileName: imgName,
     };
-    console.log(payload);
+    // console.log(payload);
     dispatch(
-      deleteProductImage(payload, (success) => {
+      deleteOldProductImage(payload, (success) => {
         if (success) {
           window.location.reload();
         }
@@ -852,7 +822,7 @@ const UpdateBook = () => {
       productId: outerId,
       language: medium.toLowerCase(),
     };
-    console.log(payload);
+    // console.log(payload);
     dispatch(deletProductAssignment(payload));
   };
 
@@ -900,7 +870,7 @@ const UpdateBook = () => {
   // Fetch sample paper URLs only when samplePaperFields is available
   useEffect(() => {
     if (rowData) {
-      console.log("dddddd", rowData?.solvedSamplePapers?.[0]?.samplePapers);
+      //   console.log("dddddd", rowData?.solvedSamplePapers?.[0]?.samplePapers);
       const fetchPdfUrls = async () => {
         const newPdfUrls = {};
         for (const [
@@ -928,26 +898,6 @@ const UpdateBook = () => {
       index: index,
     };
     dispatch(deleteSamplePaperFilePDF(payload));
-  };
-
-  const handleEbookClick = (item) => {
-    const payload = {
-      localizedId: location?.state?.data?.outerId,
-      language: medium,
-      name: item,
-    };
-    console.log(payload);
-    dispatch(downloadSingleEbook(payload));
-  };
-
-  const handleEbookDelete = (item) => {
-    const payload = {
-      localizedId: location?.state?.data?.outerId,
-      language: medium,
-      name: item,
-    };
-
-    dispatch(deleteSingleEbook(payload));
   };
 
   return (
@@ -1071,7 +1021,6 @@ const UpdateBook = () => {
                     name="bookCode"
                     label="Book Code"
                     type="text"
-                    subLabel="if you see $$ please dont change it!!"
                     disabled={!isEditable}
                   />
                   <InputField
@@ -1435,15 +1384,13 @@ const UpdateBook = () => {
                             >
                               <img src={url} alt="Product" />
                             </a>
-                            {showDeleteBtn && (
-                              <Tooltip title="Delete Image">
-                                <MdDelete
-                                  size={25}
-                                  onClick={() => handleBookImgDelete(index)}
-                                  className="absolute top-1 right-1 text-white cursor-pointer py-1 bg-red-500 hover:shadow-lg rounded-md border-blue-gray-500"
-                                />
-                              </Tooltip>
-                            )}
+                            <Tooltip title="Delete Image">
+                              <MdDelete
+                                size={25}
+                                onClick={() => handleBookImgDelete(index)}
+                                className="absolute top-1 right-1 text-white cursor-pointer py-1 bg-red-500 hover:shadow-lg rounded-md border-blue-gray-500"
+                              />
+                            </Tooltip>
                           </div>
                         ))
                       )}
@@ -1479,68 +1426,41 @@ const UpdateBook = () => {
                     </div>
                   )}
 
-                  {isEditable && (
-                    // <InputField
-                    //   control={control}
-                    //   errors={errors}
-                    //   name="ebook"
-                    //   label="Add E-Books"
-                    //   disabled={!isEditable}
-                    //   type="uploadFiles"
-                    // />
+                  {ebookLink && (
+                    <div className="flex justify-end gap-2 absolute top-0 right-0">
+                      <div>
+                        <Tooltip title="View E-book">
+                          <a
+                            target="_blank"
+                            href={ebookLink}
+                            className="text-blue-700"
+                          >
+                            View Uploaded E-Book
+                          </a>
+                        </Tooltip>
+                      </div>
+                      {showDeleteBtn && (
+                        <div
+                          onClick={handleEbookDelete}
+                          className="cursor-pointer"
+                        >
+                          <Tooltip title="Delete E-book">
+                            <MdDelete size={20} className="" />
+                          </Tooltip>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
-                    <FileFieldWithText
+                  {isEditable && (
+                    <InputField
                       control={control}
                       errors={errors}
-                      name={"ebook"}
-                      maxFiles={20}
+                      name="ebook"
                       label="Add E-Books"
                       disabled={!isEditable}
+                      type="uploadFiles"
                     />
-                  )}
-                </div>
-                <div className="  flex justify-start gap-2">
-                  {ebookLoader ? (
-                    <p className="text-center w-full">Loading...</p>
-                  ) : ebookNamesList.length > 0 ? (
-                    <>
-                      <div className="flex gap-6 flex-wrap">
-                        {ebookNamesList?.map((item, index) => (
-                          <div
-                            key={index}
-                            className="flex flex-col items-center bg-gray-50 p-3 rounded-lg shadow hover:shadow-md transition-all duration-200 w-28 relative"
-                          >
-                            <Tooltip title="View E-book">
-                              <div
-                                onClick={() => handleEbookClick(item)}
-                                className="flex flex-col items-center cursor-pointer"
-                              >
-                                <FaFilePdf
-                                  size={28}
-                                  className="text-red-600 mb-1"
-                                />
-                                <p className="text-blue-700 text-sm text-center break-words">
-                                  {item}
-                                </p>
-                              </div>
-                            </Tooltip>
-
-                            {showDeleteBtn && (
-                              <Tooltip title="Delete E-book">
-                                <p
-                                  onClick={() => handleEbookDelete(item)}
-                                  className="absolute top-2 right-2 text-gray-500 hover:text-red-600 transition-colors"
-                                >
-                                  <MdDelete size={18} />
-                                </p>
-                              </Tooltip>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <p className="text-center w-full">No ebook added</p>
                   )}
                 </div>
                 <div className="grid grid-cols-3 gap-3">
@@ -2279,4 +2199,4 @@ const UpdateBook = () => {
   );
 };
 
-export default UpdateBook;
+export default UpdateOldBook;

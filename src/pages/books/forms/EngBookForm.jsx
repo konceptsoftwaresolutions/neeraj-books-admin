@@ -10,6 +10,7 @@ import {
   bookTypeOptions,
   colourOptions,
 } from "../../../constant/options";
+import FileFieldWithText from "../../../common/fields/FileFieldWithText";
 
 const EngBookForm = ({
   control,
@@ -367,12 +368,20 @@ const EngBookForm = ({
         </div>
         <div className="grid grid-cols-1 gap-3 pt-2">
           {selectedMedium?.includes("English") && (
-            <InputField
+            // <InputField
+            //   control={control}
+            //   errors={errors}
+            //   name="ebook"
+            //   label="Add E-Books"
+            //   type="uploadFiles"
+            //   maxFiles="20"
+            // />
+            <FileFieldWithText
               control={control}
               errors={errors}
-              name="ebook"
+              name={"ebook"}
+              maxFiles={20}
               label="Add E-Books"
-              type="uploadFiles"
             />
           )}
 
@@ -471,7 +480,7 @@ const EngBookForm = ({
             errors={errors}
             name="engEditorRevisor"
             label="Editor/Revisor"
-            type="numeric"
+            type="text"
           />
         </div>
 
