@@ -41,17 +41,18 @@ export const getAllCoupons = () => {
     };
 };
 
-export const createCoupon = (payload) => {
+export const createCoupon = (payload, setIsLoading) => {
     return async (dispatch) => {
         try {
+            setIsLoading(true)
             const response = await axiosInstance.post("/utility/addCoupon", payload);
             if (response.status === 201) {
-                console.log("response is ", response)
+                // console.log("response is ", response)
                 const message = response.data?.message || "Added successfully!";
-                // callback(null);
+                // callback(true);
                 toast.success(message);
                 dispatch(getAllCoupons())
-
+                setIsLoading(false)
             }
         } catch (error) {
             console.log(error)
@@ -60,9 +61,8 @@ export const createCoupon = (payload) => {
                 message = error?.message;
             }
             // callback(error);
+            setIsLoading(false)
             toast.error(message);
-        } finally {
-
         }
     };
 };

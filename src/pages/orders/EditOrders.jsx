@@ -186,7 +186,8 @@ const EditOrders = () => {
   }, 0);
   // console.log(totalBooks);
 
-  const totalWeight = orderdata?.items?.reduce((total, item) => {
+  const totalWeight = Number(
+  orderdata?.items?.reduce((total, item) => {
     const isOnlyEbook = item.onlyEbookSelected;
 
     const medium = item?.language;
@@ -200,7 +201,9 @@ const EditOrders = () => {
     }
 
     return total;
-  }, 0);
+  }, 0).toFixed(3)
+);
+
 
   useEffect(() => {
     if (totalBooks && totalWeight) {
@@ -517,7 +520,12 @@ const EditOrders = () => {
               )}
               {/* )} */}
 
-              {orderdata?.orderStatus === "Shipped" && (
+
+              {/* first this was the condition for generating label */}
+              {/* {orderdata?.shipment_id === "Shipped" && ( */}
+
+              {orderdata?.shipment_id && (
+
                 <Button
                   className="capitalize"
                   onClick={handleGenerateLabel}
@@ -525,7 +533,7 @@ const EditOrders = () => {
                 >
                   Genereate label
                 </Button>
-              )}
+               )}
               {orderdata?.orderStatus === "Pending" && (
                 <Button
                   className="bg-red-400 capitalize"
@@ -668,117 +676,114 @@ const EditOrders = () => {
                   )}
                 </div>
                 {totalPaperbackQuantity > 0 && (
-                  <>
-                    <p className="text-lg mt-2">Printed Books Amount</p>
-                    <div className="border border-black">
-                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> No. of Books:</p>
-                        <p>{totalPaperbackQuantity}</p>
-                      </div>
-                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> MRP Amount:</p>
-                        <p>₹{totalPaperbackOriginalAmount}/-</p>
-                      </div>
-                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> Discount ({totalPaperbackDiscountPercent}%)</p>
-                        <p>₹{totalPaperbackDiscountAmount}/-</p>
-                      </div>
-                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p>Sub Total</p>
-                        <p>₹{totalPaperbackAmount}/-</p>
-                      </div>
-                      {totalSpecialDiscountPercentage > 0 && (
-                        <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                          <p>
-                            {" "}
-                            Special Discount ({totalSpecialDiscountPercentage}%)
-                          </p>
-                          <p>₹{totalSpecialDiscountOnPaperback}/-</p>
-                        </div>
-                      )}
-                      <div className="flex justify-between  border-black p-2 text-md">
-                        <p> Printed Books Total Amount:</p>
-                        <p>₹{paperbackAmountAfterSpecialDiscount}/-</p>
-                      </div>
-                    </div>
-                  </>
-                )}
-                {totalEbookQuantity > 0 && (
-                  <>
-                    <p className="text-lg mt-4">E-books Amount</p>
-                    <div className="border border-black">
-                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> No. of E-books:</p>
-                        <p>{totalEbookQuantity}</p>
-                      </div>
-                      <div className="flex justify-between  border-black p-2 text-md">
-                        <p> E-books total amount:</p>
-                        <p>₹{totalEbookAmount}/-</p>
-                      </div>
-                    </div>
-                  </>
-                )}
+  <>
+    <p className="text-lg mt-2">Printed Books Amount</p>
+    <div className="border border-black">
+      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+        <p> No. of Books:</p>
+        <p>{totalPaperbackQuantity}</p>
+      </div>
+      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+        <p> MRP Amount:</p>
+        <p>₹{totalPaperbackOriginalAmount.toLocaleString("en-IN")}/-</p>
+      </div>
+      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+        <p> Discount ({totalPaperbackDiscountPercent}%)</p>
+        <p>₹{totalPaperbackDiscountAmount.toLocaleString("en-IN")}/-</p>
+      </div>
+      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+        <p>Sub Total</p>
+        <p>₹{totalPaperbackAmount.toLocaleString("en-IN")}/-</p>
+      </div>
+      {totalSpecialDiscountPercentage > 0 && (
+        <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+          <p> Special Discount ({totalSpecialDiscountPercentage}%)</p>
+          <p>₹{totalSpecialDiscountOnPaperback.toLocaleString("en-IN")}/-</p>
+        </div>
+      )}
+      <div className="flex justify-between  border-black p-2 text-md">
+        <p> Printed Books Total Amount:</p>
+        <p>₹{paperbackAmountAfterSpecialDiscount.toLocaleString("en-IN")}/-</p>
+      </div>
+    </div>
+  </>
+)}
 
-                <div className="border border-black mt-6">
-                  <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                    <p className="font-semibold">
-                      {" "}
-                      {`Net Amount ${
-                        totalPaperbackQuantity > 0 && totalEbookQuantity > 0
-                          ? "(Printed + E-book)"
-                          : totalPaperbackQuantity > 0
-                          ? "(Printed)"
-                          : totalEbookQuantity > 0
-                          ? "(E-book)"
-                          : ""
-                      }`}
-                    </p>
-                    <p>
-                      ₹{totalEbookAmount + paperbackAmountAfterSpecialDiscount}
-                      /-
-                    </p>
-                  </div>
-                  {orderdata?.appliedCoupon && (
-                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                      <p className="font-semibold"> Coupon Code Discount</p>
-                      <p>{couponDiscountPercent}%</p>
-                    </div>
-                  )}
-                  {orderdata?.shippingAmount && (
-                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                      <p className="font-semibold">
-                        {" "}
-                        Shipping & Handling Charges{" "}
-                      </p>
-                      <p>₹{orderdata?.shippingAmount}/-</p>
-                    </div>
-                  )}
+{totalEbookQuantity > 0 && (
+  <>
+    <p className="text-lg mt-4">E-books Amount</p>
+    <div className="border border-black">
+      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+        <p> No. of E-books:</p>
+        <p>{totalEbookQuantity}</p>
+      </div>
+      <div className="flex justify-between  border-black p-2 text-md">
+        <p> E-books total amount:</p>
+        <p>₹{totalEbookAmount.toLocaleString("en-IN")}/-</p>
+      </div>
+    </div>
+  </>
+)}
 
-                  {orderdata?.onSiteDiscount && (
-                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                      <p className="font-semibold"> Onsite Discount </p>
-                      <p>₹{orderdata?.onSiteDiscount}/-</p>
-                    </div>
-                  )}
-                  <div className="flex justify-between  border-black p-2 text-md">
-                    <p className="font-semibold"> Net Payable </p>
-                    <p>
-                      ₹
-                      {Math.round(
-                        (couponDiscountPercent > 0
-                          ? subtotalAmount - couponDiscountAmount
-                          : subtotalAmount) +
-                          (orderdata?.shippingAmount
-                            ? parseFloat(orderdata?.shippingAmount)
-                            : 0) -
-                          (orderdata?.onSiteDiscount
-                            ? parseFloat(orderdata?.onSiteDiscount)
-                            : 0)
-                      )}
-                      /-
-                    </p>
-                  </div>
-                </div>
+<div className="border border-black mt-6">
+  <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+    <p className="font-semibold">
+      {`Net Amount ${
+        totalPaperbackQuantity > 0 && totalEbookQuantity > 0
+          ? "(Printed + E-book)"
+          : totalPaperbackQuantity > 0
+          ? "(Printed)"
+          : totalEbookQuantity > 0
+          ? "(E-book)"
+          : ""
+      }`}
+    </p>
+    <p>
+      ₹{(totalEbookAmount + paperbackAmountAfterSpecialDiscount).toLocaleString("en-IN")}/-
+    </p>
+  </div>
+
+  {orderdata?.appliedCoupon && (
+    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+      <p className="font-semibold"> Coupon Code Discount</p>
+      <p>{couponDiscountPercent}%</p>
+    </div>
+  )}
+
+  {orderdata?.shippingAmount && (
+    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+      <p className="font-semibold"> Shipping & Handling Charges </p>
+      <p>₹{parseFloat(orderdata?.shippingAmount).toLocaleString("en-IN")}/-</p>
+    </div>
+  )}
+
+  {orderdata?.onSiteDiscount && (
+    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+      <p className="font-semibold"> Onsite Discount </p>
+      <p>₹{parseFloat(orderdata?.onSiteDiscount).toLocaleString("en-IN")}/-</p>
+    </div>
+  )}
+
+  <div className="flex justify-between border-black p-2 text-md">
+    <p className="font-semibold"> Net Payable </p>
+    <p>
+      ₹
+      {Math.round(
+        (couponDiscountPercent > 0
+          ? subtotalAmount - couponDiscountAmount
+          : subtotalAmount) +
+          (orderdata?.shippingAmount
+            ? parseFloat(orderdata?.shippingAmount)
+            : 0) -
+          (orderdata?.onSiteDiscount
+            ? parseFloat(orderdata?.onSiteDiscount)
+            : 0)
+      ).toLocaleString("en-IN")}
+      /-
+    </p>
+  </div>
+</div>
+
               </div>
             </div>
           </div>

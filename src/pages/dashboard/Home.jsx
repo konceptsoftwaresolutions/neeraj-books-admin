@@ -176,9 +176,9 @@ const Home = () => {
           icon={BsCartCheck}
           profile={userData?.profile}
           firstTitle="Bulk Orders"
-          firstAmount="456"
+          firstAmount={dashboardData?.bulkOrders}
           secondTitle="Bulk Sale"
-          secondAmount="₹ 45678"
+          secondAmount={`₹ ${dashboardData?.bulkOrdersSale}`}
           image={bulkImg}
         />
         <StatsCard
@@ -285,7 +285,9 @@ const Home = () => {
           icon={FaShippingFast}
           profile={userData?.profile}
           firstTitle="Shipping Paid"
-          firstAmount={`₹ ${dashboardData?.shippingPaid}`}
+          firstAmount={`₹ ${Math.round(
+            dashboardData?.shippingPaid || 0
+          ).toLocaleString("en-IN")}`}
           image={rupee}
         />
       </div>

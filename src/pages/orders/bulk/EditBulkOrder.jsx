@@ -483,6 +483,8 @@ const EditBulkOrder = () => {
             setBooksData={setBooksData}
           />
 
+          
+
           <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5 my-10">
             <p className="text-2xl border-b border-black  mb-3 pb-3">
               Adjustments
@@ -582,17 +584,17 @@ const EditBulkOrder = () => {
                   </div>
                   <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                     <p>Total Price:</p>
-                    <p>₹{summary?.totalPrice}</p>
+                    <p>₹{summary?.totalPrice?.toLocaleString("en-IN")}</p>
                   </div>
                   {summary?.discountAmount > 0 && (
                     <>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                         <p>Discount ({summary?.totalDiscountPercent}%)</p>
-                        <p>₹{summary?.discountAmount}</p>
+                        <p>₹{summary?.discountAmount?.toLocaleString("en-IN")}</p>
                       </div>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                         <p>Total</p>
-                        <p>₹{summary?.finalAmount}</p>
+                        <p>₹{summary?.finalAmount?.toLocaleString("en-IN")}</p>
                       </div>
                     </>
                   )}
@@ -604,19 +606,19 @@ const EditBulkOrder = () => {
                   {adjPlus > 0 && (
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                       <p>Adjustment +</p>
-                      <p>₹{adjPlus}</p>
+                      <p>₹{adjPlus?.toLocaleString("en-IN")}</p>
                     </div>
                   )}
                   {adjMinus > 0 && (
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                       <p>Adjustment -</p>
-                      <p>₹{adjMinus}</p>
+                      <p>₹{adjMinus?.toLocaleString("en-IN")}</p>
                     </div>
                   )}
                   <div className="flex justify-between border-black p-2 text-md">
                     <p>Net Payable Amount:</p>
                     <p>
-                      ₹{summary?.grandTotal}
+                      ₹{summary?.grandTotal?.toLocaleString("en-IN")}
                       /-
                     </p>
                   </div>
@@ -631,7 +633,7 @@ const EditBulkOrder = () => {
         setShowModal={setOpenTrackModal}
         trackingData={trackingData}
       />
-      {/* <BulkClientInvoice /> */}
+      <BulkClientInvoice />
     </div>
   );
 };

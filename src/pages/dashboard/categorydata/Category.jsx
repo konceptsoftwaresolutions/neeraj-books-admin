@@ -82,7 +82,7 @@ const Category = () => {
       </div>
 
       {/* Bar chart & book sales */}
-      <div className="grid grid-cols-2 gap-5 mt-10">
+      <div className="grid md:grid-cols-2 gap-5 mt-10">
         <div>
           {dashboardLoader ? (
             <div className="w-full h-[200px] rounded-lg bg-gray-200 animate-pulse" />

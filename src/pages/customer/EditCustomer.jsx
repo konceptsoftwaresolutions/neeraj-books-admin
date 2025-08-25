@@ -5,13 +5,49 @@ import { useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { getCustomerById } from "../../redux/features/customers";
 import CustomerOrder from "./CustomerOrder";
+import { updateUserProfile } from "../../redux/features/books";
 
 const ViewCustomer = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const [customerDataLoading, setCustomerDataLoading] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [formValues, setFormValues] = useState({
+    email: customerData?.email || "",
+    mobile: customerData?.mobile || "",
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSave = () => {
+    // console.log(formValues);
+    const payload = {
+      ...customerData,
+      ...formValues,
+      userId: customerData?._id,
+    };
+
+    dispatch(
+      updateUserProfile(payload, setIsLoading, (success) => {
+        if (success) {
+          setIsEditing(false);
+          getCustomerData(payload?._id);
+        } else {
+          setIsEditing(false);
+        }
+      })
+    );
+
+    // console.log(payload);
+    // onSave(formValues); // send to API or parent
+  };
 
   const getCustomerData = (id) => {
     dispatch(
@@ -20,6 +56,10 @@ const ViewCustomer = () => {
         (success, data) => {
           if (success) {
             setCustomerData(data);
+            setFormValues({
+              email: data.email || "",
+              mobile: data.mobile || "",
+            });
           }
         },
         setCustomerDataLoading
@@ -70,10 +110,32 @@ const ViewCustomer = () => {
             <strong>Name:</strong> {customerData?.name || "-"}
           </p>
           <p>
-            <strong>Email:</strong> {customerData?.email || "-"}
+            <strong>Email:</strong>{" "}
+            {isEditing ? (
+              <input
+                type="email"
+                name="email"
+                value={formValues.email}
+                onChange={handleChange}
+                className="border px-2 py-1 rounded my-2"
+              />
+            ) : (
+              customerData?.email || "-"
+            )}
           </p>
           <p>
-            <strong>Mobile:</strong> {customerData?.mobile || "-"}
+            <strong>Mobile:</strong>{" "}
+            {isEditing ? (
+              <input
+                type="text"
+                name="mobile"
+                value={formValues.mobile}
+                onChange={handleChange}
+                className="border px-2 py-1 rounded mb-2"
+              />
+            ) : (
+              customerData?.mobile || "-"
+            )}
           </p>
           <p>
             <strong>Category:</strong> {customerData?.category || "-"}
@@ -84,6 +146,34 @@ const ViewCustomer = () => {
           <p>
             <strong>State:</strong> {customerData?.state || "-"}
           </p>
+
+          {/* Buttons */}
+          <div className="mt-3">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSave}
+                  className="bg-green-600 text-white px-4 py-1 rounded mr-2"
+                >
+                  {isLoading ? "Saving" : "Save"}
+                  {/* Save */}
+                </button>
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="bg-gray-400 text-white px-4 py-1 rounded"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="bg-blue-600 text-white px-4 py-1 rounded"
+              >
+                Edit
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Address */}

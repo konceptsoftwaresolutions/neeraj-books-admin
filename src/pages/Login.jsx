@@ -112,11 +112,7 @@ const Login = () => {
         }
       }
     } catch (error) {
-      // Handle specific error messages or fallback to a generic message
-      const message =
-        error.response?.data?.message || error.message || "Login failed";
-      toast.error(message);
-      console.error("Error during login:", error);
+      toast.error(error?.response?.data || "Login Failed");
     } finally {
       setIsLoading(false);
     }

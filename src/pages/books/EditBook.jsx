@@ -57,7 +57,7 @@ const EditBook = () => {
     reset,
   } = useForm({
     defaultValues: {
-      isBestSeller:rowData.isBestSeller || "",
+      isBestSeller: rowData.isBestSeller || "",
       categories: rowData.categories || "",
       title: rowData.title || "",
       medium: medium || "",
@@ -213,12 +213,13 @@ const EditBook = () => {
     if (rowData?.title && medium === "English") {
       dispatch(
         getEngProductImagesName(rowData?.title, (array) => {
-          console.log("fetched array", array);
+          console.log("fetched array hello", array);
           setProductImages(array); // Store the fetched array in the state
         })
       );
     }
     if (rowData?.title && medium === "Hindi") {
+      console.log("hello", rowData);
       dispatch(
         getHindiProductImagesName(rowData?.title, (array) => {
           console.log("fetched array", array);

@@ -13,6 +13,9 @@ import {
   updateTheAffiliatePaymnet,
 } from "../../redux/features/affiliates";
 import Tile from "./Tile";
+import { Button } from "@material-tailwind/react";
+import { Plus } from "lucide-react";
+import AddCouponModal from "../coupons/AddCouponModal";
 
 const ViewAffiliate = () => {
   const dispatch = useDispatch();
@@ -20,6 +23,11 @@ const ViewAffiliate = () => {
   const [affiliateData, setAffiliateData] = useState(null);
   const [imgUrl, setImgUrl] = useState();
   const [tilesData, setTilesData] = useState();
+  const [openCouponModal, setOpenCouponModal] = useState(false);
+
+  // Local state for editing
+  const [isEditing, setIsEditing] = useState(false);
+  const [formValues, setFormValues] = useState({});
 
   const { role } = useSelector((state) => state.auth);
 
@@ -40,16 +48,19 @@ const ViewAffiliate = () => {
       perReel: affiliateData?.perReel,
       perPost: affiliateData?.perPost,
     });
-  }, [affiliateData]);
+
+    // Initialize formValues when affiliateData changes
+    if (affiliateData) {
+      setFormValues(affiliateData);
+    }
+  }, [affiliateData, reset]);
 
   const onSubmit = (data) => {
-    console.log("Form Data:", data);
-
     const paylod = {
       ...affiliateData,
       ...data,
       id: location.state.data._id,
-      approved: true,
+      approved: !affiliateData?.approved, // toggle approve/disapprove
     };
     dispatch(
       updateTheAffiliatePaymnet(paylod, (success) => {
@@ -85,16 +96,14 @@ const ViewAffiliate = () => {
       dispatch(
         getAffiliateTiles(location?.state.data._id, (success, data) => {
           if (success) {
-            console.log(data);
             setTilesData(data);
           }
         })
       );
     }
-  }, [location]);
+  }, [location, dispatch]);
 
   const handleOrdersClick = () => {
-    console.log(affiliateData);
     navigate(`/${role}/affiliateorders`, { state: { affiliateData } });
   };
 
@@ -107,15 +116,46 @@ const ViewAffiliate = () => {
     navigate(`/${role}/affiliatepayments`, { state: { affiliateData } });
   };
 
+  // Handle input change for editing
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Save updated affiliate info
+  const handleSave = () => {
+    const payload = {
+      ...affiliateData,
+      ...formValues,
+      id: location.state.data._id,
+    };
+
+    dispatch(
+      updateTheAffiliatePaymnet(payload, (success) => {
+        if (success) {
+          setAffiliateData(payload);
+          setIsEditing(false);
+        }
+      })
+    );
+  };
+
   return (
     <PageCont>
       <div className="flex justify-between items-center mb-6">
-        <div className="flex justify-start items-center gap-3">
-          <Heading text="Affiliate" />
-        </div>
+        <Heading text="Affiliate" />
+        <Button
+          type="submit"
+          variant="filled"
+          className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize"
+          onClick={() => setOpenCouponModal(!openCouponModal)}
+        >
+          <Plus className="pr-1" />
+          Create Coupon
+        </Button>
       </div>
 
-      {/* Form */}
+      {/* Approve/Disapprove Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="">
         <div className="grid grid-cols-3 gap-3 w-full">
           <InputField
@@ -157,51 +197,132 @@ const ViewAffiliate = () => {
 
         <button
           type="submit"
-          className={`col-span-3 mt-4  text-black px-4 py-2 rounded  transition ${
+          className={`col-span-3 mt-4 px-4 py-2 rounded transition ${
             affiliateData?.approved
-              ? "bg-red-400 hover:bg-red-300 text-white"
-              : "bg-yellow-400 hover:bg-yellow-300"
+              ? "bg-red-500 hover:bg-red-400 text-white"
+              : "bg-green-500 hover:bg-green-400 text-white"
           }`}
         >
-          {affiliateData?.approved ? "Disapprove" : "Approve"}{" "}
+          {affiliateData?.approved ? "Disapprove" : "Approve"}
         </button>
       </form>
 
-      {console.log(affiliateData?.approved)}
-
-      {/* Display affiliate data below the form */}
+      {/* Personal Info */}
       {affiliateData && (
         <div className="mt-10 p-6 border rounded-lg bg-white shadow space-y-8">
-          {/* Section: Personal Info */}
           <div>
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">
-              Affiliate Personal Details
-            </h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-700">
+                Affiliate Personal Details
+              </h2>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsEditing(!isEditing)}
+                  className="px-4 py-1 bg-blue-600 text-white rounded-lg"
+                >
+                  Edit
+                </button>
+
+                <button
+                  onClick={handleSave}
+                  className="px-4 py-1 bg-green-600 text-white rounded-lg"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
               <p>
-                <strong>Name:</strong> {affiliateData.firstName}{" "}
-                {affiliateData.lastName}
+                <strong>Name:</strong>{" "}
+                {isEditing ? (
+                  <>
+                    <input
+                      name="firstName"
+                      value={formValues.firstName || ""}
+                      onChange={handleChange}
+                      className="border px-2 py-1 rounded w-28"
+                    />
+                    <input
+                      name="lastName"
+                      value={formValues.lastName || ""}
+                      onChange={handleChange}
+                      className="border px-2 py-1 rounded w-28 ml-2"
+                    />
+                  </>
+                ) : (
+                  `${affiliateData.firstName} ${affiliateData.lastName}`
+                )}
               </p>
               <p>
-                <strong>Email:</strong> {affiliateData.email}
+                <strong>Email:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="email"
+                    value={formValues.email || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.email
+                )}
               </p>
               <p>
-                <strong>Mobile:</strong> {affiliateData.mobile}
+                <strong>Mobile:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="mobile"
+                    value={formValues.mobile || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.mobile
+                )}
               </p>
               <p>
-                <strong>Institution:</strong> {affiliateData.institutionName}
+                <strong>Institution:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="institutionName"
+                    value={formValues.institutionName || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.institutionName
+                )}
               </p>
               <p className="col-span-2">
-                <strong>Address:</strong> {affiliateData.address},{" "}
-                {affiliateData.city}, {affiliateData.state},{" "}
-                {affiliateData.country}
+                <strong>Address:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="address"
+                    value={formValues.address || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  `${affiliateData.address}, ${affiliateData.city}, ${affiliateData.state}, ${affiliateData.country}`
+                )}
               </p>
               <p>
                 <strong>Approved:</strong>{" "}
                 {affiliateData.approved ? "Yes" : "No"}
               </p>
               <p>
-                <strong>About:</strong> {affiliateData.aboutYourself}
+                <strong>About:</strong>{" "}
+                {isEditing ? (
+                  <textarea
+                    name="aboutYourself"
+                    value={formValues.aboutYourself || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.aboutYourself
+                )}
               </p>
               <p>
                 <strong>Created At:</strong>{" "}
@@ -214,34 +335,91 @@ const ViewAffiliate = () => {
             </div>
           </div>
 
-          {/* Section: Account Info */}
+          {/* Account Info */}
           <div>
             <h2 className="text-xl font-semibold mb-4 text-gray-700">
               Affiliate Account Details
             </h2>
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
               <p>
-                <strong>Account Number:</strong> {affiliateData.accountNumber}
+                <strong>Account Number:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="accountNumber"
+                    value={formValues.accountNumber || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.accountNumber
+                )}
               </p>
               <p>
-                <strong>Bank Name:</strong> {affiliateData.bankName}
+                <strong>Bank Name:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="bankName"
+                    value={formValues.bankName || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.bankName
+                )}
               </p>
               <p>
-                <strong>Branch Name:</strong> {affiliateData.branchName}
+                <strong>Branch Name:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="branchName"
+                    value={formValues.branchName || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.branchName
+                )}
               </p>
               <p>
-                <strong>UPI ID:</strong> {affiliateData.upiId}
+                <strong>UPI ID:</strong>{" "}
+                {isEditing ? (
+                  <input
+                    name="upiId"
+                    value={formValues.upiId || ""}
+                    onChange={handleChange}
+                    className="border px-2 py-1 rounded w-full"
+                  />
+                ) : (
+                  affiliateData.upiId
+                )}
               </p>
               <p className="col-span-2">
                 <strong>Payment QR:</strong>{" "}
-                {affiliateData.paymentPicture ? (
-                  <img
-                    src={imgUrl}
-                    alt="QR Code"
-                    className="w-28 h-28 object-cover mt-2"
+                {isEditing ? (
+                  <input
+                    name="paymentPicture"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) =>
+                      setFormValues({
+                        ...formValues,
+                        paymentPicture: e.target.files[0],
+                      })
+                    }
+                    className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  "N/A"
+                  <>
+                    {affiliateData.paymentPicture ? (
+                      <img
+                        src={imgUrl}
+                        alt="QR Code"
+                        className="w-28 h-28 object-cover mt-2"
+                      />
+                    ) : (
+                      "N/A"
+                    )}
+                  </>
                 )}
               </p>
             </div>
@@ -249,7 +427,7 @@ const ViewAffiliate = () => {
         </div>
       )}
 
-      {/* Tiles Data Section */}
+      {/* Tiles */}
       {tilesData && (
         <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4">
           <Tile label="Pending Orders" value={tilesData.totalPendingOrders} />
@@ -273,26 +451,31 @@ const ViewAffiliate = () => {
         </div>
       )}
 
+      {/* Actions */}
       <div className="grid grid-cols-5 gap-4 w-full mt-10">
         <button
           className=" mt-4 bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition"
           onClick={handleOrdersClick}
         >
-          View Orders{" "}
+          View Orders
         </button>
         <button
           className=" mt-4 bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition"
           onClick={handlePaymnetClick}
         >
-          View Payments{" "}
+          View Payments
         </button>
         <button
-          className=" mt-4 bg-red-400 text-white px-4 py-2 rounded hover:bg-yellow-300 hover:text-red-400 transition"
+          className=" mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400 transition"
           onClick={handledelete}
         >
-          Delete Affiliate{" "}
+          Delete Affiliate
         </button>
       </div>
+      <AddCouponModal
+        openModal={openCouponModal}
+        setOpenModal={setOpenCouponModal}
+      />
     </PageCont>
   );
 };

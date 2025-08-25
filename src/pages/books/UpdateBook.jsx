@@ -200,9 +200,10 @@ const UpdateBook = () => {
       );
     }
     if (rowData?.title && medium === "Hindi") {
+      console.log(rowData)
       dispatch(
-        getHindiProductImagesName(rowData?.title, (array) => {
-          console.log("fetched array", array);
+        getHindiProductImagesName({title : rowData?.title , bookCode : rowData?.bookCode}, (array) => {
+          console.log("fetched array hello", array);
           setProductImages(array); // Store the fetched array in the state
         })
       );
@@ -260,16 +261,6 @@ const UpdateBook = () => {
           }
         })
       );
-      // dispatch(
-      //   getEnglishEbook(rowData.title, setEbookLoader, (url) => {
-      //     if (url) {
-      //       console.log("xxxx ", url);
-      //       setEbookLink(url);
-      //     } else {
-      //       setEbookLink(null);
-      //     }
-      //   })
-      // );
     }
     if (rowData?.title && medium === "Hindi") {
       // dispatch(
@@ -283,7 +274,7 @@ const UpdateBook = () => {
       //   })
       // );
       const payload = {
-        localizedId: location?.state?.data?.bookId,
+        localizedId: location?.state?.data?.outerId,
         language: "hindi",
       };
       dispatch(
@@ -1520,7 +1511,7 @@ const UpdateBook = () => {
                                   className="text-red-600 mb-1"
                                 />
                                 <p className="text-blue-700 text-sm text-center break-words">
-                                  {item}
+                                  {item || "Ebook"}
                                 </p>
                               </div>
                             </Tooltip>

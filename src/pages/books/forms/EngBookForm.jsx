@@ -368,21 +368,21 @@ const EngBookForm = ({
         </div>
         <div className="grid grid-cols-1 gap-3 pt-2">
           {selectedMedium?.includes("English") && (
-            // <InputField
-            //   control={control}
-            //   errors={errors}
-            //   name="ebook"
-            //   label="Add E-Books"
-            //   type="uploadFiles"
-            //   maxFiles="20"
-            // />
-            <FileFieldWithText
+            <InputField
               control={control}
               errors={errors}
-              name={"ebook"}
-              maxFiles={20}
+              name="ebook"
               label="Add E-Books"
+              type="uploadFiles"
+              maxFiles="20"
             />
+            // <FileFieldWithText
+            //   control={control}
+            //   errors={errors}
+            //   name={"ebook"}
+            //   maxFiles={20}
+            //   label="Add E-Books"
+            // />
           )}
 
           {selectedMedium?.includes("English") && (

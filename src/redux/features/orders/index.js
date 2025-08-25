@@ -596,7 +596,7 @@ export const normalOrderUpdate = (payload, setUpdateLoader, callback = () => { }
     return async (dispatch) => {
         try {
             setUpdateLoader(true)
-            const response = await axiosInstance.post("/order/editOrder", payload);
+            const response = await axiosInstance.post("/order/editOrde", payload);
             if (response.status === 200) {
                 setUpdateLoader(false)
                 const message = response.data?.message || "Order Updated successfully!";

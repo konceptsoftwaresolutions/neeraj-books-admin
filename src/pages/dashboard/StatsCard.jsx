@@ -12,6 +12,7 @@ const StatsCard = ({
   image,
 }) => {
   const { dashboardLoader } = useSelector((state) => state.dashboard);
+  // console.log(typeof secondAmount, parseFloat(secondAmount), secondAmount);
 
   return (
     <div className=" border-l-[5px] shadow-lg rounded-lg border-[#2b4063] p-4 py-5 flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-3 min-h-max w-full">
@@ -43,7 +44,12 @@ const StatsCard = ({
             {dashboardLoader ? (
               <Skeleton.Input active size="small" style={{ width: 30 }} />
             ) : (
-              <span>- {secondAmount}</span>
+              <span>
+                -<span className="px-1">₹</span>
+                {Math.round(
+                  parseFloat(secondAmount.replace(/[^0-9.-]/g, ""))
+                ).toLocaleString("en-IN")}
+              </span>
             )}
           </p>
         )}

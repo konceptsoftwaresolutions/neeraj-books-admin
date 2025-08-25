@@ -54,11 +54,6 @@ const Navbar = () => {
           text="Books"
           to={getRoute("/books")}
         />
-        <SidebarItem
-          icon={<FaBitbucket size={20} />}
-          text="Old Website Books"
-          to={getRoute("/oldbooks")}
-        />
 
         <SidebarItem
           icon={<FaBitbucket size={20} />}
@@ -120,6 +115,11 @@ const Navbar = () => {
                 <SidebarItem
                   text="Team Members"
                   to={getRoute("/teamMembers")}
+                />
+                <SidebarItem
+                  // icon={<FaBitbucket size={20} />}
+                  text="Old Website Books"
+                  to={getRoute("/oldbooks")}
                 />
                 {/* <SidebarItem text="Banners" to={getRoute("/banners")} /> */}
                 <SidebarItem

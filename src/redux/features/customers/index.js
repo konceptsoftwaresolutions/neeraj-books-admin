@@ -42,6 +42,7 @@ export const getAllCustomers = (setIsLoading) => {
                     profile: item?.profile || "",
                     email: item?.email || "",
                     mobile: item?.mobile || "",
+                    state: item?.state || "",
                 }));
 
                 dispatch(setCustomers({ allCustomers: customers.reverse() }));

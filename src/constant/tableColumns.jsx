@@ -464,6 +464,36 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
       wrap: true,
       selector: (row) => row.orderStatus || "N/A",
     },
+    {
+      name: "Payment Status",
+      width: "150px",
+      wrap: true,
+      cell: (row) => {
+        const status = row.paymentStatus || "N/A";
+
+        // Define tag style based on status
+        let style = {
+          padding: "4px 12px",
+          borderRadius: "5px",
+          fontWeight: "600",
+          display: "inline-block",
+          fontSize: "13px",
+          color: "#fff", // default white text
+          textTransform: "capitalize",
+        };
+
+        if (status.toLowerCase() === "paid") {
+          style.backgroundColor = "#28a745"; // green
+        } else if (status.toLowerCase() === "pending") {
+          style.backgroundColor = "#fd7e14"; // orange
+        } else {
+          style.backgroundColor = "#6c757d"; // gray for "N/A" or unknown
+        }
+
+        return <span style={style}>{status}</span>;
+      },
+    },
+
     // {
     //   name: "Payment Mode",
     //   width: "150px",
@@ -537,10 +567,19 @@ export const allMembers = [
     },
   },
   {
-    name: "Role",
+    name: "State",
     width: "150px",
     wrap: true,
-    selector: (row) => row.profile || "N/A",
+    selector: (row) => row.state || "N/A",
+    style: {
+      padding: "10px",
+    },
+  },
+  {
+    name: "Category",
+    width: "200px",
+    wrap: true,
+    selector: (row) => row.category || "N/A",
     style: {
       padding: "10px",
     },
@@ -649,6 +688,7 @@ export const allCustomer = [
   },
 ];
 
+
 export const allPromotions = (handleRowClick) => {
   return [
     {
@@ -666,12 +706,14 @@ export const allPromotions = (handleRowClick) => {
       button: true,
     },
     {
-      name: "Name",
-      selector: (row) => `${row.firstName} ${row.lastName}`,
-      sortable: true,
-      width: "160px",
-      wrap: true,
-    },
+  name: "Name",
+  selector: (row) => row.firstName, // sorting works properly
+  sortable: true,
+  width: "160px",
+  wrap: true,
+  cell: (row) => `${row.firstName} ${row.lastName}`, // display both
+},
+
     {
       name: "Email",
       selector: (row) => row.email,
@@ -703,20 +745,27 @@ export const allPromotions = (handleRowClick) => {
       selector: (row) => row.institutionName,
     },
     {
-      name: "Approved",
-      selector: (row) => (row.approved ? "Yes" : "No"),
-      sortable: true,
-      width: "130px",
-      wrap: true,
-    },
+  name: "Approved",
+  selector: (row) => row.approved ? 1 : 0, // sorts by number
+  sortable: true,
+  width: "130px",
+  wrap: true,
+  cell: (row) => (row.approved ? "Yes" : "No"), // display value
+},
+
     {
-      name: "Created At",
-      selector: (row) =>
-        row.createdAt ? new Date(row.createdAt).toLocaleDateString() : "N/A",
-      sortable: true,
-      width: "150px",
-      wrap: true,
-    },
+  name: "Created At",
+  selector: (row) => row.createdAt ? new Date(row.createdAt) : null,
+  sortable: true,
+  width: "150px",
+  wrap: true,
+  cell: (row) =>
+    row.createdAt
+      ? new Date(row.createdAt).toLocaleDateString("en-GB")
+      : "N/A",
+},
+
+
     // {
     //   name: "Payment QR",
     //   cell: (row) =>

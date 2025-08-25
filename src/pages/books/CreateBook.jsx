@@ -599,7 +599,7 @@ const CreateBook = () => {
         formData,
         setAddLoader,
         callback: () => {
-          navigate(-1);
+          // navigate(-1);
         },
       })
     );

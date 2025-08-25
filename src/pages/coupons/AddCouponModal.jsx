@@ -16,6 +16,7 @@ import { createCoupon } from "../../redux/features/coupons";
 
 const AddCouponModal = ({ openModal, setOpenModal }) => {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     handleSubmit,
@@ -33,9 +34,11 @@ const AddCouponModal = ({ openModal, setOpenModal }) => {
 
   const onSubmit = (data) => {
     console.log(data);
-    dispatch(createCoupon(data));
-    setOpenModal(false);
-    reset();
+    dispatch(createCoupon(data, setIsLoading));
+    setTimeout(() => {
+      setOpenModal(false);
+      reset();
+    }, [1300]);
   };
 
   return (
@@ -98,7 +101,11 @@ const AddCouponModal = ({ openModal, setOpenModal }) => {
             />
           </div>
 
-          <Button type="submit" className="primary-gradient mt-4">
+          <Button
+            loading={isLoading}
+            type="submit"
+            className="primary-gradient mt-4"
+          >
             Add
           </Button>
         </form>

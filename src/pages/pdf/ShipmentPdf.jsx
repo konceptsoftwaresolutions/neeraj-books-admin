@@ -219,6 +219,65 @@ const styles = StyleSheet.create({
 
 // Component to download the PDF
 const ShipmentPdf = ({ data = {}, couponPercentage }) => {
+  console.log(data)
+  // const data = {
+  //   _id: "68a5a44877719ed4949a24ca",
+  //   orderId: "NB-00267",
+  //   txnid: "NB-00267",
+  //   user: "6899b0dea468492ec1059ffe",
+  //   items: [
+  //     {
+  //       productId: {
+  //         _id: "68554a244655c950714c9e78",
+  //         english: {
+  //           title: "European Classic Literature",
+  //           paperBackOriginalPrice: "300",
+  //           eBookOriginalPrice: "1",
+  //           paperBackDiscountedPrice: "150",
+  //           slug: "european-classic-literature",
+  //           weight: "0.230",
+  //           bookCode: "BEGC-102",
+  //         },
+  //         bookCodeResolved: "BEGC-102",
+  //       },
+  //       language: "english",
+  //       quantity: 1,
+  //       hsn: "4901",
+  //       isEbookAlsoSelected: true,
+  //       onlyEbookSelected: false,
+  //       ebookPrice: 70,
+  //       _id: "68a5a41f77719ed4949a03f7",
+  //       bookCode: "BEGC-102",
+  //     },
+  //   ],
+  //   shippingAddress: {
+  //     firstName: "Yatin Chopra",
+  //     lastName: "Chopra",
+  //     addressLine1: "D-4/6",
+  //     addressLine2: "Rana Pratap Bagh",
+  //     city: "Delhi",
+  //     state: "Delhi",
+  //     country: "India",
+  //     pincode: "110007",
+  //     mobile: "9910009880",
+  //     _id: "68a59f2077719ed4949811b3",
+  //   },
+  //   orderStatus: "Pending",
+  //   paymentStatus: "Pending",
+  //   paymentMode: "Prepaid",
+  //   totalAmount: 132,
+  //   shippingAmount: "30.1",
+  //   fromWhereYouGetTheReference: "Youtube",
+  //   discountTotal: 150,
+  //   additionalDiscount: null,
+  //   discountDetails: [{}],
+  //   appliedCoupon: "BADALFOURTY",
+  //   orderWeight: "0.23",
+  //   noOfBooksWithoutEbook: "0",
+  //   createdAt: "2025-08-20T10:32:40.749Z",
+  //   updatedAt: "2025-08-20T10:32:40.749Z",
+  //   __v: 0,
+  // };
   const {
     createdAt,
     discountTotal,
@@ -241,8 +300,6 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
     onSiteDiscount,
   } = data;
 
-  console.log("items in pdf ", data);
-
   const {
     totalPaperbackOriginalAmount,
     totalPaperbackAmount,
@@ -263,7 +320,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
     // totalAmount,
   } = useCartCalculations(items, additionalDiscount, couponPercentage);
 
-  // ---------------------
+  
 
   return (
     // <PDFViewer style={{ width: "100%", height: "100vh" }}>
@@ -583,6 +640,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               >
                 <Text style={{ fontSize: 9, width: "10%" }}>S.No.</Text>
                 <Text style={{ fontSize: 12, width: "35%" }}>Product</Text>
+                <Text style={{ fontSize: 12, width: "20%" }}>Book Code</Text>
                 <Text
                   style={{ fontSize: 12, width: "10%", textAlign: "center" }}
                 >
@@ -640,6 +698,9 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                       </Text>
                       <Text style={{ fontSize: 10, width: "35%" }}>
                         {bookTitle}
+                      </Text>
+                      <Text style={{ fontSize: 10, width: "20%" }}>
+                        {product?.bookCode}
                       </Text>
                       <Text
                         style={{
@@ -784,7 +845,9 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     paddingHorizontal: "7px",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>Printed Books Total Amount:</Text>
+                  <Text style={{ fontSize: "9px" }}>
+                    Printed Books Total Amount:
+                  </Text>
                   <Text style={{ fontSize: "9px" }}>
                     Rs. {paperbackAmountAfterSpecialDiscount}/-
                   </Text>
@@ -874,6 +937,8 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               >
                 <Text style={{ fontSize: 9, width: "10%" }}>S.No.</Text>
                 <Text style={{ fontSize: 12, width: "35%" }}>Product</Text>
+                <Text style={{ fontSize: 12, width: "20%" }}>Book Code</Text>
+
                 <Text
                   style={{ fontSize: 12, width: "10%", textAlign: "center" }}
                 >
@@ -929,6 +994,9 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                       </Text>
                       <Text style={{ fontSize: 10, width: "35%" }}>
                         {bookTitle}
+                      </Text>
+                      <Text style={{ fontSize: 10, width: "20%" }}>
+                        {product?.bookCode}
                       </Text>
                       <Text
                         style={{
@@ -1022,9 +1090,11 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
             }}
           >
             <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-
-              
-              Net Amount ( {totalPaperbackQuantity > 0 ? 'Printed' : ''}{(totalPaperbackQuantity > 0 && totalEbookQuantity > 0) ?  " + " :  null}{totalEbookAmount > 0 ? 'E-book' : null } )
+              Net Amount ( {totalPaperbackQuantity > 0 ? "Printed" : ""}
+              {totalPaperbackQuantity > 0 && totalEbookQuantity > 0
+                ? " + "
+                : null}
+              {totalEbookAmount > 0 ? "E-book" : null} )
             </Text>
             <Text style={{ fontSize: "11px", fontWeight: 600 }}>
               Rs. {totalEbookAmount + paperbackAmountAfterSpecialDiscount}
@@ -1140,7 +1210,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
         </View>
       </Page>
     </Document>
-    // </PDFViewer>
+    //  </PDFViewer>
   );
 };
 

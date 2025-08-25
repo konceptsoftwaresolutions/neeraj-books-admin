@@ -596,10 +596,10 @@ export const getEngProductImagesName = (title, callback = () => { }) => {
     }
 }
 
-export const getHindiProductImagesName = (title, callback = () => { }) => {
+export const getHindiProductImagesName = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
-            const response = await axiosInstance.post("/product/getProductHindiImagesByTitle", { title })
+            const response = await axiosInstance.post("/product/getProductHindiImagesByTitle", payload)
             if (response.status === 200) {
                 console.log(response)
                 const imagesArray = response?.data?.images;
@@ -715,7 +715,7 @@ export const getHindiProdImagesLink = (payload, setImgLoading = () => { }, callb
             }
             // toast.error(message);
         } finally {
-            setImgLoading(true)
+            setImgLoading(false)
         }
     };
 };
@@ -1256,11 +1256,13 @@ export const getEbookNamesList = (payload, setEbookLoader, callback = () => { })
 
 export const downloadSingleEbook = (payload, callback = () => { }) => {
     return async (dispatch) => {
+        const toastId = toast.loading("Loading your EBook...");
+
         try {
             const response = await axiosInstance.post(
                 "/product/download-ebook",
                 payload,
-                { responseType: 'blob' } // Expect blob
+                { responseType: "blob" } // Expect blob
             );
 
             if (response.status === 200) {
@@ -1270,14 +1272,17 @@ export const downloadSingleEbook = (payload, callback = () => { }) => {
                 // Open in new tab
                 window.open(fileUrl, "_blank");
 
+                toast.success("Your eBook is ready!", { id: toastId });
                 callback(true, fileUrl);
+            } else {
+                toast.error("Failed to download eBook.", { id: toastId });
             }
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            toast.error("Something went wrong while downloading.", { id: toastId });
         }
     };
 };
-
 
 
 
@@ -1293,6 +1298,29 @@ export const deleteSingleEbook = (payload, callback = () => { }) => {
         } catch (error) {
             console.log(error.response.data.message)
 
+        }
+    };
+};
+
+
+export const updateUserProfile = (payload, setIsLoading, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setIsLoading(true)
+            const response = await axiosInstance.post("/user/edit-user", payload);
+            if (response.status === 200) {
+                console.log(response)
+                setIsLoading(false)
+                const message = response.data.message;
+                toast.success(message);
+                callback(true);
+            }
+        } catch (error) {
+            setIsLoading(false)
+            toast.error(error.response.data.message);
+        }
+        finally {
+            setIsLoading(false)
         }
     };
 };

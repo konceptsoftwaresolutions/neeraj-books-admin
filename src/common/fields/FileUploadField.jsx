@@ -11,7 +11,6 @@ const FileUploadField = ({
   maxFiles = 5,
   label = "",
   labelClass = "",
-  accept = ".pdf", // Default: accepts only PDF files
 }) => {
   const fileInputRef = useRef(null);
 
@@ -104,7 +103,7 @@ const FileUploadField = ({
               ref={fileInputRef}
               type="file"
               className="hidden"
-              accept={accept}
+              accept="application/pdf"
               multiple // Allow multiple files
               onChange={(event) => {
                 const selectedFiles = Array.from(event.target.files);

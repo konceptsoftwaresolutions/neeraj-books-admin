@@ -417,22 +417,22 @@ const HindiBookForm = ({
         </div>
         <div className="grid grid-cols-1 gap-3">
           {selectedMedium?.includes("Hindi") && (
-            // <InputField
-            //   control={control}
-            //   errors={errors}
-            //   name="hindiEbook"
-            //   label="Add Hindi E-Books"
-            //   type="uploadFiles"
-            //   maxFiles="20"
-            // />
-
-            <FileFieldWithText
+            <InputField
               control={control}
               errors={errors}
-              name={"hindiEbook"}
-              maxFiles={20}
+              name="hindiEbook"
               label="Add Hindi E-Books"
+              type="uploadFiles"
+              maxFiles="20"
             />
+
+            // <FileFieldWithText
+            //   control={control}
+            //   errors={errors}
+            //   name={"hindiEbook"}
+            //   maxFiles={20}
+            //   label="Add Hindi E-Books"
+            // />
           )}
           {selectedMedium?.includes("Hindi") && (
             <>

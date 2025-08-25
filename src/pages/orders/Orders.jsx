@@ -106,6 +106,7 @@ const Orders = () => {
   };
 
   const handleInvoiceClick = async (data) => {
+    console.log(data)
     try {
       let couponPercentage = 0;
 

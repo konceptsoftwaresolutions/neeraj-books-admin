@@ -42,11 +42,21 @@ const EditableCartTable = ({ items = [], onChange, setBooksData }) => {
   const columns = [
     {
       name: "Title",
-      selector: (row) => row?.product?.title || row.title,
+      selector: (row) => (
+        <div>
+          <div>{row?.product?.title || row.title}</div>
+          {row?.product?.bookCode && (
+            <div className="text-gray-500 text-sm">
+              BookCode: {row?.product?.bookCode || row.bookCode}
+            </div>
+          )}
+        </div>
+      ),
       sortable: true,
       wrap: true,
       width: "200px",
     },
+
     {
       name: "Price",
       cell: (row, index) => (
@@ -233,7 +243,7 @@ const EditableCartTable = ({ items = [], onChange, setBooksData }) => {
           value={selectedProducts}
           onChange={handleProductsChange}
           options={productOptions}
-          className="w-[600px] h-max" 
+          className="w-[600px] h-max"
           filterOption={(input, option) =>
             option.label.toLowerCase().includes(input.toLowerCase())
           }

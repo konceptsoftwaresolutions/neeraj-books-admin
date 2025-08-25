@@ -96,7 +96,7 @@ const MonthChart = ({ dashboardData }) => {
 
   // Loading state if no data yet
   if (!dashboardData?.monthlyGraph) {
-    return <div>Loading chart data...</div>;
+    return <div></div>;
   }
 
   return (
