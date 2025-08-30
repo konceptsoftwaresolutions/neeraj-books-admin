@@ -49,6 +49,9 @@ const IncompleteOrders = () => {
   const { allIncompleteOrders } = useSelector((state) => state.order);
   const storedFilters = useSelector((state) => state.order.filters);
 
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(
     parseInt(searchParams.get("page")) || 1
@@ -79,11 +82,16 @@ const IncompleteOrders = () => {
 
     const isFilterApplied = Object.keys(filters).length > 0;
 
-    const fetchData = isFilterApplied ? getFilteredIncompleteOrders : getAllIncompleteOrders;
+    const fetchData = isFilterApplied
+      ? getFilteredIncompleteOrders
+      : getAllIncompleteOrders;
 
     dispatch(
-      fetchData(payload, (success, data) => {
+      fetchData(payload, (success, data, totalOrders, totalPages) => {
         setOrdersData(data);
+        setOrdersData(data);
+        setTotalOrders(totalOrders); // 🆕 Save API count
+        setTotalPages(totalPages); // 🆕 Save API total pages
       })
     );
   }, [dispatch, currentPage, rowsPerPage, filters]);
@@ -427,16 +435,12 @@ const IncompleteOrders = () => {
             customStyles={tableStyle}
             onRowClicked={handleRowClick}
             pagination
+            paginationServer // 🚀 Important for server-side pagination
+            paginationTotalRows={totalOrders} // ✅ use API totalOrders
             paginationPerPage={rowsPerPage}
             paginationDefaultPage={currentPage}
             onChangePage={handlePageChange}
             onChangeRowsPerPage={handlePerRowsChange}
-            paginationServer
-            paginationTotalRows={
-              ordersData?.length === rowsPerPage
-                ? currentPage * rowsPerPage + 1
-                : currentPage * rowsPerPage
-            }
           />
         ) : (
           <div className="w-full flex justify-center py-10">

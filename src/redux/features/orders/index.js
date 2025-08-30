@@ -39,7 +39,7 @@ export const getAllOrders = (payload, callback = () => { }) => {
                 // filter out txnid starting with NPX for callback
                 // const filteredData = data.filter(order => !order?.orderId?.startsWith("NPX"));
                 dispatch(setOrder({ allOrders: data }))
-                callback(true, data)
+                callback(true, data, response?.data?.totalOrders, response?.data?.totalPages)
             }
         } catch (error) {
             let message = "ERROR";
@@ -55,13 +55,13 @@ export const getAllOrders = (payload, callback = () => { }) => {
 export const getAllIncompleteOrders = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
-            const response = await axiosInstance.post('/order/getAllOrders', payload);
+            const response = await axiosInstance.post('/order/getNPXOrders', payload);
             if (response.status === 200) {
                 const data = response?.data?.orders;
                 // filter out txnid starting with NPX for callback
-                const filteredData = data.filter(order => order?.orderId?.startsWith("NPX"));
-                dispatch(setOrder({ allIncompleteOrders: filteredData }))
-                callback(true, filteredData)
+                // const filteredData = data.filter(order => order?.orderId?.startsWith("NPX"));
+                dispatch(setOrder({ allIncompleteOrders: data }))
+                callback(true, data , response?.data?.totalOrders , response?.data?.totalPages)
             }
         } catch (error) {
             let message = "ERROR";
@@ -165,12 +165,12 @@ export const getFilteredOrders = (payload, callback = () => { }) => {
 export const getFilteredIncompleteOrders = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
-            const response = await axiosInstance.post('/order/getOrdersFiltered', payload);
+            const response = await axiosInstance.post('/order/getNPXOrdersFiltered', payload);
             if (response.status === 200) {
                 const data = response?.data?.orders;
-                const filteredData = data.filter(order => order?.orderId?.startsWith("NPX"));
-                dispatch(setOrder({ allIncompleteOrders: filteredData }))
-                callback(true, filteredData)
+                // const filteredData = data.filter(order => order?.orderId?.startsWith("NPX"));
+                dispatch(setOrder({ allIncompleteOrders: data }))
+                callback(true, data)
             }
         } catch (error) {
             let message = "ERROR";

@@ -587,7 +587,7 @@ const EditOrders = () => {
                   </li>
 
                   <li>Mode : {orderdata?.paymentMode}</li>
-                  {orderdata?.paymentMode !== "COD" && <li>Ref ID: </li>}
+                  {orderdata?.paymentMode !== "COD" && <li>Ref ID: {orderdata?.mihpayid}</li>}
                   <li>
                     Order Status :{" "}
                     <span className="text-green-500 font-bold">
@@ -701,7 +701,7 @@ const EditOrders = () => {
                         </p>
                       </div>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p> Discount ({totalPaperbackDiscountPercent}%)</p>
+                        <p> Discount ({totalPaperbackDiscountPercent}%) (-)</p>
                         <p>
                           ₹
                           {totalPaperbackDiscountAmount.toLocaleString("en-IN")}
@@ -716,7 +716,7 @@ const EditOrders = () => {
                         <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                           <p>
                             {" "}
-                            Special Discount ({totalSpecialDiscountPercentage}%)
+                            Special Discount ({totalSpecialDiscountPercentage}%) (-)
                           </p>
                           <p>
                             ₹
@@ -781,7 +781,7 @@ const EditOrders = () => {
 
                   {orderdata?.appliedCoupon && (
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                      <p className="font-semibold"> Coupon Code Discount</p>
+                      <p className="font-semibold"> Coupon Code Discount (-)</p>
                       <p>{couponDiscountPercent}%</p>
                     </div>
                   )}
@@ -790,7 +790,7 @@ const EditOrders = () => {
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                       <p className="font-semibold">
                         {" "}
-                        Shipping & Handling Charges{" "}
+                        Shipping & Handling Charges{" "} (+)
                       </p>
                       <p>
                         ₹

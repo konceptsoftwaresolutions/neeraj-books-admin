@@ -61,11 +61,11 @@ const Navbar = () => {
           to={getRoute("/orders")}
         />
 
-        {/* <SidebarItem
+        <SidebarItem
           icon={<FaBitbucket size={20} />}
           text="Incomplete Orders"
           to={getRoute("/incomplete-orders")}
-        /> */}
+        />
 
         {/* Custom Website Settings Dropdown */}
         <div className="w-full">

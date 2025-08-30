@@ -29,12 +29,14 @@ const EditCouponModal = ({ openModal, setOpenModal, rowData }) => {
   // Update form values when rowData changes
   useEffect(() => {
     if (rowData) {
+      console.log(rowData);
       reset({
         discount: rowData.discount || "",
         title: rowData.title || "",
         couponCode: rowData.couponCode || "",
         totalUses: rowData.totalUses || "",
         expiryDate: rowData.expiryDate || "",
+        usesLeft: rowData?.usesLeft || "",
       });
     }
   }, [rowData, reset]);
@@ -103,7 +105,14 @@ const EditCouponModal = ({ openModal, setOpenModal, rowData }) => {
               errors={errors}
               name="totalUses"
               label="Total Uses"
-              type="text"
+              type="number"
+            />
+            <InputField
+              control={control}
+              errors={errors}
+              name="usesLeft"
+              label="Uses Left"
+              type="number"
             />
             <InputField
               control={control}

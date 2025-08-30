@@ -1240,8 +1240,7 @@ export const uploadBulkImages = (payload) => {
 export const checkCouponAvailability = (title, callback = () => { }) => {
     return async (dispatch) => {
         try {
-
-            const response = await axiosInstance.post("/utility/getCouponByCouponCode", { couponCode: title });
+            const response = await axiosInstance.post("/utility/getCouponByCouponCodeForAdminUse", { couponCode: title });
             if (response.status === 200) {
                 const data = response?.data?.message
                 callback(true, response?.data?.coupon?.discount)

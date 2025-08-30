@@ -43,11 +43,8 @@ const EditBulkOrder = () => {
   const [booksData, setBooksData] = useState([]); // <-- local state for editable table
 
   const [shippingRate, setShippingRate] = useState();
-  
 
   const [finalAmountAfterDiscounts, setFinalAmountAfterDiscounts] = useState(0);
-  
-  
 
   const [openTrackModal, setOpenTrackModal] = useState(false);
   const [trackingData, setTrackingData] = useState();
@@ -121,7 +118,6 @@ const EditBulkOrder = () => {
     const d3 = parseFloat(discount3) || 0;
 
     const totalDiscountPercent = d1 + d2 + d3;
-    
 
     let discounted = parseFloat(totalPrice) || 0;
 
@@ -131,7 +127,6 @@ const EditBulkOrder = () => {
 
     const finalAmount = +discounted.toFixed(2);
     const value = (totalPrice - finalAmount).toFixed(2);
-    
 
     setFinalAmountAfterDiscounts(finalAmount);
     setValue("amountAfterDiscounts", finalAmount);
@@ -256,16 +251,11 @@ const EditBulkOrder = () => {
 
   const handleCancelOrder = () => {
     dispatch(
-      bulkOrderCancel(
-        orderDetails?._id,
-        setLoader,
-        (success) => {
-          if (success) {
-            getOrderData(location.state.data._id);
-          }
-        },
-        
-      )
+      bulkOrderCancel(orderDetails?._id, setLoader, (success) => {
+        if (success) {
+          getOrderData(location.state.data._id);
+        }
+      })
     );
   };
 
@@ -483,8 +473,6 @@ const EditBulkOrder = () => {
             setBooksData={setBooksData}
           />
 
-          
-
           <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5 my-10">
             <p className="text-2xl border-b border-black  mb-3 pb-3">
               Adjustments
@@ -590,7 +578,9 @@ const EditBulkOrder = () => {
                     <>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                         <p>Discount ({summary?.totalDiscountPercent}%)</p>
-                        <p>₹{summary?.discountAmount?.toLocaleString("en-IN")}</p>
+                        <p>
+                          ₹{summary?.discountAmount?.toLocaleString("en-IN")}
+                        </p>
                       </div>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                         <p>Total</p>
@@ -633,7 +623,7 @@ const EditBulkOrder = () => {
         setShowModal={setOpenTrackModal}
         trackingData={trackingData}
       />
-      <BulkClientInvoice />
+      {/* <BulkClientInvoice /> */}
     </div>
   );
 };

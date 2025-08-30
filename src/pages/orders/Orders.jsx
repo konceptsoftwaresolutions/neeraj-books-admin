@@ -45,6 +45,9 @@ const Orders = () => {
   const [ordersData, setOrdersData] = useState();
   const [showBulkModal, setShowBulkModal] = useState(false);
 
+  const [totalOrders, setTotalOrders] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   const { role } = useSelector((state) => state.auth);
   const { allOrders } = useSelector((state) => state.order);
   const storedFilters = useSelector((state) => state.order.filters);
@@ -82,8 +85,10 @@ const Orders = () => {
     const fetchData = isFilterApplied ? getFilteredOrders : getAllOrders;
 
     dispatch(
-      fetchData(payload, (success, data) => {
+      fetchData(payload, (success, data, totalOrders, totalPages) => {
         setOrdersData(data);
+        setTotalOrders(totalOrders); // 🆕 Save API count
+        setTotalPages(totalPages); // 🆕 Save API total pages
       })
     );
   }, [dispatch, currentPage, rowsPerPage, filters]);
@@ -427,16 +432,12 @@ const Orders = () => {
             customStyles={tableStyle}
             onRowClicked={handleRowClick}
             pagination
+            paginationServer // 🚀 Important for server-side pagination
+            paginationTotalRows={totalOrders} // ✅ use API totalOrders
             paginationPerPage={rowsPerPage}
             paginationDefaultPage={currentPage}
             onChangePage={handlePageChange}
             onChangeRowsPerPage={handlePerRowsChange}
-            paginationServer
-            paginationTotalRows={
-              ordersData?.length === rowsPerPage
-                ? currentPage * rowsPerPage + 1
-                : currentPage * rowsPerPage
-            }
           />
         ) : (
           <div className="w-full flex justify-center py-10">

@@ -896,7 +896,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                       textAlign: "right",
                     }}
                   >
-                    Discount ({totalPaperbackDiscountPercent}%)
+                    Discount ({totalPaperbackDiscountPercent}%) (-)
                   </Text>
                   <Text
                     style={{
@@ -967,7 +967,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                         textAlign: "right",
                       }}
                     >
-                      Special Discount: ({totalSpecialDiscountPercentage}%){" "}
+                      Special Discount: ({totalSpecialDiscountPercentage}%){" "} (-)
                     </Text>
                     <Text
                       style={{
@@ -1414,7 +1414,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   width: "86%",
                 }}
               >
-                Coupon Discount
+                Coupon Discount (-)
               </Text>
 
               <Text
@@ -1458,7 +1458,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   width: "86%",
                 }}
               >
-                Shipping & Handling Charges
+                Shipping & Handling Charges (+)
               </Text>
               <Text
                 style={{
@@ -1500,7 +1500,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   width: "86%",
                 }}
               >
-                Onsite Discount
+                Onsite Discount (-)
               </Text>
               <Text
                 style={{
