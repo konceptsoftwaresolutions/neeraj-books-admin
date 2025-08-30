@@ -1,22 +1,24 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import DataTable from "react-data-table-component";
-import { Select } from "antd";
+import { Select, Tooltip } from "antd";
 import { Button } from "@material-tailwind/react";
 import { IoAddCircleOutline } from "react-icons/io5";
 import { useDispatch } from "react-redux";
-import { getAllProducts } from "../../redux/features/books";
+import { getAllEbooks, getAllProducts } from "../../redux/features/books";
 import { MdDelete } from "react-icons/md";
 import toast from "react-hot-toast";
 
 const OrderSummaryTable = ({ orderData, onUpdate }) => {
   const [allProducts, setAllProducts] = useState([]);
+  const [allEbooksData, setAllEbooksData] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [selectedEbooks, setSelectedEbooks] = useState([]);
   const [selectedCombo, setSelectedCombo] = useState([]);
   const [formattedData, setFormattedData] = useState([]);
+  const [formattedDataCopy, setFormattedDataCopy] = useState();
   const dispatch = useDispatch();
 
-  console.log(formattedData);
+  console.log(orderData);
 
   // Fetch all product data
   const fetchAllProductsData = useCallback(() => {
@@ -29,16 +31,28 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     );
   }, [dispatch]);
 
+  // Fetch all ebooks data
+  const fetchAllEbooksData = useCallback(() => {
+    dispatch(
+      getAllEbooks((success, data) => {
+        if (success) {
+          setAllEbooksData(data);
+        }
+      })
+    );
+  }, [dispatch]);
+
   useEffect(() => {
     fetchAllProductsData();
-  }, [fetchAllProductsData]);
+    fetchAllEbooksData();
+  }, [fetchAllProductsData, fetchAllEbooksData]);
 
   // Dropdown options
   const generateDropdownOptions = (bookData) => {
     const options = [];
     if (bookData.english) {
       options.push({
-        label: `${bookData.english.title} - ${bookData.english.bookCode}`,
+        label: `${bookData.english.title} - ${bookData.english.bookCode} - (English)`,
         value: bookData.english._id,
         language: "english",
         book: bookData,
@@ -46,7 +60,28 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     }
     if (bookData.hindi) {
       options.push({
-        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode}`,
+        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode} - (Hindi)`,
+        value: bookData.hindi._id,
+        language: "hindi",
+        book: bookData,
+      });
+    }
+    return options;
+  };
+
+  const generateEbookOptions = (bookData) => {
+    const options = [];
+    if (bookData.english && bookData?.english?.ebook?.length > 0) {
+      options.push({
+        label: `${bookData.english.title} - ${bookData.english.bookCode} - (English)`,
+        value: bookData.english._id,
+        language: "english",
+        book: bookData,
+      });
+    }
+    if (bookData.hindi && bookData?.hindi?.ebook?.length > 0) {
+      options.push({
+        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode} - (Hindi)`,
         value: bookData.hindi._id,
         language: "hindi",
         book: bookData,
@@ -56,8 +91,12 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
   };
 
   const productOptions = useMemo(() => {
-    return allProducts.flatMap(generateDropdownOptions);
+    return allProducts?.flatMap(generateDropdownOptions);
   }, [allProducts]);
+
+  const ebookOptions = useMemo(() => {
+    return allEbooksData?.flatMap(generateEbookOptions);
+  }, [allEbooksData]);
 
   // Format incoming orderData to rows
   useEffect(() => {
@@ -139,7 +178,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       const book = match.book;
       const lang = match.language;
       const bookInfo = book[lang];
-      console.log(bookInfo);
+      // console.log(bookInfo);
 
       const ebookAmount = () => {
         if (type === "paperback" || type === "ebook") {
@@ -170,6 +209,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
         ebookPrice: ebookPrice,
         isEbookAlsoSelected: type === "combo" ? true : false,
         onlyEbookSelected: type === "ebook" ? true : false,
+        bookCode: bookInfo?.bookCode,
       };
     });
     const filtered = newProducts.filter(Boolean);
@@ -179,6 +219,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
         return orderData.some((orderItem) => {
           return (
             filteredItem.productId._id === orderItem.productId._id &&
+            filteredItem.language === orderItem.language &&
             filteredItem.isEbookAlsoSelected &&
             orderItem.isEbookAlsoSelected
           );
@@ -194,16 +235,17 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       filtered.forEach((filteredItem) => {
         updatedOrderData = updatedOrderData.filter((orderItem) => {
           const isMatch =
-            filteredItem.productId._id === orderItem.productId._id;
-          console.log(filteredItem, orderItem);
+            filteredItem.productId._id === orderItem.productId._id &&
+            filteredItem.language === orderItem.language;
+          // console.log(filteredItem, orderItem);
           return !isMatch; // Remove the matched item
         });
-        console.log(updatedOrderData);
+        // console.log(updatedOrderData);
       });
 
       // Merge the updated orderData with the filtered items
       const merged = [...updatedOrderData, ...filtered];
-      console.log("after removing", updatedOrderData);
+      // console.log("after removing", updatedOrderData);
       // Update the state with the merged array and clear the selected products
       onUpdate(merged);
       setSelectedCombo([]);
@@ -212,6 +254,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
         return orderData.some((orderItem) => {
           return (
             filteredItem.productId._id === orderItem.productId._id &&
+            filteredItem.language === orderItem.language &&
             filteredItem.onlyEbookSelected &&
             orderItem.onlyEbookSelected
           );
@@ -228,16 +271,17 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       filtered.forEach((filteredItem) => {
         updatedOrderData = updatedOrderData.filter((orderItem) => {
           const isMatch =
-            filteredItem.productId._id === orderItem.productId._id;
-          console.log(filteredItem, orderItem);
+            filteredItem.productId._id === orderItem.productId._id &&
+            filteredItem.language === orderItem.language;
+          // console.log(filteredItem, orderItem);
           return !isMatch; // Remove the matched item
         });
-        console.log(updatedOrderData);
+        // console.log(updatedOrderData);
       });
 
       // Merge the updated orderData with the filtered items
       const merged = [...updatedOrderData, ...filtered];
-      console.log("after removing", updatedOrderData);
+      // console.log("after removing", updatedOrderData);
       // Update the state with the merged array and clear the selected products
       onUpdate(merged);
       setSelectedEbooks([]);
@@ -246,6 +290,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
         return orderData.some((orderItem) => {
           return (
             filteredItem.productId._id === orderItem.productId._id &&
+            filteredItem.language === orderItem.language &&
             !orderItem.isEbookAlsoSelected &&
             !orderItem.onlyEbookSelected
           );
@@ -261,16 +306,17 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       filtered.forEach((filteredItem) => {
         updatedOrderData = updatedOrderData.filter((orderItem) => {
           const isMatch =
-            filteredItem.productId._id === orderItem.productId._id;
-          console.log(filteredItem, orderItem);
+            filteredItem.productId._id === orderItem.productId._id &&
+            filteredItem.language === orderItem.language;
+          // console.log(filteredItem, orderItem);
           return !isMatch; // Remove the matched item
         });
-        console.log(updatedOrderData);
+        // console.log(updatedOrderData);
       });
 
       // Merge the updated orderData with the filtered items
       const merged = [...updatedOrderData, ...filtered];
-      console.log("after removing", updatedOrderData);
+      // console.log("after removing", updatedOrderData);
       // Update the state with the merged array and clear the selected products
       onUpdate(merged);
       setSelectedProducts([]);
@@ -292,31 +338,47 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     setSelectedCombo(value);
   };
 
-  const handleDeleteRow = (indexToDelete) => {
-    const updatedData = [...formattedData];
-    const rowToDelete = updatedData[indexToDelete];
+  const handleDeleteRow = (rowToDelete) => {
+    const updatedData = formattedData.filter((item) => {
+      console.log(item);
+      const isSameBook =
+        item.productId?._id === rowToDelete.productId?._id &&
+        item.language === rowToDelete.language;
 
-    // Remove both physical and ebook parts if needed
-    let filtered;
+      console.log(rowToDelete, isSameBook);
 
-    if (rowToDelete.isEbookOnlyRow) {
-      // Just remove this ebook row
-      filtered = updatedData.filter((_, idx) => idx !== indexToDelete);
-    } else {
-      // Remove both physical and its ebook row (if exists)
-      const targetId = rowToDelete._id;
-      filtered = updatedData.filter((item) => item._id !== targetId);
-    }
+      if (rowToDelete.onlyEbookSelected || rowToDelete.isEbookOnlyRow) {
+        // Delete only the ebook row
+        return !(isSameBook && (item.onlyEbookSelected || item.isEbookOnlyRow));
+      } else if (rowToDelete.isEbookAlsoSelected) {
+        // Delete both parts of the combo
+        return !isSameBook;
+      } else {
+        // Only paperback, remove only physical book
+        return !(
+          isSameBook &&
+          !item.isEbookAlsoSelected &&
+          !item.onlyEbookSelected &&
+          !item.isEbookOnlyRow
+        );
+      }
+    });
 
-    setFormattedData(filtered);
+    setFormattedData(updatedData);
 
     if (onUpdate) {
-      const mergedData = mergeEbooksWithPaperbacks(filtered);
+      const mergedData = mergeEbooksWithPaperbacks(updatedData);
       onUpdate(mergedData);
     }
   };
 
   const columns = [
+    {
+      name: "Book Code",
+      selector: (row) => row.bookCode, // concise syntax (recommended)
+      width: "150px",
+      wrap: true,
+    },
     {
       name: "Book Details",
       selector: (row) => row?.productId?.[row.language]?.title,
@@ -335,12 +397,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       ),
       grow: 2,
     },
-    {
-  name: "Book Code",
-  selector: (row) => row.bookCode, // concise syntax (recommended)
-  right: true,
-}
-,
+
     {
       name: "Price",
       cell: (row) => {
@@ -392,24 +449,76 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     {
       name: "Action",
       cell: (row, index) => {
-        if (true) {
-          return (
-            <button
-              onClick={() => handleDeleteRow(index)}
-              className="text-red-600 hover:underline"
-            >
-              <MdDelete size={20} />
-            </button>
-          );
-        } else {
-          return <p>-</p>;
+        if (row.isEbookAlsoSelected && row.isEbookOnlyRow) {
+          return null; // ✅ safely return nothing
         }
+        let title;
+        if (
+          row?.isEbookAlsoSelected === false &&
+          row?.isEbookOnlyRow === false
+        ) {
+          title = "Delete Paperback";
+        } else if (
+          row?.isEbookAlsoSelected === true &&
+          row?.isEbookOnlyRow === false
+        ) {
+          title = "Delete Combo";
+        } else {
+          title = "Delete Ebook";
+        }
+
+        return (
+          <button
+            onClick={() => handleDeleteRow(row)}
+            className="text-red-600 hover:underline"
+          >
+            <Tooltip title={title}>
+              <MdDelete size={20} />
+            </Tooltip>
+          </button>
+        );
       },
       ignoreRowClick: true,
       allowOverflow: true,
       button: true,
     },
   ];
+
+  console.log(formattedData);
+
+  useEffect(() => {
+    if (formattedData.length > 0) {
+      setFormattedDataCopy(formattedData);
+    }
+  }, [formattedData]);
+
+  // 1. Only Ebook Selected
+  const onlyEbookArray = formattedDataCopy?.filter(
+    (item) =>
+      (item.isEbookAlsoSelected === false && item.isEbookOnlyRow === true) ||
+      (item.isEbookAlsoSelected === true && item.isEbookOnlyRow === true)
+  );
+
+  const paperBackArray = formattedDataCopy?.filter(
+    (item) =>
+      (item.isEbookAlsoSelected === true && item.isEbookOnlyRow === false) ||
+      (item.isEbookAlsoSelected === false && item.isEbookOnlyRow === false)
+  );
+
+  // 2. Ebook Also Selected
+  // const ebookAlsoArray = formattedDataCopy?.filter(
+  //   (item) => item.isEbookAlsoSelected === true
+  // );
+
+  // 3. Neither of the above (both false)
+  // const noneArray = formattedDataCopy?.filter(
+  //   (item) =>
+  //     item.onlyEbookSelected === false && item.isEbookAlsoSelected === false
+  // );
+
+  // console.log("Ebook:", onlyEbookArray);
+  // console.log("Paperback:", paperBackArray);
+  // console.log("None:", noneArray);
 
   return (
     <div className="mt-6">
@@ -424,7 +533,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
               showSearch
               placeholder="Search to Select"
               value={selectedProducts}
-              onChange={() => handleProductsChange("paperback")}
+              onChange={handlePaperbackChange}
               options={productOptions}
               className="w-full h-max"
               filterOption={(input, option) =>
@@ -452,7 +561,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
               placeholder="Search to Select"
               value={selectedEbooks}
               onChange={handleEbookChange}
-              options={productOptions}
+              options={ebookOptions}
               className="w-full h-max"
               filterOption={(input, option) =>
                 option.label.toLowerCase().includes(input.toLowerCase())
@@ -497,7 +606,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       </div>
 
       <div className="mt-3">
-        <DataTable
+        {/* <DataTable
           // title="Order Summary"
           columns={columns}
           data={formattedData}
@@ -549,7 +658,120 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
           //     },
           //   },
           // ]}
+        /> */}
+
+        <DataTable
+          title="Printed Books"
+          columns={columns}
+          data={paperBackArray}
+          dense
+          highlightOnHover
+          responsive
+          persistTableHead
+            noDataComponent="No printed books "
+
+          customStyles={{
+            rows: {
+              style: {
+                minHeight: "56px",
+                paddingTop: "7px",
+                paddingBottom: "7px",
+                fontSize: "15px",
+              },
+            },
+            headCells: {
+              style: {
+                fontWeight: "600",
+                fontSize: "17px",
+                paddingTop: "7px",
+                paddingBottom: "7px",
+                backgroundColor: "#f3f4f6",
+              },
+            },
+          }}
+          // conditionalRowStyles={[
+          //   {
+          //     when: (row) =>
+          //       row.isEbookAlsoSelected === false &&
+          //       row.onlyEbookSelected === false, // condition
+          //     style: {
+          //       backgroundColor: "#fff3cd", // light yellow
+          //       color: "#856404",
+          //     },
+          //   },
+          //   {
+          //     when: (row) => row.onlyEbookSelected === true,
+          //     style: {
+          //       backgroundColor: "#d4edda", // light green
+          //       color: "#155724",
+          //     },
+          //   },
+          //   {
+          //     when: (row) => row.isEbookAlsoSelected === true,
+          //     style: {
+          //       backgroundColor: "#f8d7da", // light red
+          //       color: "#721c24",
+          //     },
+          //   },
+          // ]}
         />
+
+        <div className="mt-9 border-t-2">
+          <DataTable
+            title="E Books"
+            columns={columns}
+            data={onlyEbookArray}
+            dense
+            highlightOnHover
+            responsive
+            persistTableHead
+            noDataComponent="No ebooks "
+            customStyles={{
+              rows: {
+                style: {
+                  minHeight: "56px",
+                  paddingTop: "7px",
+                  paddingBottom: "7px",
+                  fontSize: "15px",
+                },
+              },
+              headCells: {
+                style: {
+                  fontWeight: "600",
+                  fontSize: "17px",
+                  paddingTop: "7px",
+                  paddingBottom: "7px",
+                  backgroundColor: "#f3f4f6",
+                },
+              },
+            }}
+            // conditionalRowStyles={[
+            //   {
+            //     when: (row) =>
+            //       row.isEbookAlsoSelected === false &&
+            //       row.onlyEbookSelected === false, // condition
+            //     style: {
+            //       backgroundColor: "#fff3cd", // light yellow
+            //       color: "#856404",
+            //     },
+            //   },
+            //   {
+            //     when: (row) => row.onlyEbookSelected === true,
+            //     style: {
+            //       backgroundColor: "#d4edda", // light green
+            //       color: "#155724",
+            //     },
+            //   },
+            //   {
+            //     when: (row) => row.isEbookAlsoSelected === true,
+            //     style: {
+            //       backgroundColor: "#f8d7da", // light red
+            //       color: "#721c24",
+            //     },
+            //   },
+            // ]}
+          />
+        </div>
       </div>
     </div>
   );

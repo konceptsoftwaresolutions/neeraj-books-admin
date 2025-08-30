@@ -82,15 +82,6 @@ const AffiliatePayment = () => {
       {/* Payment Form */}
       <form onSubmit={handleSubmit(onSubmit)} className=" mb-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* <InputField
-          control={control}
-          errors={errors}
-          name="affiliateUser"
-          label="Affiliate User"
-          type="text"
-          rules={{ required: "Affiliate User is required" }}
-        /> */}
-
           <InputField
             control={control}
             errors={errors}

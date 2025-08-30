@@ -95,7 +95,7 @@ const OldBooks = () => {
 
   const tableData = useMemo(() => transformData(allBooksData), [allBooksData]);
 
-  const normalizeText = (text) => text.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const normalizeText = (text) => text?.toLowerCase()?.replace(/[^a-z0-9]/g, "");
 
   useEffect(() => {
     if (!searchText.trim()) {

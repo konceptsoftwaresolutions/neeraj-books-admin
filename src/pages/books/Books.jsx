@@ -109,7 +109,7 @@ const Books = () => {
 
   const tableData = useMemo(() => transformData(allBooks), [allBooks]);
 
-  const normalizeText = (text) => text.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const normalizeText = (text) => text?.toLowerCase()?.replace(/[^a-z0-9]/g, "");
 
   useEffect(() => {
     if (!searchText.trim()) {
@@ -119,18 +119,18 @@ const Books = () => {
 
     const normalizedSearch = normalizeText(searchText);
 
-    const filtered = tableData.filter((book) => {
-      const bookCodeMatch = normalizeText(book.bookCode).includes(
+    const filtered = tableData?.filter((book) => {
+      const bookCodeMatch = normalizeText(book.bookCode)?.includes(
         normalizedSearch
       );
-      const mediumMatch = normalizeText(book.medium).includes(normalizedSearch);
+      const mediumMatch = normalizeText(book.medium)?.includes(normalizedSearch);
       const paperBackPriceMatch =
         String(book.paperBackPrice) === normalizedSearch;
       const eBookPriceMatch = String(book.eBookPrice) === normalizedSearch;
 
       // New: check if any category name matches the search text
       const categoryMatch = book.categoriesArray?.some((category) =>
-        normalizeText(category.name).includes(normalizedSearch)
+        normalizeText(category.name)?.includes(normalizedSearch)
       );
 
       return (

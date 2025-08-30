@@ -69,6 +69,26 @@ export const getAllProducts = (callback = () => { }) => {
 }
 
 
+export const getAllEbooks = (callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.get("/product/all-ebooks-listing");
+            if (response.status === 200) {
+                const allBooks = response?.data?.reverse();
+                callback(true, allBooks)
+
+            }
+        } catch (error) {
+            console.log(error)
+            let message = "Error"
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
 
 
 export const getAllOldBooks = (callback = () => { }) => {
@@ -575,10 +595,10 @@ export const getBrandName = () => {
     }
 }
 
-export const getEngProductImagesName = (title, callback = () => { }) => {
+export const getEngProductImagesName = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
-            const response = await axiosInstance.post("/product/getProductImagesByTitle", { title })
+            const response = await axiosInstance.post("/product/getProductImagesByTitle", payload)
             if (response.status === 200) {
                 console.log(response)
                 const imagesArray = response?.data?.images;

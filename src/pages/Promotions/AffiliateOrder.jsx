@@ -41,6 +41,9 @@ const AffiliateOrder = () => {
           data={ordersData ? ordersData : []}
           columns={affiliateOrderColumns}
           customStyles={tableStyle}
+          pagination
+          paginationPerPage={10}
+          paginationRowsPerPageOptions={[10, 25, 50, 100]}
           noDataComponent={
             <div className="text-gray-500 py-4">No orders found.</div>
           }

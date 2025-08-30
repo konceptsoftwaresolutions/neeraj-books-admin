@@ -38,6 +38,7 @@ import OrderSummaryTable from "./OrderSummaryTable";
 import useProductDiscounts from "../../hooks/useProductDiscounts";
 import Swal from "sweetalert2";
 import TrackModal from "./bulk/TrackModal";
+import toast from "react-hot-toast";
 
 const EditOrders = () => {
   const dispatch = useDispatch();
@@ -187,23 +188,24 @@ const EditOrders = () => {
   // console.log(totalBooks);
 
   const totalWeight = Number(
-  orderdata?.items?.reduce((total, item) => {
-    const isOnlyEbook = item.onlyEbookSelected;
+    orderdata?.items
+      ?.reduce((total, item) => {
+        const isOnlyEbook = item.onlyEbookSelected;
 
-    const medium = item?.language;
-    const bookTitle = item?.productId?.[medium]?.title;
-    const weightStr = item?.productId?.[medium]?.weight;
+        const medium = item?.language;
+        const bookTitle = item?.productId?.[medium]?.title;
+        const weightStr = item?.productId?.[medium]?.weight;
 
-    if (!isOnlyEbook && weightStr) {
-      const weight = parseFloat(weightStr);
-      const quantity = item.quantity || 1;
-      return total + weight * quantity;
-    }
+        if (!isOnlyEbook && weightStr) {
+          const weight = parseFloat(weightStr);
+          const quantity = item.quantity || 1;
+          return total + weight * quantity;
+        }
 
-    return total;
-  }, 0).toFixed(3)
-);
-
+        return total;
+      }, 0)
+      .toFixed(3)
+  );
 
   useEffect(() => {
     if (totalBooks && totalWeight) {
@@ -231,7 +233,9 @@ const EditOrders = () => {
       billing_email: orderdata?.shippingAddress?.email,
       billing_phone: orderdata?.shippingAddress?.mobile,
       payment_method: orderdata?.paymentMode,
-      sub_total: subtotalAmount - couponDiscountAmount,
+      // sub_total: subtotalAmount - couponDiscountAmount,
+      sub_total: orderdata?.totalAmount + Number(orderdata?.shippingAmount),
+
       length: data.length,
       breadth: data.breadth,
       height: data.height,
@@ -257,16 +261,21 @@ const EditOrders = () => {
   };
 
   const handleInvoiceClick = async (data) => {
-    // console.log(data);
-    try {
-      const blob = await pdf(
-        <ShipmentPdf data={data} couponPercentage={couponPercentage} />
-      ).toBlob();
-      const blobUrl = URL.createObjectURL(blob);
-      window.open(blobUrl, "_blank");
-    } catch (error) {
-      // console.error("Error generating PDF:", error);
-    }
+    await toast.promise(
+      (async () => {
+        const blob = await pdf(
+          <ShipmentPdf data={data} couponPercentage={couponPercentage} />
+        ).toBlob();
+
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+      })(),
+      {
+        loading: "Generating invoice...",
+        success: "Invoice opened in new tab",
+        error: "Failed to generate invoice",
+      }
+    );
   };
 
   const handleOrderTracking = () => {
@@ -520,12 +529,10 @@ const EditOrders = () => {
               )}
               {/* )} */}
 
-
               {/* first this was the condition for generating label */}
               {/* {orderdata?.shipment_id === "Shipped" && ( */}
 
               {orderdata?.shipment_id && (
-
                 <Button
                   className="capitalize"
                   onClick={handleGenerateLabel}
@@ -533,7 +540,7 @@ const EditOrders = () => {
                 >
                   Genereate label
                 </Button>
-               )}
+              )}
               {orderdata?.orderStatus === "Pending" && (
                 <Button
                   className="bg-red-400 capitalize"
@@ -580,7 +587,7 @@ const EditOrders = () => {
                   </li>
 
                   <li>Mode : {orderdata?.paymentMode}</li>
-                  <li>Ref ID: </li>
+                  {orderdata?.paymentMode !== "COD" && <li>Ref ID: </li>}
                   <li>
                     Order Status :{" "}
                     <span className="text-green-500 font-bold">
@@ -593,7 +600,9 @@ const EditOrders = () => {
                       {orderdata?.paymentStatus}
                     </span>
                   </li>
-                  <li>Shipped By : {orderdata?.courier}</li>
+                  {orderdata?.courier && (
+                    <li>Shipped By : {orderdata?.courier}</li>
+                  )}
                 </ul>
                 <div className="w-full flex flex-col items-end   justify-end gap-y-2">
                   <p className="p-2 rounded-md text-white px-3 bg-red-400 my-2 cursor-pointer capitalize">
@@ -676,114 +685,155 @@ const EditOrders = () => {
                   )}
                 </div>
                 {totalPaperbackQuantity > 0 && (
-  <>
-    <p className="text-lg mt-2">Printed Books Amount</p>
-    <div className="border border-black">
-      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-        <p> No. of Books:</p>
-        <p>{totalPaperbackQuantity}</p>
-      </div>
-      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-        <p> MRP Amount:</p>
-        <p>₹{totalPaperbackOriginalAmount.toLocaleString("en-IN")}/-</p>
-      </div>
-      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-        <p> Discount ({totalPaperbackDiscountPercent}%)</p>
-        <p>₹{totalPaperbackDiscountAmount.toLocaleString("en-IN")}/-</p>
-      </div>
-      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-        <p>Sub Total</p>
-        <p>₹{totalPaperbackAmount.toLocaleString("en-IN")}/-</p>
-      </div>
-      {totalSpecialDiscountPercentage > 0 && (
-        <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-          <p> Special Discount ({totalSpecialDiscountPercentage}%)</p>
-          <p>₹{totalSpecialDiscountOnPaperback.toLocaleString("en-IN")}/-</p>
-        </div>
-      )}
-      <div className="flex justify-between  border-black p-2 text-md">
-        <p> Printed Books Total Amount:</p>
-        <p>₹{paperbackAmountAfterSpecialDiscount.toLocaleString("en-IN")}/-</p>
-      </div>
-    </div>
-  </>
-)}
+                  <>
+                    <p className="text-lg mt-2">Printed Books Amount</p>
+                    <div className="border border-black">
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> No. of Books:</p>
+                        <p>{totalPaperbackQuantity}</p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> MRP Amount:</p>
+                        <p>
+                          ₹
+                          {totalPaperbackOriginalAmount.toLocaleString("en-IN")}
+                          /-
+                        </p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> Discount ({totalPaperbackDiscountPercent}%)</p>
+                        <p>
+                          ₹
+                          {totalPaperbackDiscountAmount.toLocaleString("en-IN")}
+                          /-
+                        </p>
+                      </div>
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p>Sub Total</p>
+                        <p>₹{totalPaperbackAmount.toLocaleString("en-IN")}/-</p>
+                      </div>
+                      {totalSpecialDiscountPercentage > 0 && (
+                        <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                          <p>
+                            {" "}
+                            Special Discount ({totalSpecialDiscountPercentage}%)
+                          </p>
+                          <p>
+                            ₹
+                            {totalSpecialDiscountOnPaperback.toLocaleString(
+                              "en-IN"
+                            )}
+                            /-
+                          </p>
+                        </div>
+                      )}
+                      <div className="flex justify-between  border-black p-2 text-md">
+                        <p> Printed Books Total Amount:</p>
+                        <p>
+                          ₹
+                          {paperbackAmountAfterSpecialDiscount.toLocaleString(
+                            "en-IN"
+                          )}
+                          /-
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
 
-{totalEbookQuantity > 0 && (
-  <>
-    <p className="text-lg mt-4">E-books Amount</p>
-    <div className="border border-black">
-      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-        <p> No. of E-books:</p>
-        <p>{totalEbookQuantity}</p>
-      </div>
-      <div className="flex justify-between  border-black p-2 text-md">
-        <p> E-books total amount:</p>
-        <p>₹{totalEbookAmount.toLocaleString("en-IN")}/-</p>
-      </div>
-    </div>
-  </>
-)}
+                {totalEbookQuantity > 0 && (
+                  <>
+                    <p className="text-lg mt-4">E-books Amount</p>
+                    <div className="border border-black">
+                      <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                        <p> No. of E-books:</p>
+                        <p>{totalEbookQuantity}</p>
+                      </div>
+                      <div className="flex justify-between  border-black p-2 text-md">
+                        <p> E-books total amount:</p>
+                        <p>₹{totalEbookAmount.toLocaleString("en-IN")}/-</p>
+                      </div>
+                    </div>
+                  </>
+                )}
 
-<div className="border border-black mt-6">
-  <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-    <p className="font-semibold">
-      {`Net Amount ${
-        totalPaperbackQuantity > 0 && totalEbookQuantity > 0
-          ? "(Printed + E-book)"
-          : totalPaperbackQuantity > 0
-          ? "(Printed)"
-          : totalEbookQuantity > 0
-          ? "(E-book)"
-          : ""
-      }`}
-    </p>
-    <p>
-      ₹{(totalEbookAmount + paperbackAmountAfterSpecialDiscount).toLocaleString("en-IN")}/-
-    </p>
-  </div>
+                <div className="border border-black mt-6">
+                  <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                    <p className="font-semibold">
+                      {`Net Amount ${
+                        totalPaperbackQuantity > 0 && totalEbookQuantity > 0
+                          ? "(Printed + E-book)"
+                          : totalPaperbackQuantity > 0
+                          ? "(Printed)"
+                          : totalEbookQuantity > 0
+                          ? "(E-book)"
+                          : ""
+                      }`}
+                    </p>
+                    <p>
+                      ₹
+                      {(
+                        totalEbookAmount + paperbackAmountAfterSpecialDiscount
+                      ).toLocaleString("en-IN")}
+                      /-
+                    </p>
+                  </div>
 
-  {orderdata?.appliedCoupon && (
-    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-      <p className="font-semibold"> Coupon Code Discount</p>
-      <p>{couponDiscountPercent}%</p>
-    </div>
-  )}
+                  {orderdata?.appliedCoupon && (
+                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                      <p className="font-semibold"> Coupon Code Discount</p>
+                      <p>{couponDiscountPercent}%</p>
+                    </div>
+                  )}
 
-  {orderdata?.shippingAmount && (
-    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-      <p className="font-semibold"> Shipping & Handling Charges </p>
-      <p>₹{parseFloat(orderdata?.shippingAmount).toLocaleString("en-IN")}/-</p>
-    </div>
-  )}
+                  {orderdata?.shippingAmount && (
+                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                      <p className="font-semibold">
+                        {" "}
+                        Shipping & Handling Charges{" "}
+                      </p>
+                      <p>
+                        ₹
+                        {Math.round(
+                          parseFloat(orderdata?.shippingAmount)
+                        ).toLocaleString("en-IN")}
+                        /-
+                      </p>
+                    </div>
+                  )}
 
-  {orderdata?.onSiteDiscount && (
-    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-      <p className="font-semibold"> Onsite Discount </p>
-      <p>₹{parseFloat(orderdata?.onSiteDiscount).toLocaleString("en-IN")}/-</p>
-    </div>
-  )}
+                  {orderdata?.onSiteDiscount && (
+                    <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
+                      <p className="font-semibold"> Onsite Discount </p>
+                      <p>
+                        ₹
+                        {parseFloat(orderdata?.onSiteDiscount).toLocaleString(
+                          "en-IN"
+                        )}
+                        /-
+                      </p>
+                    </div>
+                  )}
 
-  <div className="flex justify-between border-black p-2 text-md">
-    <p className="font-semibold"> Net Payable </p>
-    <p>
-      ₹
-      {Math.round(
-        (couponDiscountPercent > 0
-          ? subtotalAmount - couponDiscountAmount
-          : subtotalAmount) +
-          (orderdata?.shippingAmount
-            ? parseFloat(orderdata?.shippingAmount)
-            : 0) -
-          (orderdata?.onSiteDiscount
-            ? parseFloat(orderdata?.onSiteDiscount)
-            : 0)
-      ).toLocaleString("en-IN")}
-      /-
-    </p>
-  </div>
-</div>
-
+                  <div className="flex justify-between border-black p-2 text-md">
+                    <p className="font-semibold"> Net Payable </p>
+                    <p>
+                      ₹
+                      {Math.round(
+                        (couponDiscountPercent > 0
+                          ? subtotalAmount - couponDiscountAmount
+                          : subtotalAmount) +
+                          (orderdata?.shippingAmount
+                            ? Math.round(parseFloat(orderdata?.shippingAmount))
+                            : 0) -
+                          (orderdata?.onSiteDiscount
+                            ? parseFloat(orderdata?.onSiteDiscount)
+                            : 0)
+                      ).toLocaleString("en-IN")}
+                      /-
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

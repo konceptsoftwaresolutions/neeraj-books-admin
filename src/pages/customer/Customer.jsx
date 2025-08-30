@@ -8,15 +8,19 @@ import { allMembers } from "../../constant/tableColumns";
 import usePath from "../../hooks/usePath";
 import DataTable from "react-data-table-component";
 import { tableStyle } from "../../constant/tableStyle";
-import { Input } from "antd";
+import { Input, Select } from "antd";
 import { toast } from "react-toastify";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import createAxiosInstance from "../../config/axiosConfig";
 import { FaFileExcel, FaSearch } from "react-icons/fa";
 import * as XLSX from "xlsx";
+import { stateOptions } from "../../constant/options";
+import { getAllCategories } from "../../redux/features/category";
+import { transformCategoriesData } from "../../utils/helper";
 
 function Customer() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const path = usePath();
   const { role } = useSelector((state) => state.auth);
 
@@ -24,8 +28,15 @@ function Customer() {
   const [customers, setCustomers] = useState([]);
   const [filteredCustomers, setFilteredCustomers] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [selectedState, setSelectedState] = useState(""); 
+  const [selectedCategory, setSelectedCategory] = useState(""); // 👈 new category filter
+  const { allCategory } = useSelector((state) => state.category);
 
   const axiosInstance = createAxiosInstance();
+
+  useEffect(() => {
+    dispatch(getAllCategories());
+  }, [dispatch]);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -54,7 +65,7 @@ function Customer() {
 
             const reversed = parsedCustomers.reverse();
             setCustomers(reversed);
-            setFilteredCustomers(reversed); // initially show all
+            setFilteredCustomers(reversed);
             localStorage.setItem(cacheKey, Date.now().toString());
           }
         } catch (error) {
@@ -73,30 +84,43 @@ function Customer() {
     fetchCustomers();
   }, []);
 
-  // Normalize string for flexible search
   const normalize = (text) =>
     text?.toString().toLowerCase().replace(/\s+/g, "") || "";
 
   useEffect(() => {
-    if (!searchText.trim()) {
-      setFilteredCustomers(customers);
-      return;
+    let filtered = [...customers];
+
+    // search filter
+    if (searchText.trim()) {
+      const normalizedSearch = normalize(searchText);
+      filtered = filtered.filter((cust) => {
+        return (
+          normalize(cust.name).includes(normalizedSearch) ||
+          normalize(cust.profile).includes(normalizedSearch) ||
+          normalize(cust.email).includes(normalizedSearch) ||
+          normalize(cust.mobile).includes(normalizedSearch) ||
+          normalize(cust.state).includes(normalizedSearch) ||
+          normalize(cust.category).includes(normalizedSearch)
+        );
+      });
     }
 
-    const normalizedSearch = normalize(searchText);
+    // state filter
+    if (selectedState && selectedState !== "All") {
+      filtered = filtered.filter((cust) => cust.state === selectedState);
+    }
 
-    const filtered = customers.filter((cust) => {
-      return (
-        normalize(cust.name).includes(normalizedSearch) ||
-        normalize(cust.profile).includes(normalizedSearch) ||
-        normalize(cust.email).includes(normalizedSearch) ||
-        normalize(cust.mobile).includes(normalizedSearch) ||
-        normalize(cust.state).includes(normalizedSearch)
-      );
-    });
+    // category filter (match only the main part before `-`)
+    if (selectedCategory && selectedCategory !== "All") {
+      filtered = filtered.filter((cust) => {
+        if (!cust.category) return false;
+        const mainCategory = cust.category.split("-")[0]; // take only "BA" part
+        return mainCategory === selectedCategory;
+      });
+    }
 
     setFilteredCustomers(filtered);
-  }, [searchText, customers]);
+  }, [searchText, selectedState, selectedCategory, customers]);
 
   const handleRowClick = (data) => {
     navigate(`/${role}/editcustomer`, { state: { customerId: data._id } });
@@ -105,21 +129,21 @@ function Customer() {
   const exportToExcel = () => {
     if (!filteredCustomers || filteredCustomers.length === 0) return;
 
-    const wb = XLSX.utils.book_new(); // Create a new workbook
-
+    const wb = XLSX.utils.book_new();
     const wsData = filteredCustomers.map((customer) => ({
       Name: customer.name ?? "",
-      // Profile: customer.profile ?? "",
       Email: customer.email ?? "",
       Mobile: customer.mobile ?? "",
       State: customer.state ?? "",
       Category: customer.category ?? "",
     }));
 
-    const ws = XLSX.utils.json_to_sheet(wsData); // Convert JSON to sheet
-    XLSX.utils.book_append_sheet(wb, ws, "Customers"); // Append sheet to workbook
-    XLSX.writeFile(wb, "Customers.xlsx"); // Trigger download
+    const ws = XLSX.utils.json_to_sheet(wsData);
+    XLSX.utils.book_append_sheet(wb, ws, "Customers");
+    XLSX.writeFile(wb, "Customers.xlsx");
   };
+
+  const transformedData = transformCategoriesData(allCategory);
 
   return (
     <PageCont>
@@ -138,15 +162,53 @@ function Customer() {
         </Button>
       </div>
 
-      <div className="mt-4 relative">
-        <FaSearch className="absolute top-3 left-2 z-20 text-cstm-blue" />
-        <Input
-          type="text"
-          placeholder="Search by name, email, mobile, profile, state..."
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="w-full px-4 py-2 pl-7 border rounded-md shadow-sm focus:outline-none focus:ring-2 border-cstm-blue"
-        />
+      {/* 🔍 Search + State + Category Filter */}
+      <div className="mt-4 flex flex-col md:flex-row gap-3">
+        {/* search box */}
+        <div className="relative flex-1">
+          <FaSearch className="absolute top-3 left-2 z-20 text-cstm-blue" />
+          <Input
+            type="text"
+            placeholder="Search by name, email, mobile, profile, state, category..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            className="w-full px-4 py-2 pl-7 border rounded-md shadow-sm focus:outline-none focus:ring-2 border-cstm-blue"
+          />
+        </div>
+
+        {/* state filter */}
+        <div className="w-full md:w-64">
+          <Select
+            showSearch
+            allowClear
+            placeholder="Filter by State"
+            options={stateOptions}
+            value={selectedState || undefined}
+            onChange={(value) => setSelectedState(value || "")}
+            className="w-full h-[40px] !border-black state-drop "
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </div>
+
+        {/* category filter */}
+        <div className="w-full md:w-64">
+          <Select
+            showSearch
+            allowClear
+            placeholder="Filter by Category"
+            options={transformedData}
+            value={selectedCategory || undefined}
+            onChange={(value) => setSelectedCategory(value || "")}
+            className="w-full h-[40px] !border-black state-drop "
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </div>
       </div>
 
       <div className="mt-3">

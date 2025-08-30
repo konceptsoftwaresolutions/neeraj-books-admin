@@ -57,6 +57,7 @@ import EditBulkClient from "../pages/bulkClients/EditBulkClient";
 import AllBUlkOrders from "../pages/orders/bulk/AllBulkOrders";
 import EditBulkOrder from "../pages/orders/bulk/EditBulkOrder";
 import UpdateOldBook from "../pages/books/UpdateOldBook";
+import IncompleteOrders from "../pages/orders/IncompleteOrders";
 
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
@@ -128,6 +129,8 @@ const Routes = () => {
         { path: "/:type/testimonials", element: <Testimonials /> },
         { path: "/:type/addtestimonial", element: <AddTestimonial /> },
         { path: "/:type/orders", element: <Orders /> },
+        { path: "/:type/incomplete-orders", element: <IncompleteOrders /> },
+
         { path: "/:type/invoice", element: <ShipmentPdf /> },
         { path: "/:type/editOrders", element: <EditOrders /> },
 

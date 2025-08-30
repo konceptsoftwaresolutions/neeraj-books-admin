@@ -28,8 +28,7 @@ export const getAllAffiliates = (payload) => {
         try {
             const response = await axiosInstance.get('/user/affiliate/all', payload);
             if (response.status === 200) {
-                const data = response?.data?.affiliates
-                console.log(response)
+                const data = response?.data?.affiliates?.reverse();
                 dispatch(setAffiliates({ allAffiliates: data }))
             }
         } catch (error) {
@@ -200,14 +199,40 @@ export const updateTheAffiliatePaymnet = (payload, callback = () => { }) => {
 
 
 
+export const updateTheAffiliateDetails = (payload, setIsAffiliateLoader, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            setIsAffiliateLoader(true)
+            const response = await axiosInstance.postForm('/user/affiliate/update-by-admin', payload);
+            if (response.status === 200) {
+                // console.log(data)
+                setIsAffiliateLoader(false)
+
+                callback(true)
+            }
+        } catch (error) {
+            setIsAffiliateLoader(false)
+
+            let message = "ERROR";
+            console.log(error)
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data?.message
+            }
+            toast.error(message)
+        } finally {
+            setIsAffiliateLoader(false)
+
+        }
+    }
+}
+
+
+
 export const deleteAffiliate = (payload, callback = () => { }) => {
     return async (dispatch) => {
         try {
             const response = await axiosInstance.post('/user/affiliate/delete', { id: payload });
             if (response.status === 200) {
-
-
-
             }
         } catch (error) {
             let message = "ERROR";

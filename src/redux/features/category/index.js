@@ -31,7 +31,6 @@ export const getAllCategories = () => {
             const response = await axiosInstance.get("/category/tree");
             if (response.status === 200) {
                 const data = response?.data?.categories;
-                console.log(data)
                 dispatch(setCategories({ allCategory: data }))
             }
         } catch (error) {

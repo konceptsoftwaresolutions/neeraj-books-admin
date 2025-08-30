@@ -178,7 +178,7 @@ const Home = () => {
           firstTitle="Bulk Orders"
           firstAmount={dashboardData?.bulkOrders}
           secondTitle="Bulk Sale"
-          secondAmount={`₹ ${dashboardData?.bulkOrdersSale}`}
+          secondAmount={`₹ ${dashboardData?.bulkOrdersSales}`}
           image={bulkImg}
         />
         <StatsCard
@@ -314,7 +314,7 @@ const Home = () => {
       </div>
 
       <Category />
-      {/* <ShipmentPdf /> */}
+      <ShipmentPdf />
     </PageCont>
   );
 };

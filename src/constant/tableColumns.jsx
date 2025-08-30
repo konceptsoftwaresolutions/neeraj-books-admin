@@ -448,19 +448,19 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
     },
     {
       name: "State",
-      width: "120px",
+      minWidth: "90px",
       wrap: true,
       selector: (row) => row.shippingAddress.state || "N/A",
     },
     {
       name: "Order Total",
-      width: "130px",
+      width: "113px",
       wrap: true,
       selector: (row) => `₹${row.totalAmount}` || "N/A",
     },
     {
       name: "Order Status",
-      width: "150px",
+      width: "130px",
       wrap: true,
       selector: (row) => row.orderStatus || "N/A",
     },
@@ -688,7 +688,6 @@ export const allCustomer = [
   },
 ];
 
-
 export const allPromotions = (handleRowClick) => {
   return [
     {
@@ -706,13 +705,13 @@ export const allPromotions = (handleRowClick) => {
       button: true,
     },
     {
-  name: "Name",
-  selector: (row) => row.firstName, // sorting works properly
-  sortable: true,
-  width: "160px",
-  wrap: true,
-  cell: (row) => `${row.firstName} ${row.lastName}`, // display both
-},
+      name: "Name",
+      selector: (row) => row.firstName, // sorting works properly
+      sortable: true,
+      width: "160px",
+      wrap: true,
+      cell: (row) => `${row.firstName} ${row.lastName}`, // display both
+    },
 
     {
       name: "Email",
@@ -745,26 +744,25 @@ export const allPromotions = (handleRowClick) => {
       selector: (row) => row.institutionName,
     },
     {
-  name: "Approved",
-  selector: (row) => row.approved ? 1 : 0, // sorts by number
-  sortable: true,
-  width: "130px",
-  wrap: true,
-  cell: (row) => (row.approved ? "Yes" : "No"), // display value
-},
+      name: "Approved",
+      selector: (row) => (row.approved ? 1 : 0), // sorts by number
+      sortable: true,
+      width: "130px",
+      wrap: true,
+      cell: (row) => (row.approved ? "Yes" : "No"), // display value
+    },
 
     {
-  name: "Created At",
-  selector: (row) => row.createdAt ? new Date(row.createdAt) : null,
-  sortable: true,
-  width: "150px",
-  wrap: true,
-  cell: (row) =>
-    row.createdAt
-      ? new Date(row.createdAt).toLocaleDateString("en-GB")
-      : "N/A",
-},
-
+      name: "Created At",
+      selector: (row) => (row.createdAt ? new Date(row.createdAt) : null),
+      sortable: true,
+      width: "150px",
+      wrap: true,
+      cell: (row) =>
+        row.createdAt
+          ? new Date(row.createdAt).toLocaleDateString("en-GB")
+          : "N/A",
+    },
 
     // {
     //   name: "Payment QR",
@@ -783,15 +781,19 @@ export const allPromotions = (handleRowClick) => {
 };
 
 export const affiliateOrderColumns = [
-  // {
-  //   name: "Order ID",
-  //   selector: (row) => row.orderId,
-  //   sortable: true,
-  // },
+  {
+    name: "Order ID",
+    selector: (row) => row.orderId,
+    sortable: true,
+    width: "160px",
+    wrap: true,
+  },
   {
     name: "User",
     selector: (row) => row.user,
     sortable: true,
+    width: "170px",
+    wrap: "true",
   },
   {
     name: "Total Amount",
@@ -818,12 +820,12 @@ export const affiliateOrderColumns = [
   },
   {
     name: "Payment Mode",
-    selector: (row) => row.paymentMode,
+    selector: (row) => row?.paymentMode,
     sortable: true,
   },
   {
     name: "Payment Status",
-    selector: (row) => row.paymentStatus,
+    selector: (row) => row?.paymentStatus,
     sortable: true,
   },
   {
@@ -1079,11 +1081,29 @@ export const couponColumns = [
     },
   },
 
+  // {
+  //   name: "Total Uses",
+  //   width: "180px",
+  //   wrap: true,
+  //   selector: (row) => row.totalUses || "N/A",
+  //   style: {
+  //     padding: "10px",
+  //   },
+  // },
   {
-    name: "Total Uses",
+    name: "Total Used",
     width: "180px",
     wrap: true,
-    selector: (row) => row.totalUses || "N/A",
+    selector: (row) => Number(row?.totalUses) - Number(row?.usesLeft) || "-",
+    style: {
+      padding: "10px",
+    },
+  },
+  {
+    name: "Total Left",
+    width: "180px",
+    wrap: true,
+    selector: (row) => row.usesLeft || "N/A",
     style: {
       padding: "10px",
     },

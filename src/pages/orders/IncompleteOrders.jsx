@@ -10,8 +10,8 @@ import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
 import usePath from "../../hooks/usePath";
 import {
-  getAllOrders,
-  getFilteredOrders,
+  getAllIncompleteOrders,
+  getFilteredIncompleteOrders,
   setOrderFilters,
 } from "../../redux/features/orders";
 import AllOrdersPdf from "./AllOrdersPdf";
@@ -33,7 +33,7 @@ import Papa from "papaparse";
 import { checkCouponAvailability } from "../../redux/features/books";
 import toast from "react-hot-toast";
 
-const Orders = () => {
+const IncompleteOrders = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const path = usePath();
@@ -46,7 +46,7 @@ const Orders = () => {
   const [showBulkModal, setShowBulkModal] = useState(false);
 
   const { role } = useSelector((state) => state.auth);
-  const { allOrders } = useSelector((state) => state.order);
+  const { allIncompleteOrders } = useSelector((state) => state.order);
   const storedFilters = useSelector((state) => state.order.filters);
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -79,7 +79,7 @@ const Orders = () => {
 
     const isFilterApplied = Object.keys(filters).length > 0;
 
-    const fetchData = isFilterApplied ? getFilteredOrders : getAllOrders;
+    const fetchData = isFilterApplied ? getFilteredIncompleteOrders : getAllIncompleteOrders;
 
     dispatch(
       fetchData(payload, (success, data) => {
@@ -349,7 +349,7 @@ const Orders = () => {
     <PageCont>
       <div className="flex justify-between items-center">
         <div className="flex justify-center items-center gap-3">
-          <Heading text="All Orders" />
+          <Heading text="Incomplete Orders" />
         </div>
         <div className="flex gap-3">
           <Button
@@ -459,4 +459,4 @@ const Orders = () => {
   );
 };
 
-export default Orders;
+export default IncompleteOrders;

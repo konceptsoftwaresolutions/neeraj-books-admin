@@ -193,7 +193,7 @@ const UpdateBook = () => {
   useEffect(() => {
     if (rowData?.title && medium === "English") {
       dispatch(
-        getEngProductImagesName(rowData?.title, (array) => {
+        getEngProductImagesName({title : rowData?.title , bookCode : rowData?.bookCode}, (array) => {
           console.log("fetched array", array);
           setProductImages(array); // Store the fetched array in the state
         })

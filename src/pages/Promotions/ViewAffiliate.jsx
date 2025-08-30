@@ -10,6 +10,7 @@ import {
   getAffiliateTiles,
   getAllAffiliateById,
   getQRImageAffiliate,
+  updateTheAffiliateDetails,
   updateTheAffiliatePaymnet,
 } from "../../redux/features/affiliates";
 import Tile from "./Tile";
@@ -24,6 +25,7 @@ const ViewAffiliate = () => {
   const [imgUrl, setImgUrl] = useState();
   const [tilesData, setTilesData] = useState();
   const [openCouponModal, setOpenCouponModal] = useState(false);
+  const [isAffiliateLoader, setIsAffiliateLoader] = useState(false);
 
   // Local state for editing
   const [isEditing, setIsEditing] = useState(false);
@@ -123,17 +125,53 @@ const ViewAffiliate = () => {
   };
 
   // Save updated affiliate info
+  // Save updated affiliate info
   const handleSave = () => {
-    const payload = {
-      ...affiliateData,
-      ...formValues,
-      id: location.state.data._id,
-    };
+    console.log(formValues);
+    const formData = new FormData();
+
+    // Append updated values
+    Object.keys(formValues).forEach((key) => {
+      if (
+        formValues[key] !== undefined &&
+        formValues[key] !== null &&
+        key.toLowerCase() !== "password" // ⬅️ skip password
+      ) {
+        if (key.toLowerCase() === "paymentpicture") {
+          // Only append if it's a Blob/File, and use the key "paymentPicture"
+          if (formValues[key] instanceof Blob) {
+            formData.append(
+              "paymentPicture",
+              formValues[key],
+              formValues[key].name || "upload.png"
+            );
+          }
+        } else {
+          formData.append(key, formValues[key]);
+        }
+      }
+    });
+
+    formData.append("id", location.state.data._id);
+    formData.append("approved", affiliateData?.approved ?? false);
 
     dispatch(
-      updateTheAffiliatePaymnet(payload, (success) => {
+      updateTheAffiliateDetails(formData, setIsAffiliateLoader, (success) => {
         if (success) {
-          setAffiliateData(payload);
+          dispatch(
+            getAllAffiliateById(location.state.data._id, (success, data) => {
+              if (success) {
+                setAffiliateData(data);
+              }
+            })
+          );
+          dispatch(
+            getQRImageAffiliate(location.state.data._id, (success, data) => {
+              if (success) {
+                setImgUrl(data);
+              }
+            })
+          );
           setIsEditing(false);
         }
       })
@@ -215,22 +253,23 @@ const ViewAffiliate = () => {
               <h2 className="text-xl font-semibold text-gray-700">
                 Affiliate Personal Details
               </h2>
+              {affiliateData?.approved && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsEditing(!isEditing)}
+                    className="px-4 py-1 bg-blue-600 text-white rounded-lg"
+                  >
+                    Edit
+                  </button>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setIsEditing(!isEditing)}
-                  className="px-4 py-1 bg-blue-600 text-white rounded-lg"
-                >
-                  Edit
-                </button>
-
-                <button
-                  onClick={handleSave}
-                  className="px-4 py-1 bg-green-600 text-white rounded-lg"
-                >
-                  Save
-                </button>
-              </div>
+                  <button
+                    onClick={handleSave}
+                    className="px-4 py-1 bg-green-600 text-white rounded-lg"
+                  >
+                    {isAffiliateLoader ? "Saving ..." : "Save"}
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
@@ -410,7 +449,7 @@ const ViewAffiliate = () => {
                   />
                 ) : (
                   <>
-                    {affiliateData.paymentPicture ? (
+                    {affiliateData?.paymentPicture ? (
                       <img
                         src={imgUrl}
                         alt="QR Code"

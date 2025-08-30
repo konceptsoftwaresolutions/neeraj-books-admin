@@ -36,9 +36,32 @@ export const getAllOrders = (payload, callback = () => { }) => {
             const response = await axiosInstance.post('/order/getAllOrders', payload);
             if (response.status === 200) {
                 const data = response?.data?.orders;
-                console.log(response)
+                // filter out txnid starting with NPX for callback
+                // const filteredData = data.filter(order => !order?.orderId?.startsWith("NPX"));
                 dispatch(setOrder({ allOrders: data }))
                 callback(true, data)
+            }
+        } catch (error) {
+            let message = "ERROR";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+
+export const getAllIncompleteOrders = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post('/order/getAllOrders', payload);
+            if (response.status === 200) {
+                const data = response?.data?.orders;
+                // filter out txnid starting with NPX for callback
+                const filteredData = data.filter(order => order?.orderId?.startsWith("NPX"));
+                dispatch(setOrder({ allIncompleteOrders: filteredData }))
+                callback(true, filteredData)
             }
         } catch (error) {
             let message = "ERROR";
@@ -123,9 +146,31 @@ export const getFilteredOrders = (payload, callback = () => { }) => {
             const response = await axiosInstance.post('/order/getOrdersFiltered', payload);
             if (response.status === 200) {
                 const data = response?.data?.orders;
-                console.log(response)
+                // const filteredData = data.filter(order => !order?.orderId?.startsWith("NPX"));
                 dispatch(setOrder({ allOrders: data }))
                 callback(true, data)
+            }
+        } catch (error) {
+            let message = "ERROR";
+            if (error?.hasOwnProperty("response")) {
+                message = error?.response?.data
+            }
+            toast.error(message)
+        }
+    }
+}
+
+
+
+export const getFilteredIncompleteOrders = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post('/order/getOrdersFiltered', payload);
+            if (response.status === 200) {
+                const data = response?.data?.orders;
+                const filteredData = data.filter(order => order?.orderId?.startsWith("NPX"));
+                dispatch(setOrder({ allIncompleteOrders: filteredData }))
+                callback(true, filteredData)
             }
         } catch (error) {
             let message = "ERROR";
@@ -596,7 +641,7 @@ export const normalOrderUpdate = (payload, setUpdateLoader, callback = () => { }
     return async (dispatch) => {
         try {
             setUpdateLoader(true)
-            const response = await axiosInstance.post("/order/editOrde", payload);
+            const response = await axiosInstance.post("/order/editOrder", payload);
             if (response.status === 200) {
                 setUpdateLoader(false)
                 const message = response.data?.message || "Order Updated successfully!";

@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
 
 // Component to download the PDF
 const ShipmentPdf = ({ data = {}, couponPercentage }) => {
-  console.log(data)
+  // console.log(data)
   // const data = {
   //   _id: "68a5a44877719ed4949a24ca",
   //   orderId: "NB-00267",
@@ -319,8 +319,6 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
     couponDiscountAmount,
     // totalAmount,
   } = useCartCalculations(items, additionalDiscount, couponPercentage);
-
-  
 
   return (
     // <PDFViewer style={{ width: "100%", height: "100vh" }}>
@@ -626,36 +624,86 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   display: "flex",
                   flexDirection: "row",
                   justifyContent: "space-between",
-                  borderTop: 1,
-                  borderLeft: 1,
-                  borderRight: 1,
-                  borderBottom: 1,
-                  marginBottom: "-5px",
-                  paddingHorizontal: 4,
-                  backgroundColor: "#efefef",
-                  marginTop: "10px",
+                  borderWidth: 1,
                   borderColor: "#000",
-                  paddingVertical: 4,
+                  marginTop: 10,
+                  backgroundColor: "#efefef",
+                  paddingHorizontal: 4,
+                  marginBottom: "-6px",
                 }}
               >
-                <Text style={{ fontSize: 9, width: "10%" }}>S.No.</Text>
-                <Text style={{ fontSize: 12, width: "35%" }}>Product</Text>
-                <Text style={{ fontSize: 12, width: "20%" }}>Book Code</Text>
                 <Text
-                  style={{ fontSize: 12, width: "10%", textAlign: "center" }}
+                  style={{
+                    fontSize: 9,
+                    width: "7%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  S.No.
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 12,
+                    width: "43%",
+                    paddingLeft: 4,
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  Product
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 12,
+                    width: "12%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  Medium
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 12,
+                    width: "10%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
                 >
                   Qty
                 </Text>
+
                 <Text
-                  style={{ fontSize: 12, width: "15%", textAlign: "center" }}
+                  style={{
+                    fontSize: 12,
+                    width: "10%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
                 >
                   Price
                 </Text>
-                {/* <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
-              HSN
-            </Text> */}
+
                 <Text
-                  style={{ fontSize: 12, width: "15%", textAlign: "right" }}
+                  style={{
+                    fontSize: 12,
+                    width: "12%",
+                    textAlign: "right",
+                    paddingVertical: 6,
+                  }}
                 >
                   Amount
                 </Text>
@@ -690,47 +738,81 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                         marginBottom: "-5px",
                         paddingHorizontal: 4,
                         borderColor: "#000",
-                        paddingVertical: 4,
+                        // paddingVertical: 4,
                       }}
                     >
-                      <Text style={{ fontSize: 9, width: "10%" }}>
+                      <Text
+                        style={{
+                          fontSize: 9,
+                          width: "7%",
+                          textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
+                        }}
+                      >
                         {index + 1}
-                      </Text>
-                      <Text style={{ fontSize: 10, width: "35%" }}>
-                        {bookTitle}
-                      </Text>
-                      <Text style={{ fontSize: 10, width: "20%" }}>
-                        {product?.bookCode}
                       </Text>
                       <Text
                         style={{
-                          fontSize: 10,
+                          fontSize: 9,
+                          width: "43%",
+                          paddingLeft: 4,
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
+                        }}
+                      >
+                        {product?.bookCode} {"\n"}
+                        {bookTitle} 
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 9,
+                          width: "12%",
+                          textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {medium}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 9,
                           width: "10%",
                           textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
                         }}
                       >
                         {quantity}
                       </Text>
                       <Text
                         style={{
-                          fontSize: 10,
-                          width: "15%",
+                          fontSize: 9,
+                          width: "10%",
                           textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
                         }}
                       >
-                        {originalSellingPrice}
+                        Rs. {originalSellingPrice}
                       </Text>
-                      {/* <Text style={{ fontSize: 10, width: "15%", textAlign: "center" }}>
-              HSN
-            </Text> */}
+
                       <Text
                         style={{
-                          fontSize: 10,
-                          width: "15%",
+                          fontSize: 9,
+                          width: "12%",
                           textAlign: "right",
+                          paddingVertical: 6,
                         }}
                       >
-                        {sellingPrice * quantity}
+                        Rs. {sellingPrice * quantity}
                       </Text>
                     </View>
                   );
@@ -742,11 +824,11 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               <View
                 style={{
                   borderWidth: 1,
+                  borderTop: 0,
                   borderColor: "black",
-                  marginTop: "10px",
                 }}
               >
-                <View
+                {/* <View
                   style={{
                     display: "flex",
                     flexDirection: "row",
@@ -761,39 +843,38 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   <Text style={{ fontSize: "9px" }}>
                     {totalPaperbackQuantity}
                   </Text>
-                </View>
+                </View> */}
                 <View
                   style={{
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    borderTop: 1,
                     borderColor: "#000",
-                    paddingVertical: "7px",
-                    paddingHorizontal: "7px",
+                    borderBottom: 1,
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>MRP Amount:</Text>
-                  <Text style={{ fontSize: "9px" }}>
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "86%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                      textAlign: "right",
+                    }}
+                  >
+                    MRP Amount:
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "13.95%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                      borderLeft: 1,
+                      textAlign: "right",
+                    }}
+                  >
                     Rs. {totalPaperbackOriginalAmount}/-
-                  </Text>
-                </View>
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    borderTop: 1,
-                    borderColor: "#000",
-                    paddingVertical: "7px",
-                    paddingHorizontal: "7px",
-                  }}
-                >
-                  <Text style={{ fontSize: "9px" }}>
-                    Discount ({totalPaperbackDiscountPercent}%)
-                  </Text>
-                  <Text style={{ fontSize: "9px" }}>
-                    Rs. {totalPaperbackDiscountAmount}/-
                   </Text>
                 </View>
 
@@ -802,33 +883,102 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    borderTop: 1,
                     borderColor: "#000",
-                    paddingHorizontal: "7px",
-                    paddingVertical: "7px",
+                    borderBottom: 1,
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>Sub Total</Text>
-                  <Text style={{ fontSize: "9px" }}>
-                    Rs. {totalPaperbackAmount}/-
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "86%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                      textAlign: "right",
+                    }}
+                  >
+                    Discount ({totalPaperbackDiscountPercent}%)
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "13.95%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                      borderLeft: 1,
+                      textAlign: "right",
+                    }}
+                  >
+                    Rs. {totalPaperbackDiscountAmount}/-
                   </Text>
                 </View>
+
+                {/* <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      borderColor: "#000",
+                        borderBottom: 1,
+                        textAlign:'right'
+
+
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: "9px",
+                        width: "88%",
+                        paddingVertical: "5px",
+                        paddingHorizontal: "5px",
+                      }}
+                    >
+                      Sub Total
+                    </Text>
+                    <Text
+                      style={{
+                        fontSize: "9px",
+                        width: "12%",
+                        paddingVertical: "5px",
+                        paddingHorizontal: "5px",
+                        borderLeft: 1,
+                        textAlign: "right",
+                      }}
+                    >
+                      Rs. {totalPaperbackAmount}/-
+                    </Text>
+                  </View> */}
+
                 {totalSpecialDiscountPercentage > 0 && (
                   <View
                     style={{
                       display: "flex",
                       flexDirection: "row",
                       justifyContent: "space-between",
-                      borderTop: 1,
                       borderColor: "#000",
-                      paddingVertical: "7px",
-                      paddingHorizontal: "7px",
+                      borderBottom: 1,
                     }}
                   >
-                    <Text style={{ fontSize: "9px" }}>
+                    <Text
+                      style={{
+                        fontSize: "9px",
+                        width: "86%",
+                        paddingVertical: "5px",
+                        paddingHorizontal: "5px",
+                        textAlign: "right",
+                      }}
+                    >
                       Special Discount: ({totalSpecialDiscountPercentage}%){" "}
                     </Text>
-                    <Text style={{ fontSize: "9px" }}>
+                    <Text
+                      style={{
+                        fontSize: "9px",
+                        width: "13.95%",
+                        paddingVertical: "5px",
+                        paddingHorizontal: "5px",
+                        borderLeft: 1,
+                        textAlign: "right",
+                      }}
+                    >
                       Rs. {totalSpecialDiscountOnPaperback}/-
                     </Text>
                   </View>
@@ -839,16 +989,30 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    borderTop: 1,
                     borderColor: "#000",
-                    paddingVertical: "7px",
-                    paddingHorizontal: "7px",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "86%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                      textAlign: "right",
+                    }}
+                  >
                     Printed Books Total Amount:
                   </Text>
-                  <Text style={{ fontSize: "9px" }}>
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "13.95%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                      borderLeft: 1,
+                      textAlign: "right",
+                    }}
+                  >
                     Rs. {paperbackAmountAfterSpecialDiscount}/-
                   </Text>
                 </View>
@@ -923,37 +1087,86 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   display: "flex",
                   flexDirection: "row",
                   justifyContent: "space-between",
-                  borderTop: 1,
-                  borderBottom: 1,
-                  borderLeft: 1,
-                  borderRight: 1,
-                  marginTop: "10px",
-                  backgroundColor: "#efefef",
+                  borderWidth: 1,
                   borderColor: "#000",
-                  paddingVertical: 4,
+                  marginTop: 10,
+                  backgroundColor: "#efefef",
                   paddingHorizontal: 4,
-                  marginBottom: "-5px",
+                  marginBottom: "-6px",
                 }}
               >
-                <Text style={{ fontSize: 9, width: "10%" }}>S.No.</Text>
-                <Text style={{ fontSize: 12, width: "35%" }}>Product</Text>
-                <Text style={{ fontSize: 12, width: "20%" }}>Book Code</Text>
+                <Text
+                  style={{
+                    fontSize: 9,
+                    width: "7%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  S.No.
+                </Text>
 
                 <Text
-                  style={{ fontSize: 12, width: "10%", textAlign: "center" }}
+                  style={{
+                    fontSize: 12,
+                    width: "43%",
+                    paddingLeft: 4,
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  Product
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 12,
+                    width: "12%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  Medium
+                </Text>
+
+                <Text
+                  style={{
+                    fontSize: 12,
+                    width: "10%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
                 >
                   Qty
                 </Text>
+
                 <Text
-                  style={{ fontSize: 12, width: "15%", textAlign: "center" }}
+                  style={{
+                    fontSize: 12,
+                    width: "10%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
                 >
                   Price
                 </Text>
-                {/* <Text style={{ fontSize: 12, width: "15%", textAlign: "center" }}>
-              HSN
-            </Text> */}
+
                 <Text
-                  style={{ fontSize: 12, width: "15%", textAlign: "right" }}
+                  style={{
+                    fontSize: 12,
+                    width: "12%",
+                    textAlign: "right",
+                    paddingVertical: 6,
+                  }}
                 >
                   Amount
                 </Text>
@@ -985,45 +1198,81 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                         borderColor: "#000",
                         paddingHorizontal: 4,
                         marginBottom: "-5px",
-                        paddingVertical: 5,
+                        // paddingVertical: 5,
                       }}
                     >
-                      <Text style={{ fontSize: 9, width: "10%" }}>
+                      <Text
+                        style={{
+                          fontSize: 9,
+                          width: "7%",
+                          textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
+                        }}
+                      >
                         {serialNumber++}{" "}
                         {/* Increment serial number for each item */}
                       </Text>
-                      <Text style={{ fontSize: 10, width: "35%" }}>
-                        {bookTitle}
-                      </Text>
-                      <Text style={{ fontSize: 10, width: "20%" }}>
-                        {product?.bookCode}
+                      <Text
+                        style={{
+                          fontSize: 9,
+                          width: "43%",
+                          paddingLeft: 4,
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
+                        }}
+                      >
+                        {product?.bookCode} {"\n"}
+                        {bookTitle} 
                       </Text>
                       <Text
                         style={{
-                          fontSize: 10,
+                          fontSize: 9,
+                          width: "12%",
+                          textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {medium}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 9,
                           width: "10%",
                           textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
                         }}
                       >
                         1
                       </Text>
                       <Text
                         style={{
-                          fontSize: 10,
-                          width: "15%",
+                          fontSize: 9,
+                          width: "10%",
                           textAlign: "center",
+                          borderRightWidth: 1,
+                          borderColor: "#000",
+                          paddingVertical: 6,
                         }}
                       >
-                        {ebookPrice}
+                        Rs. {ebookPrice}
                       </Text>
                       <Text
                         style={{
-                          fontSize: 10,
-                          width: "15%",
+                          fontSize: 9,
+                          width: "12%",
                           textAlign: "right",
+                          paddingVertical: 6,
                         }}
                       >
-                        {ebookPrice}
+                        Rs. {ebookPrice}
                       </Text>
                     </View>
                   );
@@ -1035,37 +1284,56 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               <View
                 style={{
                   borderWidth: 1,
+                  borderTop: 0,
                   borderColor: "black",
-                  marginTop: "10px",
+                  // marginTop: "10px",
                 }}
               >
+                {/* <View
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      borderTop: 0,
+                      borderColor: "#000",
+                      paddingHorizontal: "7px",
+                      paddingVertical: "7px",
+                    }}
+                  >
+                    <Text style={{ fontSize: "9px" }}>No. of E-books: </Text>
+                    <Text style={{ fontSize: "9px" }}>
+                      {totalEbookQuantity}
+                    </Text>
+                  </View> */}
                 <View
                   style={{
                     display: "flex",
                     flexDirection: "row",
                     justifyContent: "space-between",
-                    borderTop: 0,
                     borderColor: "#000",
-                    paddingHorizontal: "7px",
-                    paddingVertical: "7px",
+                    textAlign: "right",
                   }}
                 >
-                  <Text style={{ fontSize: "9px" }}>No. of E-books: </Text>
-                  <Text style={{ fontSize: "9px" }}>{totalEbookQuantity}</Text>
-                </View>
-                <View
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    borderTop: 1,
-                    borderColor: "#000",
-                    paddingVertical: "7px",
-                    paddingHorizontal: "7px",
-                  }}
-                >
-                  <Text style={{ fontSize: "9px" }}>E-books total amount:</Text>
-                  <Text style={{ fontSize: "9px" }}>
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "86%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                    }}
+                  >
+                    Ebooks Total
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      width: "13.93%",
+                      paddingVertical: "5px",
+                      paddingHorizontal: "5px",
+                      borderLeft: 1,
+                      textAlign: "right",
+                    }}
+                  >
                     Rs. {totalEbookAmount}/-
                   </Text>
                 </View>
@@ -1080,8 +1348,6 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               justifyContent: "space-between",
               borderTop: 1,
               borderColor: "#000",
-              paddingVertical: "3px",
-              paddingHorizontal: "5px",
               backgroundColor: "#efefef",
               marginTop: "12px",
               marginBottom: "-5px",
@@ -1089,14 +1355,33 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               borderRight: 1,
             }}
           >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Net Amount ( {totalPaperbackQuantity > 0 ? "Printed" : ""}
+            <Text
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                paddingHorizontal: "5px",
+                paddingVertical: "3px",
+                textAlign: "right",
+                width: "86%",
+              }}
+            >
+              Total Amount ( {totalPaperbackQuantity > 0 ? "Printed" : ""}
               {totalPaperbackQuantity > 0 && totalEbookQuantity > 0
                 ? " + "
                 : null}
               {totalEbookAmount > 0 ? "E-book" : null} )
             </Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+            <Text
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                width: "13.95%",
+                borderLeft: 1,
+                paddingHorizontal: "5px",
+                paddingVertical: "3px",
+                textAlign: "right",
+              }}
+            >
               Rs. {totalEbookAmount + paperbackAmountAfterSpecialDiscount}
             </Text>
           </View>
@@ -1110,18 +1395,39 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                 justifyContent: "space-between",
                 borderTop: 1,
                 borderColor: "#000",
-                paddingVertical: "3px",
+                // paddingVertical: "3px",
                 backgroundColor: "#efefef",
-                paddingHorizontal: "5px",
+                // paddingHorizontal: "5px",
                 marginBottom: "-5px",
                 borderLeft: 1,
                 borderRight: 1,
               }}
             >
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              <Text
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  paddingHorizontal: "5px",
+                  paddingVertical: "3px",
+                  textAlign: "right",
+
+                  width: "86%",
+                }}
+              >
                 Coupon Discount
               </Text>
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+
+              <Text
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  width: "13.95%",
+                  borderLeft: 1,
+                  paddingHorizontal: "5px",
+                  paddingVertical: "3px",
+                  textAlign: "right",
+                }}
+              >
                 {couponDiscountPercent}%
               </Text>
             </View>
@@ -1135,19 +1441,37 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                 justifyContent: "space-between",
                 borderTop: 1,
                 borderColor: "#000",
-                paddingVertical: "3px",
                 backgroundColor: "#efefef",
-                paddingHorizontal: "5px",
                 marginBottom: "-5px",
                 borderLeft: 1,
                 borderRight: 1,
               }}
             >
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              <Text
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  paddingHorizontal: "5px",
+                  paddingVertical: "3px",
+                  textAlign: "right",
+
+                  width: "86%",
+                }}
+              >
                 Shipping & Handling Charges
               </Text>
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-                Rs. {shippingAmount}
+              <Text
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  width: "13.95%",
+                  borderLeft: 1,
+                  paddingHorizontal: "5px",
+                  paddingVertical: "3px",
+                  textAlign: "right",
+                }}
+              >
+                Rs. {Math.round(shippingAmount)}
               </Text>
             </View>
           )}
@@ -1159,18 +1483,36 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                 justifyContent: "space-between",
                 borderTop: 1,
                 borderColor: "#000",
-                paddingVertical: "3px",
                 backgroundColor: "#efefef",
-                paddingHorizontal: "5px",
                 marginBottom: "-5px",
                 borderLeft: 1,
                 borderRight: 1,
               }}
             >
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              <Text
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  paddingHorizontal: "5px",
+                  paddingVertical: "3px",
+                  textAlign: "right",
+
+                  width: "86%",
+                }}
+              >
                 Onsite Discount
               </Text>
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+              <Text
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  width: "13.95%",
+                  borderLeft: 1,
+                  paddingHorizontal: "5px",
+                  paddingVertical: "3px",
+                  textAlign: "right",
+                }}
+              >
                 Rs. {onSiteDiscount}
               </Text>
             </View>
@@ -1183,8 +1525,6 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               justifyContent: "space-between",
               borderTop: 1,
               borderColor: "#000",
-              paddingVertical: "3px",
-              paddingHorizontal: "5px",
               backgroundColor: "#efefef",
               marginBottom: "-5px",
               borderBottom: 1,
@@ -1192,25 +1532,45 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               borderRight: 1,
             }}
           >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+            <Text
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                paddingHorizontal: "5px",
+                paddingVertical: "3px",
+                textAlign: "right",
+
+                width: "86%",
+              }}
+            >
               Net Payable Amount:
             </Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+            <Text
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                width: "13.95%",
+                borderLeft: 1,
+                paddingHorizontal: "5px",
+                paddingVertical: "3px",
+                textAlign: "right",
+              }}
+            >
               Rs.{" "}
-              {Math.round(
+              {(
                 (couponDiscountPercent > 0
                   ? subtotalAmount - couponDiscountAmount
                   : subtotalAmount) +
-                  (shippingAmount ? parseFloat(shippingAmount) : 0) -
-                  (onSiteDiscount ? parseFloat(onSiteDiscount) : 0)
-              )}
+                (shippingAmount ? Math.round(parseFloat(shippingAmount)) : 0) -
+                (onSiteDiscount ? parseFloat(onSiteDiscount) : 0)
+              ).toFixed(0)}
               /-
             </Text>
           </View>
         </View>
       </Page>
     </Document>
-    //  </PDFViewer>
+    // </PDFViewer>
   );
 };
 
