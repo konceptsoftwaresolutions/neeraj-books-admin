@@ -409,15 +409,8 @@ export const allCategoryColumns = (handleRowClick, handleCategorySort) => {
     // },
   ];
 };
-
 export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
   return [
-    // {
-    //   name: "S.No.",
-    //   width: "80px",
-    //   wrap: true,
-    //   selector: (row, index) => index + 1,
-    // },
     {
       name: "OrderId",
       width: "120px",
@@ -431,9 +424,6 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
       wrap: true,
       selector: (row) =>
         row.createdAt ? format(new Date(row.createdAt), "dd MMM yyyy") : "N/A",
-      // style: {
-      //   padding: "10px",
-      // },
     },
     {
       name: "Client ",
@@ -460,9 +450,50 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
     },
     {
       name: "Order Status",
-      width: "130px",
+      width: "190px",
       wrap: true,
-      selector: (row) => row.orderStatus || "N/A",
+      cell: (row) => {
+        const status = row.orderStatus || "N/A";
+
+        let style = {
+          padding: "4px 12px",
+          borderRadius: "5px",
+          fontWeight: "600",
+          display: "inline-block",
+          fontSize: "13px",
+          color: "#fff",
+          textTransform: "capitalize",
+        };
+
+        switch (status.toLowerCase()) {
+          case "pending":
+            style.backgroundColor = "#fd7e14"; // orange
+            break;
+          case "pickup generated":
+            style.backgroundColor = "#17a2b8"; // cyan/blue
+            break;
+          case "canceled":
+            style.backgroundColor = "#dc3545"; // red
+            break;
+          case "delivered":
+            style.backgroundColor = "#28a745"; // green
+            break;
+          case "out for pickup":
+            style.backgroundColor = "#ffc107"; // yellow
+            style.color = "#000"; // black text for better contrast
+            break;
+          case "shipped":
+            style.backgroundColor = "#007bff"; // blue
+            break;
+          case "reversed":
+            style.backgroundColor = "#6f42c1"; // purple
+            break;
+          default:
+            style.backgroundColor = "#6c757d"; // gray
+        }
+
+        return <span style={style}>{status}</span>;
+      },
     },
     {
       name: "Payment Status",
@@ -471,14 +502,13 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
       cell: (row) => {
         const status = row.paymentStatus || "N/A";
 
-        // Define tag style based on status
         let style = {
           padding: "4px 12px",
           borderRadius: "5px",
           fontWeight: "600",
           display: "inline-block",
           fontSize: "13px",
-          color: "#fff", // default white text
+          color: "#fff",
           textTransform: "capitalize",
         };
 
@@ -487,47 +517,26 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
         } else if (status.toLowerCase() === "pending") {
           style.backgroundColor = "#fd7e14"; // orange
         } else {
-          style.backgroundColor = "#6c757d"; // gray for "N/A" or unknown
+          style.backgroundColor = "#6c757d"; // gray
         }
 
         return <span style={style}>{status}</span>;
       },
     },
-
-    // {
-    //   name: "Payment Mode",
-    //   width: "150px",
-    //   wrap: true,
-    //   selector: (row) => row.paymentMode || "N/A",
-    // },
-    // {
-    //   name: "Payment Status",
-    //   width: "200px",
-    //   wrap: true,
-    //   selector: (row) => row.paymentStatus || "N/A",
-    // },
-
-    // {
-    //   name: "Total Items",
-    //   width: "150px",
-    //   wrap: true,
-    //   selector: (row) => row.items.length || "N/A",
-    // },
-
     {
       name: "Action",
       width: "300px",
       wrap: true,
       cell: (row) => (
-        <div className="flex justify-start items-center">
+        <div className="flex justify-start items-center flex-wrap gap-2">
           <button
-            className=" text-white px-3 py-2 rounded primary-gradient transition m-3 w-[80px] flex items-center gap-2"
+            className="text-white px-3 py-2 rounded primary-gradient transition w-[80px] flex items-center gap-2"
             onClick={() => handleRowClick(row)}
           >
             <IoEye size={17} /> View
           </button>
           <button
-            className=" text-white px-3 py-2 rounded primary-gradient transition m-3 w-max flex items-center gap-2"
+            className="text-white px-3 py-2 rounded primary-gradient transition w-max flex items-center gap-2"
             onClick={() => handleInvoiceClick(row)}
           >
             <IoIosDocument size={17} /> Print Invoice
@@ -537,7 +546,6 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
     },
   ];
 };
-
 export const allMembers = [
   {
     name: "S.No.",

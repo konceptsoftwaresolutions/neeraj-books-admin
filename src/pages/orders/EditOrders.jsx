@@ -587,7 +587,9 @@ const EditOrders = () => {
                   </li>
 
                   <li>Mode : {orderdata?.paymentMode}</li>
-                  {orderdata?.paymentMode !== "COD" && <li>Ref ID: {orderdata?.mihpayid}</li>}
+                  {orderdata?.paymentMode !== "COD" && (
+                    <li>Ref ID: {orderdata?.mihpayid}</li>
+                  )}
                   <li>
                     Order Status :{" "}
                     <span className="text-green-500 font-bold">
@@ -716,7 +718,8 @@ const EditOrders = () => {
                         <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                           <p>
                             {" "}
-                            Special Discount ({totalSpecialDiscountPercentage}%) (-)
+                            Special Discount ({totalSpecialDiscountPercentage}%)
+                            (-)
                           </p>
                           <p>
                             ₹
@@ -760,7 +763,7 @@ const EditOrders = () => {
                 <div className="border border-black mt-6">
                   <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                     <p className="font-semibold">
-                      {`Net Amount ${
+                      {`Total Amount ${
                         totalPaperbackQuantity > 0 && totalEbookQuantity > 0
                           ? "(Printed + E-book)"
                           : totalPaperbackQuantity > 0
@@ -790,7 +793,7 @@ const EditOrders = () => {
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                       <p className="font-semibold">
                         {" "}
-                        Shipping & Handling Charges{" "} (+)
+                        Shipping & Handling Charges (+)
                       </p>
                       <p>
                         ₹
