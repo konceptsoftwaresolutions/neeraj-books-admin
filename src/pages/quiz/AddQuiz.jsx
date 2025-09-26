@@ -60,7 +60,7 @@ const AddQuiz = () => {
       if (book.english) {
         rows.push({
           value: book?.english?._id,
-          label: book?.english?.title + "-" + "(English)",
+          label: book?.english?.bookCode + "-" + "(English)",
           // description: book.english.description,
           // paperBackPrice: book.english.paperBackOriginalPrice,
           // eBookPrice: book.english.eBookOriginalPrice,
@@ -73,7 +73,7 @@ const AddQuiz = () => {
       if (book.hindi) {
         rows.push({
           value: book?.hindi?._id,
-          label: book?.hindi?.title + "-" + "(Hindi)",
+          label: book?.hindi?.bookCode + "-" + "(Hindi)",
           // description: book.hindi.description,
           // paperBackPrice: book.hindi.paperBackOriginalPrice,
           // eBookPrice: book.hindi.eBookOriginalPrice,

@@ -184,7 +184,7 @@ const EditBulkOrder = () => {
       isCod: true,
       noOfBooksWithoutEbook: totalBooks,
       orderWeight: Number(totalOrderWeight),
-      totalOrderValueAfterDiscount: finalAmountAfterDiscounts,
+      totalOrderValueAfterDiscount: Number(summary?.finalAmount.toFixed(2)),
     };
     dispatch(
       getShippingCharges(payload, (success, data) => {
@@ -275,9 +275,14 @@ const EditBulkOrder = () => {
   };
 
   const handleInvoiceClick = async (data) => {
-    // console.log(data);
+    console.log(data);
+    const payload = {
+      ...data,
+      client : clientData
+    }
+    // console.log(payload)
     try {
-      const blob = await pdf(<BulkClientInvoice data={data} />).toBlob();
+      const blob = await pdf(<BulkClientInvoice data={payload} />).toBlob();
       const blobUrl = URL.createObjectURL(blob);
       window.open(blobUrl, "_blank");
     } catch (error) {
@@ -583,9 +588,12 @@ const EditBulkOrder = () => {
                         </p>
                       </div>
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                        <p>Total</p>
-                        <p>₹{summary?.finalAmount?.toLocaleString("en-IN")}</p>
-                      </div>
+  <p>Total</p>
+  <p>
+    ₹{Math.round(summary?.finalAmount || 0).toLocaleString("en-IN")}
+  </p>
+</div>
+
                     </>
                   )}
 

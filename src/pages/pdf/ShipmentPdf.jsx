@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
 
 // Component to download the PDF
 const ShipmentPdf = ({ data = {}, couponPercentage }) => {
-  // console.log(data)
+  console.log(data)
   // const data = {
   //   _id: "68a5a44877719ed4949a24ca",
   //   orderId: "NB-00267",
@@ -296,6 +296,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
     discountDetails,
     _id,
     txnid,
+    mihpayid,
     additionalDiscount,
     onSiteDiscount,
   } = data;
@@ -500,7 +501,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               </Text>
               {paymentMode === "Prepaid" && (
                 <>
-                  <Text style={{ fontSize: "9px" }}>Txn ID: - {txnid}</Text>
+                  <Text style={{ fontSize: "9px" }}>Txn ID: - {mihpayid}</Text>
                   <Text style={{ fontSize: "9px" }}>Mode: - UPI</Text>
                 </>
               )}
@@ -632,7 +633,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   marginBottom: "-6px",
                 }}
               >
-                <Text
+                {/* <Text
                   style={{
                     fontSize: 9,
                     width: "7%",
@@ -643,12 +644,12 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   }}
                 >
                   S.No.
-                </Text>
+                </Text> */}
 
                 <Text
                   style={{
                     fontSize: 12,
-                    width: "43%",
+                    width: "55%",
                     paddingLeft: 4,
                     borderRightWidth: 1,
                     borderColor: "#000",
@@ -741,7 +742,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                         // paddingVertical: 4,
                       }}
                     >
-                      <Text
+                      {/* <Text
                         style={{
                           fontSize: 9,
                           width: "7%",
@@ -752,11 +753,11 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                         }}
                       >
                         {index + 1}
-                      </Text>
+                      </Text> */}
                       <Text
                         style={{
                           fontSize: 9,
-                          width: "43%",
+                          width: "55%",
                           paddingLeft: 4,
                           borderRightWidth: 1,
                           borderColor: "#000",
@@ -867,7 +868,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   <Text
                     style={{
                       fontSize: "9px",
-                      width: "13.95%",
+                      width: "13%",
                       paddingVertical: "5px",
                       paddingHorizontal: "5px",
                       borderLeft: 1,
@@ -901,7 +902,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   <Text
                     style={{
                       fontSize: "9px",
-                      width: "13.95%",
+                      width: "13%",
                       paddingVertical: "5px",
                       paddingHorizontal: "5px",
                       borderLeft: 1,
@@ -972,7 +973,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                     <Text
                       style={{
                         fontSize: "9px",
-                        width: "13.95%",
+                        width: "13%",
                         paddingVertical: "5px",
                         paddingHorizontal: "5px",
                         borderLeft: 1,
@@ -1006,7 +1007,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   <Text
                     style={{
                       fontSize: "9px",
-                      width: "13.95%",
+                      width: "13%",
                       paddingVertical: "5px",
                       paddingHorizontal: "5px",
                       borderLeft: 1,
@@ -1095,7 +1096,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   marginBottom: "-6px",
                 }}
               >
-                <Text
+                {/* <Text
                   style={{
                     fontSize: 9,
                     width: "7%",
@@ -1106,12 +1107,12 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   }}
                 >
                   S.No.
-                </Text>
+                </Text> */}
 
                 <Text
                   style={{
                     fontSize: 12,
-                    width: "43%",
+                    width: "55%",
                     paddingLeft: 4,
                     borderRightWidth: 1,
                     borderColor: "#000",
@@ -1201,23 +1202,11 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                         // paddingVertical: 5,
                       }}
                     >
+                      
                       <Text
                         style={{
                           fontSize: 9,
-                          width: "7%",
-                          textAlign: "center",
-                          borderRightWidth: 1,
-                          borderColor: "#000",
-                          paddingVertical: 6,
-                        }}
-                      >
-                        {serialNumber++}{" "}
-                        {/* Increment serial number for each item */}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 9,
-                          width: "43%",
+                          width: "55%",
                           paddingLeft: 4,
                           borderRightWidth: 1,
                           borderColor: "#000",
@@ -1327,7 +1316,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   <Text
                     style={{
                       fontSize: "9px",
-                      width: "13.93%",
+                      width: "13%",
                       paddingVertical: "5px",
                       paddingHorizontal: "5px",
                       borderLeft: 1,
@@ -1365,7 +1354,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                 width: "86%",
               }}
             >
-              Total Amount ( {totalPaperbackQuantity > 0 ? "Printed" : ""}
+              Grand Total ( {totalPaperbackQuantity > 0 ? "Printed Books" : ""}
               {totalPaperbackQuantity > 0 && totalEbookQuantity > 0
                 ? " + "
                 : null}
@@ -1375,7 +1364,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               style={{
                 fontSize: "11px",
                 fontWeight: 600,
-                width: "13.95%",
+                width: "13%",
                 borderLeft: 1,
                 paddingHorizontal: "5px",
                 paddingVertical: "3px",
@@ -1414,21 +1403,21 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                   width: "86%",
                 }}
               >
-                Coupon Discount (-)
+                Coupon Code Discount ({appliedCoupon} - {appliedCouponDiscount}%) (-)
               </Text>
 
               <Text
                 style={{
                   fontSize: "11px",
                   fontWeight: 600,
-                  width: "13.95%",
+                  width: "13%",
                   borderLeft: 1,
                   paddingHorizontal: "5px",
                   paddingVertical: "3px",
                   textAlign: "right",
                 }}
               >
-                {couponDiscountPercent}%
+                Rs. {couponDiscountAmount}
               </Text>
             </View>
           )}
@@ -1464,7 +1453,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                 style={{
                   fontSize: "11px",
                   fontWeight: 600,
-                  width: "13.95%",
+                  width: "13%",
                   borderLeft: 1,
                   paddingHorizontal: "5px",
                   paddingVertical: "3px",
@@ -1506,7 +1495,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
                 style={{
                   fontSize: "11px",
                   fontWeight: 600,
-                  width: "13.95%",
+                  width: "13%",
                   borderLeft: 1,
                   paddingHorizontal: "5px",
                   paddingVertical: "3px",
@@ -1549,7 +1538,7 @@ const ShipmentPdf = ({ data = {}, couponPercentage }) => {
               style={{
                 fontSize: "11px",
                 fontWeight: 600,
-                width: "13.95%",
+                width: "13%",
                 borderLeft: 1,
                 paddingHorizontal: "5px",
                 paddingVertical: "3px",

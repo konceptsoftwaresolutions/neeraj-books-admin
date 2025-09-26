@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getDashboardData } from "../../redux/features/dashboard";
 import MonthChart from "./charts/MonthChart";
 import { getAllCategories } from "../../redux/features/category";
+import { RiResetLeftFill } from "react-icons/ri";
 
 import {
   FaBox,
@@ -52,11 +53,13 @@ const Home = () => {
   const dispatch = useDispatch();
 
   const [filters, setFilters] = useState({
-    period: "all",
+    period: "today",
     category: "IGNOU",
     fromDate: null,
     toDate: null,
   });
+  const [tempFromDate, setTempFromDate] = useState(null);
+  const [tempToDate, setTempToDate] = useState(null);
 
   const { dashboardData } = useSelector((state) => state.dashboard);
   const { allCategory } = useSelector((state) => state.category);
@@ -103,45 +106,76 @@ const Home = () => {
     }));
   };
 
+  const handleResetFilters = () => {
+    setFilters({
+      period: "today",
+      category: "IGNOU",
+      fromDate: null,
+      toDate: null,
+    });
+    setTempFromDate(null);
+    setTempToDate(null);
+  };
+
+  const handleApplyDates = () => {
+    setFilters((prev) => ({
+      ...prev,
+      fromDate: tempFromDate,
+      toDate: tempToDate,
+    }));
+  };
+
   return (
     <PageCont>
-      <div className="flex justify-start items-center gap-3   ">
-        <Heading text="Admin Dashboard" />
-      </div>
-
-      <div className="flex justify-end gap-3">
-        <div className="flex">
-          {["today", "weekly", "monthly", "yearly", "all"].map((time) => (
-            <button
-              key={time}
-              className={`border-black border-[1px] px-2 py-1 border-r-0 last:border-r ${
-                filters.period === time ? "bg-black text-white" : ""
-              }`}
-              onClick={() => handleTimeFilterChange(time)}
-            >
-              {time.charAt(0).toUpperCase() + time.slice(1)}
-            </button>
-          ))}
+      <div className="grid grid-cols-1 gap-y-3">
+        <div className="flex justify-start items-center gap-3   ">
+          <Heading text="Admin Dashboard" />
         </div>
-        <div className="flex gap-4">
-          <DatePicker
-            className="border px-2 py-1 rounded-none border-black"
-            onChange={handleFromDateChange}
-            allowClear
-            format="DD-MM-YYYY"
-            placeholder="From Date"
-            value={
-              filters.fromDate ? dayjs(filters.fromDate, "DD-MM-YYYY") : null
-            }
-          />
-          <DatePicker
-            className="border px-2 py-1 rounded-none border-black"
-            onChange={handleToDateChange}
-            allowClear
-            format="DD-MM-YYYY"
-            placeholder="To Date"
-            value={filters.toDate ? dayjs(filters.toDate, "DD-MM-YYYY") : null}
-          />
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={handleResetFilters}
+            className="bg-black text-white px-3 flex items-center gap-1"
+          >
+            Reset <RiResetLeftFill />
+          </button>
+          <div className="flex">
+            {["today", "weekly", "monthly", "yearly", "all"].map((time) => (
+              <button
+                key={time}
+                className={`border-black border-[1px] px-2 py-1 border-r-0 last:border-r ${
+                  filters.period === time ? "bg-black text-white" : ""
+                }`}
+                onClick={() => handleTimeFilterChange(time)}
+              >
+                {time.charAt(0).toUpperCase() + time.slice(1)}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-4">
+            <DatePicker
+              className="border px-2 py-1 rounded-none border-black"
+              onChange={(date, dateString) => setTempFromDate(dateString)}
+              allowClear
+              format="DD-MM-YYYY"
+              placeholder="From Date"
+              value={tempFromDate ? dayjs(tempFromDate, "DD-MM-YYYY") : null}
+            />
+            <DatePicker
+              className="border px-2 py-1 rounded-none border-black"
+              onChange={(date, dateString) => setTempToDate(dateString)}
+              allowClear
+              format="DD-MM-YYYY"
+              placeholder="To Date"
+              value={tempToDate ? dayjs(tempToDate, "DD-MM-YYYY") : null}
+            />
+            <button
+              onClick={handleApplyDates}
+              className="bg-black text-white px-3 py-1"
+            >
+              Apply
+            </button>
+          </div>
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4 my-10">
@@ -291,30 +325,32 @@ const Home = () => {
           image={rupee}
         />
       </div>
-      <MonthChart dashboardData={dashboardData} />
-      <div className="flex gap-3 flex-wrap">
-        <div className="flex gap-3 flex-wrap">
-          {allCategory?.map((item, index) => (
-            <p
-              key={index}
-              onClick={() =>
-                setFilters((prev) => ({
-                  ...prev,
-                  category: item.name,
-                }))
-              }
-              className={`px-3 py-1 border-[1px] border-black rounded-2xl cursor-pointer ${
-                filters.category === item.name ? "bg-black text-white" : ""
-              }`}
-            >
-              {item.name}
-            </p>
-          ))}
-        </div>
-      </div>
-
-      <Category />
-      <ShipmentPdf />
+      {userData?.profile === "superAdmin" && (
+        <>
+          <MonthChart dashboardData={dashboardData} />
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex gap-3 flex-wrap">
+              {allCategory?.map((item, index) => (
+                <p
+                  key={index}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      category: item.name,
+                    }))
+                  }
+                  className={`px-3 py-1 border-[1px] border-black rounded-2xl cursor-pointer ${
+                    filters.category === item.name ? "bg-black text-white" : ""
+                  }`}
+                >
+                  {item.name}
+                </p>
+              ))}
+            </div>
+          </div>
+          <Category />
+        </>
+      )}
     </PageCont>
   );
 };

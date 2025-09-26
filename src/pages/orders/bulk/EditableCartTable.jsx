@@ -139,7 +139,7 @@ const EditableCartTable = ({ items = [], onChange, setBooksData }) => {
         amount -= (amount * d2) / 100;
         amount -= (amount * d3) / 100;
 
-        return `₹${amount.toFixed(2)}`;
+    return `₹${Math.round(amount)}`;
       },
       right: true,
     },
@@ -179,13 +179,13 @@ const EditableCartTable = ({ items = [], onChange, setBooksData }) => {
     const options = [];
     if (bookData.english) {
       options.push({
-        label: `${bookData.english.title} - ${bookData.english.bookCode}`,
+        label: `${bookData.english.title} - ${bookData.english.bookCode} - (English)`,
         value: bookData.english._id,
       });
     }
     if (bookData.hindi) {
       options.push({
-        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode}`,
+        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode} - (Hindi)`,
         value: bookData.hindi._id,
       });
     }
@@ -234,7 +234,7 @@ const EditableCartTable = ({ items = [], onChange, setBooksData }) => {
 
   return (
     <div className="mt-6">
-      <div className="flex justify-between mb-4">
+      <div className="flex gap-x-3 justify-between mb-4">
         <Select
           mode="multiple"
           allowClear
@@ -243,7 +243,7 @@ const EditableCartTable = ({ items = [], onChange, setBooksData }) => {
           value={selectedProducts}
           onChange={handleProductsChange}
           options={productOptions}
-          className="w-[600px] h-max"
+          className="w-[90%] h-max"
           filterOption={(input, option) =>
             option.label.toLowerCase().includes(input.toLowerCase())
           }

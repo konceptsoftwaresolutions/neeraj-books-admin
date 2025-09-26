@@ -64,7 +64,7 @@ const EditOrders = () => {
   const [shippingRate, setShippingRate] = useState();
 
   const location = useLocation();
-  // console.log(orderItems, orderdata?.items);
+  // console.log(orderdata);
 
   useEffect(() => {
     if (orderdata) {
@@ -484,6 +484,16 @@ const EditOrders = () => {
     });
   };
 
+  const netPayableAmount = Math.round(
+    (couponDiscountPercent > 0
+      ? subtotalAmount - couponDiscountAmount
+      : subtotalAmount) +
+      (orderdata?.shippingAmount
+        ? Math.round(parseFloat(orderdata?.shippingAmount))
+        : 0) -
+      (orderdata?.onSiteDiscount ? parseFloat(orderdata?.onSiteDiscount) : 0)
+  ).toLocaleString("en-IN");
+
   return (
     <PageCont>
       <Heading text="Orders Details" />
@@ -763,11 +773,11 @@ const EditOrders = () => {
                 <div className="border border-black mt-6">
                   <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                     <p className="font-semibold">
-                      {`Total Amount ${
+                      {`Grand Total ${
                         totalPaperbackQuantity > 0 && totalEbookQuantity > 0
-                          ? "(Printed + E-book)"
+                          ? "(Printed Books + E-book)"
                           : totalPaperbackQuantity > 0
-                          ? "(Printed)"
+                          ? "(Printed Books)"
                           : totalEbookQuantity > 0
                           ? "(E-book)"
                           : ""
@@ -784,12 +794,16 @@ const EditOrders = () => {
 
                   {orderdata?.appliedCoupon && (
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
-                      <p className="font-semibold"> Coupon Code Discount (-)</p>
-                      <p>{couponDiscountPercent}%</p>
+                      <p className="font-semibold">
+                        {" "}
+                        Coupon Code Discount({orderdata?.appliedCoupon} -{" "}
+                        {couponDiscountPercent}%) (-)
+                      </p>
+                      <p>₹{couponDiscountAmount}/-</p>
                     </div>
                   )}
 
-                  {orderdata?.shippingAmount && (
+                  {orderdata?.shippingAmount > 0 && (
                     <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                       <p className="font-semibold">
                         {" "}
@@ -852,6 +866,7 @@ const EditOrders = () => {
         openModal={showRefundModal}
         setOpenModal={setShowRefundModal}
         orderdata={orderdata}
+        orderTotalAmount={netPayableAmount}
       />
 
       <OnsiteModal
@@ -865,6 +880,7 @@ const EditOrders = () => {
         setShowModal={setOpenTrackModal}
         trackingData={trackingData}
       />
+      {/* <ShipmentPdf /> */}
     </PageCont>
   );
 };

@@ -26,6 +26,7 @@ import {
 
 function AddOrders() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [allProducts, setAllProducts] = useState([]);
   const { bulkClientOptions } = useSelector((state) => state.customer);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,14 +62,14 @@ function AddOrders() {
     const options = [];
     if (bookData.english) {
       options.push({
-        label: `${bookData.english.title} - ${bookData.english.bookCode}`,
+        label: `${bookData.english.title} - ${bookData.english.bookCode} - (English)`,
         value: bookData.english._id,
       });
     }
 
     if (bookData.hindi) {
       options.push({
-        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode}`,
+        label: `${bookData.hindi.title} - ${bookData.hindi.bookCode} - (Hindi)`,
         value: bookData.hindi._id,
       });
     }
@@ -128,6 +129,7 @@ function AddOrders() {
       dispatch(
         getBulkClientById({ id: client }, (success, data) => {
           if (success && data) {
+            console.log(data);
             setClientPincode(data.pincode);
           }
         })
@@ -253,10 +255,10 @@ function AddOrders() {
     const orderTotal = Number(totalWithoutShipping);
 
     const payload = {
-      deliveryPincode: "110009",
+      deliveryPincode: clientPincode,
       isCod: paymentMode === "cod",
       noOfBooksWithoutEbook: booksCount,
-      orderWeight: totalWeight,
+      orderWeight: Number(totalWeight),
       totalOrderValueAfterDiscount: orderTotal,
     };
 
@@ -340,7 +342,7 @@ function AddOrders() {
       books: transformedBooks,
     };
 
-    console.log(finalPayload);
+    // console.log(finalPayload);
 
     dispatch(
       generateSingleBulkOrder(finalPayload, setIsLoading, (success) => {
@@ -360,7 +362,7 @@ function AddOrders() {
       discount1: "",
       discount2: "",
       discount3: "",
-      hsnCode: "",
+      hsnCode: "49011010",
       amt: "",
     });
 
@@ -410,11 +412,7 @@ function AddOrders() {
         </Section>
 
         {/* Book Information */}
-        <Section
-          title="Book Information"
-          actionText="+ Add Book"
-          onAction={handleAddBook}
-        >
+        <Section title="Book Information">
           {fields?.map((item, index) => (
             <div
               key={item.id}
@@ -483,6 +481,7 @@ function AddOrders() {
                   errors={errors}
                   name={`books.${index}.hsnCode`}
                   label="HSN"
+                  defaultValue="49011010"
                   type="text"
                 />
                 <InputField
@@ -496,6 +495,18 @@ function AddOrders() {
               </div>
             </div>
           ))}
+
+          {/* Button at bottom-right */}
+          <div className="flex justify-end mt-4">
+            <Button
+              onClick={handleAddBook}
+              variant="contained"
+              color="primary"
+              className="capitalize"
+            >
+              + Add Book
+            </Button>
+          </div>
         </Section>
 
         {/* Shipping Info */}

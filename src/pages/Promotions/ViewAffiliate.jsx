@@ -17,6 +17,7 @@ import Tile from "./Tile";
 import { Button } from "@material-tailwind/react";
 import { Plus } from "lucide-react";
 import AddCouponModal from "../coupons/AddCouponModal";
+import Swal from "sweetalert2";
 
 const ViewAffiliate = () => {
   const dispatch = useDispatch();
@@ -92,6 +93,8 @@ const ViewAffiliate = () => {
         getQRImageAffiliate(location.state.data._id, (success, data) => {
           if (success) {
             setImgUrl(data);
+          } else {
+            setImgUrl(null);
           }
         })
       );
@@ -109,9 +112,28 @@ const ViewAffiliate = () => {
     navigate(`/${role}/affiliateorders`, { state: { affiliateData } });
   };
 
-  const handledelete = () => {
-    dispatch(deleteAffiliate(location?.state.data._id));
-    navigate(-1);
+  const handleDelete = () => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "Cancel",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        dispatch(
+          deleteAffiliate(location?.state.data._id, (success) => {
+            if (success) {
+              // Swal.fire("Deleted!", "Affiliate has been deleted.", "success");
+              navigate(-1);
+            }
+          })
+        );
+      }
+    });
   };
 
   const handlePaymnetClick = () => {
@@ -169,6 +191,8 @@ const ViewAffiliate = () => {
             getQRImageAffiliate(location.state.data._id, (success, data) => {
               if (success) {
                 setImgUrl(data);
+              } else {
+                setImgUrl(null);
               }
             })
           );
@@ -506,7 +530,7 @@ const ViewAffiliate = () => {
         </button>
         <button
           className=" mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400 transition"
-          onClick={handledelete}
+          onClick={handleDelete}
         >
           Delete Affiliate
         </button>

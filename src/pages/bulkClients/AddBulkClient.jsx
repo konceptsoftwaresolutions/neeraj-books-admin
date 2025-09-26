@@ -203,8 +203,9 @@ function AddBulkClient() {
               errors={errors}
               name="city"
               label="City"
-              type={`${selectedState === "Delhi" ? "text" : "option"}`}
-              options={selectedState !== "Delhi" ? cityOptions : undefined}
+              type="text"
+              // type={`${selectedState === "Delhi" ? "text" : "option"}`}
+              // options={selectedState !== "Delhi" ? cityOptions : undefined}
             />
             <InputField
               control={control}

@@ -18,7 +18,9 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
   const [formattedDataCopy, setFormattedDataCopy] = useState();
   const dispatch = useDispatch();
 
-  console.log(orderData);
+  // Helper to build a stable row key for any row
+  const rowKeyFor = (row) =>
+    `${row?.productId?._id || row?._id}-${row.language}-${row.isEbookOnlyRow ? "ebook" : "paperback"}`;
 
   // Fetch all product data
   const fetchAllProductsData = useCallback(() => {
@@ -101,7 +103,6 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
   // Format incoming orderData to rows
   useEffect(() => {
     const transformed = orderData?.flatMap((item) => {
-      // console.log(item);
       if (item.isEbookAlsoSelected) {
         return [
           {
@@ -112,9 +113,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
           },
           {
             ...item,
-            // onlyEbookSelected: true,
             isEbookOnlyRow: true,
-            // isEbookAlsoSelected: false,
           },
         ];
       }
@@ -127,19 +126,20 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     });
 
     setFormattedData(transformed);
-  }, [orderData]);
+  }, [orderData])
 
-  // Update editable fields
-  const handleInputChange = (index, field, value) => {
-    const updatedData = [...formattedData];
-    updatedData[index][field] = value;
+  // Update editable fields by stable row key (not visual index)
+  const handleInputChange = (rowKey, field, value) => {
+    const updatedData = formattedData.map((item) =>
+      rowKeyFor(item) === rowKey ? { ...item, [field]: value } : item
+    );
     setFormattedData(updatedData);
 
     if (onUpdate) {
       const mergedData = mergeEbooksWithPaperbacks(updatedData);
       onUpdate(mergedData);
     }
-  };
+  }; 
 
   // Merge physical+ebook rows back to single objects
   const mergeEbooksWithPaperbacks = (data) => {
@@ -178,7 +178,6 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       const book = match.book;
       const lang = match.language;
       const bookInfo = book[lang];
-      // console.log(bookInfo);
 
       const ebookAmount = () => {
         if (type === "paperback" || type === "ebook") {
@@ -191,7 +190,6 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       };
       const ebookPrice = ebookAmount();
       return {
-        // _id: selectedId + "-" + Date.now(), // Or generate UUID
         productId: {
           _id: book._id,
           [lang]: {
@@ -230,23 +228,17 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
         toast.error("Combo is already there in the order");
         return;
       }
-      // Find and remove the matched orderItem from orderData
       let updatedOrderData = [...orderData];
       filtered.forEach((filteredItem) => {
         updatedOrderData = updatedOrderData.filter((orderItem) => {
           const isMatch =
             filteredItem.productId._id === orderItem.productId._id &&
             filteredItem.language === orderItem.language;
-          // console.log(filteredItem, orderItem);
-          return !isMatch; // Remove the matched item
+          return !isMatch;
         });
-        // console.log(updatedOrderData);
       });
 
-      // Merge the updated orderData with the filtered items
       const merged = [...updatedOrderData, ...filtered];
-      // console.log("after removing", updatedOrderData);
-      // Update the state with the merged array and clear the selected products
       onUpdate(merged);
       setSelectedCombo([]);
     } else if (type === "ebook") {
@@ -266,23 +258,17 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
         return;
       }
 
-      // Find and remove the matched orderItem from orderData
       let updatedOrderData = [...orderData];
       filtered.forEach((filteredItem) => {
         updatedOrderData = updatedOrderData.filter((orderItem) => {
           const isMatch =
             filteredItem.productId._id === orderItem.productId._id &&
             filteredItem.language === orderItem.language;
-          // console.log(filteredItem, orderItem);
-          return !isMatch; // Remove the matched item
+          return !isMatch;
         });
-        // console.log(updatedOrderData);
       });
 
-      // Merge the updated orderData with the filtered items
       const merged = [...updatedOrderData, ...filtered];
-      // console.log("after removing", updatedOrderData);
-      // Update the state with the merged array and clear the selected products
       onUpdate(merged);
       setSelectedEbooks([]);
     } else if (type === "paperback") {
@@ -301,23 +287,17 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
         toast.error("Printed Book is already there in the order");
         return;
       }
-      // Find and remove the matched orderItem from orderData
       let updatedOrderData = [...orderData];
       filtered.forEach((filteredItem) => {
         updatedOrderData = updatedOrderData.filter((orderItem) => {
           const isMatch =
             filteredItem.productId._id === orderItem.productId._id &&
             filteredItem.language === orderItem.language;
-          // console.log(filteredItem, orderItem);
-          return !isMatch; // Remove the matched item
+          return !isMatch;
         });
-        // console.log(updatedOrderData);
       });
 
-      // Merge the updated orderData with the filtered items
       const merged = [...updatedOrderData, ...filtered];
-      // console.log("after removing", updatedOrderData);
-      // Update the state with the merged array and clear the selected products
       onUpdate(merged);
       setSelectedProducts([]);
     }
@@ -339,30 +319,77 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
   };
 
   const handleDeleteRow = (rowToDelete) => {
-    const updatedData = formattedData.filter((item) => {
-      console.log(item);
-      const isSameBook =
-        item.productId?._id === rowToDelete.productId?._id &&
-        item.language === rowToDelete.language;
+    let updatedData = [...formattedData];
 
-      console.log(rowToDelete, isSameBook);
+    const isEbookComboRow =
+      rowToDelete.isEbookAlsoSelected &&
+      !rowToDelete.onlyEbookSelected &&
+      rowToDelete.isEbookOnlyRow;
 
-      if (rowToDelete.onlyEbookSelected || rowToDelete.isEbookOnlyRow) {
-        // Delete only the ebook row
+    if (isEbookComboRow) {
+      updatedData = updatedData.map((item) => {
+        const isSameBook =
+          item.productId?._id === rowToDelete.productId?._id &&
+          item.language === rowToDelete.language &&
+          !item.isEbookOnlyRow;
+
+        if (isSameBook) {
+          return {
+            ...item,
+            isEbookAlsoSelected: false,
+            onlyEbookSelected: false,
+            isEbookOnlyRow: false,
+          };
+        }
+        return item;
+      });
+
+      updatedData = updatedData.filter(
+        (item) =>
+          !(
+            item.productId?._id === rowToDelete.productId?._id &&
+            item.language === rowToDelete.language &&
+            item.isEbookOnlyRow
+          )
+      );
+    } else if (rowToDelete.isEbookAlsoSelected) {
+      updatedData = updatedData.map((item) => {
+        const isSameBook =
+          item.productId?._id === rowToDelete.productId?._id &&
+          item.language === rowToDelete.language;
+
+        if (isSameBook) {
+          return {
+            ...item,
+            isEbookOnlyRow: true,
+            isEbookAlsoSelected: false,
+            onlyEbookSelected: true,
+            ebookPrice: item?.productId[item.language]?.eBookOriginalPrice,
+          };
+        }
+        return item;
+      });
+    } else if (rowToDelete.onlyEbookSelected || rowToDelete.isEbookOnlyRow) {
+      updatedData = updatedData.filter((item) => {
+        const isSameBook =
+          item.productId?._id === rowToDelete.productId?._id &&
+          item.language === rowToDelete.language;
         return !(isSameBook && (item.onlyEbookSelected || item.isEbookOnlyRow));
-      } else if (rowToDelete.isEbookAlsoSelected) {
-        // Delete both parts of the combo
-        return !isSameBook;
-      } else {
-        // Only paperback, remove only physical book
+      });
+    } else {
+      updatedData = updatedData.filter((item) => {
+        const isSameBook =
+          item.productId?._id === rowToDelete.productId?._id &&
+          item.language === rowToDelete.language;
+
         return !(
           isSameBook &&
           !item.isEbookAlsoSelected &&
           !item.onlyEbookSelected &&
           !item.isEbookOnlyRow
         );
-      }
-    });
+      });
+    }
 
     setFormattedData(updatedData);
 
@@ -375,7 +402,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
   const columns = [
     {
       name: "Book Code",
-      selector: (row) => row.bookCode, // concise syntax (recommended)
+      selector: (row) => row.bookCode,
       width: "150px",
       wrap: true,
     },
@@ -397,7 +424,6 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       ),
       grow: 2,
     },
-
     {
       name: "Price",
       cell: (row) => {
@@ -412,19 +438,21 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     },
     {
       name: "Qty",
-      cell: (row, index) => {
+      cell: (row) => {
         const isEbookOnlyRow = row.onlyEbookSelected || row.isEbookOnlyRow;
-        const quantity = isEbookOnlyRow ? 1 : row.quantity || 1;
+        const quantity = isEbookOnlyRow ? 1 : Number(row.quantity ?? 1);
+        const rk = rowKeyFor(row);
 
         return isEbookOnlyRow ? (
           <span className="text-right block w-full">1</span>
         ) : (
           <input
             type="number"
+            min={1}
             className="w-16 border border-gray-300 rounded px-2 py-1 text-right"
             value={quantity}
             onChange={(e) =>
-              handleInputChange(index, "quantity", e.target.value)
+              handleInputChange(rk, "quantity", Number(e.target.value || 1))
             }
           />
         );
@@ -448,31 +476,13 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     },
     {
       name: "Action",
-      cell: (row, index) => {
-        if (row.isEbookAlsoSelected && row.isEbookOnlyRow) {
-          return null; // ✅ safely return nothing
-        }
-        let title;
-        if (
-          row?.isEbookAlsoSelected === false &&
-          row?.isEbookOnlyRow === false
-        ) {
-          title = "Delete Paperback";
-        } else if (
-          row?.isEbookAlsoSelected === true &&
-          row?.isEbookOnlyRow === false
-        ) {
-          title = "Delete Combo";
-        } else {
-          title = "Delete Ebook";
-        }
-
+      cell: (row) => {
         return (
           <button
             onClick={() => handleDeleteRow(row)}
             className="text-red-600 hover:underline"
           >
-            <Tooltip title={title}>
+            <Tooltip title={"Delete"}>
               <MdDelete size={20} />
             </Tooltip>
           </button>
@@ -484,10 +494,8 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
     },
   ];
 
-  console.log(formattedData);
-
   useEffect(() => {
-    if (formattedData.length > 0) {
+    if (formattedData) {
       setFormattedDataCopy(formattedData);
     }
   }, [formattedData]);
@@ -505,20 +513,11 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
       (item.isEbookAlsoSelected === false && item.isEbookOnlyRow === false)
   );
 
-  // 2. Ebook Also Selected
-  // const ebookAlsoArray = formattedDataCopy?.filter(
-  //   (item) => item.isEbookAlsoSelected === true
-  // );
-
-  // 3. Neither of the above (both false)
-  // const noneArray = formattedDataCopy?.filter(
-  //   (item) =>
-  //     item.onlyEbookSelected === false && item.isEbookAlsoSelected === false
-  // );
-
-  // console.log("Ebook:", onlyEbookArray);
-  // console.log("Paperback:", paperBackArray);
-  // console.log("None:", noneArray);
+  // inject stable keys for DataTable to avoid using index as fallback
+  const paperBackWithKeys =
+    paperBackArray?.map((r) => ({ ...r, __rowKey: rowKeyFor(r) })) || [];
+  const onlyEbookWithKeys =
+    onlyEbookArray?.map((r) => ({ ...r, __rowKey: rowKeyFor(r) })) || [];
 
   return (
     <div className="mt-6">
@@ -533,7 +532,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
               showSearch
               placeholder="Search to Select"
               value={selectedProducts}
-              onChange={handlePaperbackChange}
+              onChange={setSelectedProducts}
               options={productOptions}
               className="w-full h-max"
               filterOption={(input, option) =>
@@ -545,7 +544,6 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
             className="flex items-center gap-1 capitalize py-2 px-4"
             onClick={() => handleProductAdd("paperback")}
           >
-            {/* <IoAddCircleOutline size={17} /> */}
             Add
           </Button>
         </div>
@@ -560,7 +558,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
               showSearch
               placeholder="Search to Select"
               value={selectedEbooks}
-              onChange={handleEbookChange}
+              onChange={setSelectedEbooks}
               options={ebookOptions}
               className="w-full h-max"
               filterOption={(input, option) =>
@@ -572,7 +570,6 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
             className="flex items-center gap-1 capitalize py-2 px-4"
             onClick={() => handleProductAdd("ebook")}
           >
-            {/* <IoAddCircleOutline size={17} />  */}
             Add
           </Button>
         </div>
@@ -587,7 +584,7 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
               showSearch
               placeholder="Search to Select"
               value={selectedCombo}
-              onChange={handleComboChange}
+              onChange={setSelectedCombo}
               options={productOptions}
               className="w-full h-max"
               filterOption={(input, option) =>
@@ -599,133 +596,23 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
             className="flex items-center gap-1 capitalize py-2 px-4"
             onClick={() => handleProductAdd("combo")}
           >
-            {/* <IoAddCircleOutline size={17} /> */}
             Add
           </Button>
         </div>
       </div>
 
       <div className="mt-3">
-        {/* <DataTable
-          // title="Order Summary"
-          columns={columns}
-          data={formattedData}
-          dense
-          highlightOnHover
-          responsive
-          persistTableHead
-          customStyles={{
-            rows: {
-              style: {
-                minHeight: "56px",
-                paddingTop: "7px",
-                paddingBottom: "7px",
-                fontSize: "15px",
-              },
-            },
-            headCells: {
-              style: {
-                fontWeight: "600",
-                fontSize: "17px",
-                paddingTop: "7px",
-                paddingBottom: "7px",
-                backgroundColor: "#f3f4f6",
-              },
-            },
-          }}
-          // conditionalRowStyles={[
-          //   {
-          //     when: (row) =>
-          //       row.isEbookAlsoSelected === false &&
-          //       row.onlyEbookSelected === false, // condition
-          //     style: {
-          //       backgroundColor: "#fff3cd", // light yellow
-          //       color: "#856404",
-          //     },
-          //   },
-          //   {
-          //     when: (row) => row.onlyEbookSelected === true,
-          //     style: {
-          //       backgroundColor: "#d4edda", // light green
-          //       color: "#155724",
-          //     },
-          //   },
-          //   {
-          //     when: (row) => row.isEbookAlsoSelected === true,
-          //     style: {
-          //       backgroundColor: "#f8d7da", // light red
-          //       color: "#721c24",
-          //     },
-          //   },
-          // ]}
-        /> */}
-
-        <DataTable
-          title="Printed Books"
-          columns={columns}
-          data={paperBackArray}
-          dense
-          highlightOnHover
-          responsive
-          persistTableHead
-            noDataComponent="No printed books "
-
-          customStyles={{
-            rows: {
-              style: {
-                minHeight: "56px",
-                paddingTop: "7px",
-                paddingBottom: "7px",
-                fontSize: "15px",
-              },
-            },
-            headCells: {
-              style: {
-                fontWeight: "600",
-                fontSize: "17px",
-                paddingTop: "7px",
-                paddingBottom: "7px",
-                backgroundColor: "#f3f4f6",
-              },
-            },
-          }}
-          // conditionalRowStyles={[
-          //   {
-          //     when: (row) =>
-          //       row.isEbookAlsoSelected === false &&
-          //       row.onlyEbookSelected === false, // condition
-          //     style: {
-          //       backgroundColor: "#fff3cd", // light yellow
-          //       color: "#856404",
-          //     },
-          //   },
-          //   {
-          //     when: (row) => row.onlyEbookSelected === true,
-          //     style: {
-          //       backgroundColor: "#d4edda", // light green
-          //       color: "#155724",
-          //     },
-          //   },
-          //   {
-          //     when: (row) => row.isEbookAlsoSelected === true,
-          //     style: {
-          //       backgroundColor: "#f8d7da", // light red
-          //       color: "#721c24",
-          //     },
-          //   },
-          // ]}
-        />
-
-        <div className="mt-9 border-t-2">
+        {paperBackWithKeys.length > 0 && (
           <DataTable
-            title="E Books"
+            title="Printed Books"
             columns={columns}
-            data={onlyEbookArray}
+            data={paperBackWithKeys}
+            keyField="__rowKey"
             dense
             highlightOnHover
             responsive
             persistTableHead
-            noDataComponent="No ebooks "
+            noDataComponent="No printed books "
             customStyles={{
               rows: {
                 style: {
@@ -745,33 +632,43 @@ const OrderSummaryTable = ({ orderData, onUpdate }) => {
                 },
               },
             }}
-            // conditionalRowStyles={[
-            //   {
-            //     when: (row) =>
-            //       row.isEbookAlsoSelected === false &&
-            //       row.onlyEbookSelected === false, // condition
-            //     style: {
-            //       backgroundColor: "#fff3cd", // light yellow
-            //       color: "#856404",
-            //     },
-            //   },
-            //   {
-            //     when: (row) => row.onlyEbookSelected === true,
-            //     style: {
-            //       backgroundColor: "#d4edda", // light green
-            //       color: "#155724",
-            //     },
-            //   },
-            //   {
-            //     when: (row) => row.isEbookAlsoSelected === true,
-            //     style: {
-            //       backgroundColor: "#f8d7da", // light red
-            //       color: "#721c24",
-            //     },
-            //   },
-            // ]}
           />
-        </div>
+        )}
+
+        {onlyEbookWithKeys.length > 0 && (
+          <div className="mt-9 border-t-2">
+            <DataTable
+              title="E Books"
+              columns={columns}
+              data={onlyEbookWithKeys}
+              keyField="__rowKey"
+              dense
+              highlightOnHover
+              responsive
+              persistTableHead
+              noDataComponent="No ebooks "
+              customStyles={{
+                rows: {
+                  style: {
+                    minHeight: "56px",
+                    paddingTop: "7px",
+                    paddingBottom: "7px",
+                    fontSize: "15px",
+                  },
+                },
+                headCells: {
+                  style: {
+                    fontWeight: "600",
+                    fontSize: "17px",
+                    paddingTop: "7px",
+                    paddingBottom: "7px",
+                    backgroundColor: "#f3f4f6",
+                  },
+                },
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

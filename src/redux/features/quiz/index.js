@@ -67,6 +67,39 @@ export const addQuiz = (formData, callback = () => { }) => {
     };
 };
 
+export const updateQuizQuestion = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/product/updateQuiz", payload);
+            if (response.status === 200) {
+                const message = response.data?.message || "Added successfully!";
+                toast.success(message);
+                callback(true)
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.response.data.message);
+        }
+    };
+};
+
+
+export const addSingleQuizQuestion = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/product/addSingleQuiz", payload);
+            if (response.status === 200) {
+                const message = response.data?.message || "Added successfully!";
+                toast.success(message);
+                callback(true)
+            }
+        } catch (error) {
+            console.log(error)
+            toast.error(error.response.data.message);
+        }
+    };
+};
+
 
 export const deleteQuizQuestion = (payload) => {
     return async (dispatch) => {

@@ -58,6 +58,7 @@ import AllBUlkOrders from "../pages/orders/bulk/AllBulkOrders";
 import EditBulkOrder from "../pages/orders/bulk/EditBulkOrder";
 import UpdateOldBook from "../pages/books/UpdateOldBook";
 import IncompleteOrders from "../pages/orders/IncompleteOrders";
+import Shipping from "../pages/shippingCalculator/Shipping";
 
 const Routes = () => {
   const { isAuthenticated, role, token } = useSelector((state) => state.auth);
@@ -171,6 +172,7 @@ const Routes = () => {
         { path: "/:type/coupons", element: <AllCoupons /> },
         { path: "/:type/about", element: <AboutUsPage /> },
         { path: "/:type/sections", element: <Sections /> },
+        { path: "/:type/shipping", element: <Shipping /> },
         // { path: "/:type/customer-order", element: <CustomerOrder /> },
         { path: "*", element: <Navigate to="/" replace /> }, // Redirects to /home
       ],

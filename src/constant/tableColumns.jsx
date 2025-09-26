@@ -140,7 +140,6 @@ export const allPatientsColumn = [
 
 export const allBooksColumns = (
   handleRowClick,
-
   getCategoryName,
   allCategory,
   handleBookSort
@@ -148,13 +147,15 @@ export const allBooksColumns = (
   return [
     {
       name: "S.No.",
-      width: "80px",
+      minWidth: "70px", // Use minWidth for better flexibility
+      maxWidth: "70px", // Use minWidth for better flexibility
       wrap: true,
       selector: (row, index) => index + 1,
     },
     {
       name: "Action",
-      width: "80px",
+      minWidth: "80px",
+      maxWidth: "80px",
       selector: (row) => (
         <div className="flex justify-center items-center gap-x-2">
           <Tooltip title="Edit Book">
@@ -170,48 +171,75 @@ export const allBooksColumns = (
     },
     {
       name: "Book Code",
-      width: "250px",
+      selector: (row) => row.bookCode || "",
       sortable: true,
-      wrap: true,
-      selector: (row) => row.bookCode || "N/A",
+      minWidth: "170px",
+      maxWidth: "170px",
+      sortFunction: (a, b) => {
+        const parseCode = (code) => {
+          if (!code) return { prefix: "", number: 0 };
+          const trimmed = code.trim();
+          const regex = /^([A-Z]+)-(\d+)$/i; // Match letters-number pattern
+          const match = trimmed.match(regex);
+          if (match) {
+            return {
+              prefix: match[1].toUpperCase(),
+              number: parseInt(match[2], 10),
+            };
+          }
+          // fallback if pattern doesn't match
+          return { prefix: trimmed.toUpperCase(), number: 0 };
+        };
+
+        const codeA = parseCode(a.bookCode);
+        const codeB = parseCode(b.bookCode);
+
+        if (codeA.prefix < codeB.prefix) return -1;
+        if (codeA.prefix > codeB.prefix) return 1;
+        return codeA.number - codeB.number;
+      },
     },
     {
       name: "Medium",
-      width: "120px",
-      sortable: true,
+      minWidth: "92px",
+      maxWidth: "92px",
+      // sortable: true,
       wrap: true,
       selector: (row) => row.medium || "N/A",
     },
     {
       name: "Category",
+      minWidth: "130px",
+      maxWidth: "130px",
+      wrap: true,
+      sortable: true,
       selector: (row) =>
         row.categories?.length
           ? row.categories?.map((item) => item.name).join(", ")
           : "NA",
     },
-
     {
       name: "Paperback Price",
-      width: "170px",
-      sortable: true,
+      minWidth: "150px", // Adjusted to fit within reasonable limits
+      maxWidth: "150px",
+      // sortable: true,
       wrap: true,
       selector: (row) => `₹${row.paperBackPrice}` || "N/A",
-      // style: {
-      //   padding: "10px",
-      // },
     },
     {
       name: "E-Book Price",
-      width: "150px",
+      minWidth: "123px",
+      maxWidth: "123px",
       wrap: true,
-      sortable: true,
+      // sortable: true,
       selector: (row) => `₹${row.eBookPrice}` || "N/A",
     },
     {
       name: "Order",
-      width: "150px",
+      minWidth: "96px", // Set a minimum width
+      maxWidth: "96px", // Set a minimum width
       selector: (row) => (
-        <div className="">
+        <div className="w-full">
           <input
             type="number"
             className="border-[1px] border-black p-1 w-full text-center max-w-[80px]"
@@ -226,21 +254,15 @@ export const allBooksColumns = (
       ),
     },
     {
-      name: "Stock",
-      width: "130px",
-      wrap: true,
-      selector: (row) => row.stock || "N/A",
-    },
+  name: "Stock",
+  minWidth: "120px",
+  maxWidth: "120px",
+  wrap: true,
+  sortable: true,
+  selector: (row) => Number(row.stock), // just convert to number
+  sortFunction: (a, b) => Number(a.stock) - Number(b.stock),
+}
 
-    // {
-    //   name: "E-Book Discounted Price",
-    //   width: "270px",
-    //   wrap: true,
-    //   selector: (row) => `₹${row.eBookDiscountedPrice}` || "N/A",
-    //   style: {
-    //     padding: "10px",
-    //   },
-    // },
   ];
 };
 
@@ -413,21 +435,21 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
   return [
     {
       name: "OrderId",
-      width: "120px",
+      minWidth: "98px",
       wrap: true,
       selector: (row) => row.orderId || "N/A",
     },
 
     {
       name: "Order Date",
-      width: "120px",
+      width: "117px",
       wrap: true,
       selector: (row) =>
         row.createdAt ? format(new Date(row.createdAt), "dd MMM yyyy") : "N/A",
     },
     {
       name: "Client ",
-      width: "160px",
+      minWidth: "130px",
       wrap: true,
       selector: (row) =>
         row.shippingAddress.firstName + " " + row.shippingAddress.lastName ||
@@ -444,13 +466,26 @@ export const allOrdersColumn = (handleInvoiceClick, handleRowClick) => {
     },
     {
       name: "Order Total",
-      width: "113px",
+      minWidth: "113px",
       wrap: true,
-      selector: (row) => `₹${row.totalAmount}` || "N/A",
+      selector: (row) => row.totalAmount || "N/A",
+      //     selector: (row) => {
+      //   const total = (row.totalAmount) || 0;
+      //   const shipping = Number(row.shippingAmount) || 0;
+      //   const combined = total + shipping;
+
+      //   return isNaN(combined) ? "N/A" : `₹${combined.toFixed(2)}`;
+      // },
+    },
+    {
+      name: "Shipping",
+      minWidth: "97px",
+      wrap: true,
+      selector: (row) => `₹${row.shippingAmount}` || "N/A",
     },
     {
       name: "Order Status",
-      width: "190px",
+      minWidth: "130px",
       wrap: true,
       cell: (row) => {
         const status = row.orderStatus || "N/A";
@@ -1056,17 +1091,19 @@ export const couponColumns = [
     width: "80px",
     wrap: true,
     selector: (row, index) => index + 1,
-    style: {
-      padding: "10px 10px 10px 20px",
-    },
+    style: { padding: "10px 10px 10px 20px" },
   },
   {
     name: "Title",
     width: "200px",
     wrap: true,
     selector: (row) => row.title || "N/A",
-    style: {
-      padding: "10px",
+    style: { padding: "10px" },
+    sortable: true,
+    sortFunction: (a, b) => {
+      const titleA = a.title || "";
+      const titleB = b.title || "";
+      return titleA.localeCompare(titleB);
     },
   },
   {
@@ -1074,59 +1111,44 @@ export const couponColumns = [
     width: "190px",
     wrap: true,
     selector: (row) => (row.discount ? `${row.discount}%` : "N/A"),
-    style: {
-      padding: "10px",
-    },
+    style: { padding: "10px" },
   },
-
   {
     name: "Coupon Code",
     width: "180px",
     wrap: true,
     selector: (row) => row.couponCode || "N/A",
-    style: {
-      padding: "10px",
-    },
+    style: { padding: "10px" },
   },
-
-  // {
-  //   name: "Total Uses",
-  //   width: "180px",
-  //   wrap: true,
-  //   selector: (row) => row.totalUses || "N/A",
-  //   style: {
-  //     padding: "10px",
-  //   },
-  // },
   {
     name: "Total Used",
     width: "180px",
     wrap: true,
     selector: (row) => Number(row?.totalUses) - Number(row?.usesLeft) || "-",
-    style: {
-      padding: "10px",
-    },
+    style: { padding: "10px" },
   },
   {
     name: "Total Left",
     width: "180px",
     wrap: true,
     selector: (row) => row.usesLeft || "N/A",
-    style: {
-      padding: "10px",
-    },
+    style: { padding: "10px" },
   },
-
   {
     name: "Expiry Date",
     width: "180px",
     wrap: true,
     selector: (row) => row.expiryDate || "N/A",
-    style: {
-      padding: "10px",
+    style: { padding: "10px" },
+    sortable: true,
+    sortFunction: (a, b) => {
+      const dateA = a.expiryDate ? new Date(a.expiryDate) : new Date(0);
+      const dateB = b.expiryDate ? new Date(b.expiryDate) : new Date(0);
+      return dateA - dateB;
     },
   },
 ];
+
 export const bulkCustomerColumns = [
   {
     name: "Company",
@@ -1200,7 +1222,7 @@ export const bulkOrderColumns = (handleInvoiceClick, handleRowClick) => {
     },
     {
       name: "State",
-      selector: (row) => row.state || "-",
+      selector: (row) => row.client.state || "-",
       sortable: true,
       width: "200px",
       wrap: true,

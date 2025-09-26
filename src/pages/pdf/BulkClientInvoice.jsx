@@ -23,6 +23,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     color: "#000",
     padding: 20,
+    // paddingBottom: 120, // Add this - reserves space for footer
   },
 
   flex: {
@@ -214,12 +215,44 @@ const styles = StyleSheet.create({
     // borderLeftWidth: 1, // Adds right border for table cells
     // borderColor: "#000",
   },
+  footer: {
+    position: "absolute",
+    bottom: 10,
+    left: 20, // Change from 40 to match page padding
+    right: 20, // Change from 40 to match page padding
+    fontSize: 7, // Reduce from 10 to fit more content
+    color: "grey",
+  },
+  footerTitle: {
+    fontSize: 8, // Reduce from 10
+    fontWeight: "bold",
+    color: "black",
+    marginBottom: 4,
+  },
+  bulletPoint: {
+    marginBottom: 2, // Reduce from 6
+    fontSize: 6, // Reduce from 7
+    color: "black",
+  },
+  bullet: {
+    width: 3, // Reduce from 4
+    height: 3, // Reduce from 4
+    borderRadius: 1.5, // Adjust accordingly
+    backgroundColor: "#000",
+    marginRight: 4, // Reduce from 6
+    marginTop: 1.5, // Adjust for smaller size
+  },
+  bulletRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+  },
 });
 
 // Create the PDF document
 
 // Component to download the PDF
 const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
+  console.log(data);
   // const data = {
   //   _id: "687778c8f0e30816cb24cde9",
   //   orderId: "BO-00009",
@@ -1212,6 +1245,22 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
   //   shipment_order_id: "896826185",
   //   courier: "DTDC Air 500gm",
   // };
+
+  // Terms content
+  const terms = [
+    "All terms, matters and disputes are subject to DELHI jurisdiction only.",
+    "The amount of this bill is payable in full at Delhi and all cheques are accepted subject to realisation.",
+    "All goods are delivered entirely at buyer’s risk. Sellers are not responsible for any damage or shortage seen after delivery or dispatch from their godowns.",
+    "Goods once sold cannot be taken back or exchanged under any circumstance.",
+    "All goods are subject to availability.",
+    "Right to accept the order or reject the order, and the right to execute the order or not to execute the order remains completely with Neeraj Publications/NeerajBooks.com.",
+    "In case the packets are dishonoured/refused/unclaimed by the customer, the customer shall have to bear the entire expenses.",
+    "Complaints will be entertained if filed within 7 days after receipt of goods at official email id info@neerabooks.com only.",
+    "Any type of ONLINE Sale, Resale & Display of 'NEERAJ IGNOU BOOKS/NEERAJ BOOKS' on any websites is strictly not permitted without prior written permission from Neeraj Publications.",
+    "Printed books are shipped via third-party courier service. Sellers are not responsible for damages or shortages after delivery or dispatch.",
+    "Any such online Sale, Resale & Display activity by any party will be termed ILLEGAL and will invite legal action.",
+  ];
+
   const {
     createdAt,
     discountTotal,
@@ -1234,7 +1283,7 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
     onSiteDiscount,
   } = data;
 
-  console.log("items in pdf ", data);
+  // console.log("items in pdf ", data);
 
   const summary = useBulkOrderSummary(
     data.books,
@@ -1307,6 +1356,26 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
   const hasDiscount1 = data?.books?.some((p) => p.discount1);
   const hasDiscount2 = data?.books?.some((p) => p.discount2);
   const hasDiscount3 = data?.books?.some((p) => p.discount3);
+
+  // calculate totals before return
+  let totalQty = 0;
+  let totalGross = 0;
+  let totalFinal = 0;
+
+  data?.books?.forEach((product) => {
+    const price = product.price || 0;
+    const qty = product.qty || 0;
+    let gross = price * qty;
+    let amount = gross; // after discount
+
+    if (hasDiscount1) amount -= (amount * (product.discount1 || 0)) / 100;
+    if (hasDiscount2) amount -= (amount * (product.discount2 || 0)) / 100;
+    if (hasDiscount3) amount -= (amount * (product.discount3 || 0)) / 100;
+
+    totalQty += qty;
+    totalGross += gross;
+    totalFinal += amount;
+  });
 
   return (
     // <PDFViewer style={{ width: "100%", height: "100vh" }}>
@@ -1405,6 +1474,8 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
             display: "flex",
             flexDirection: "column",
             rowGap: "5px",
+            flexGrow: 1,
+            // paddingBottom: 170, // Ensure content doesn't overlap footer
           }}
         >
           <View
@@ -1414,7 +1485,9 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
               backgroundColor: "#efefef",
             }}
           >
-            <Text style={{ fontSize: 12 }}>Bulk Order Details</Text>
+            <Text style={{ fontSize: 12 }}>
+              Bulk Order Details (HSN Code - 49011010)
+            </Text>
           </View>
           <View
             style={{
@@ -1505,7 +1578,7 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
             {/* Right: Order Info */}
             <View
               style={{
-                width: "300px",
+                width: "500px",
                 paddingVertical: 5,
                 display: "flex",
                 justifyContent: "flex-end",
@@ -1531,17 +1604,44 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
                     textTransform: "capitalize",
                   }}
                 >
-                  Name - {data?.client?.firstName} {data?.client?.lastName}
+                  Company Name - {data?.client?.companyName}
                 </Text>
-                <Text
-                  style={{
-                    fontSize: "9px",
-                    textAlign: "right",
-                    paddingTop: "2px",
-                  }}
-                >
-                  Company - {data?.client?.companyName}
-                </Text>
+                
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      textAlign: "right",
+                      paddingTop: "2px",
+                    }}
+                  >
+                    Address - {data?.client?.addressLine1} ,{" "}
+                    {data?.client?.addressLine2}
+                  </Text>
+                
+                
+                    <Text
+                      style={{
+                        fontSize: "9px",
+                        textAlign: "right",
+                        paddingTop: "2px",
+                      }}
+                    >
+                      {data?.client?.city} , {data?.client?.state} ,{" "}
+                      {data?.client?.pincode}
+                    </Text>
+                  
+
+                
+                  <Text
+                    style={{
+                      fontSize: "9px",
+                      textAlign: "right",
+                      paddingTop: "2px",
+                    }}
+                  >
+                    Phone - {data?.client?.mobile}
+                  </Text>
+                
               </View>
               {/* <View
                 style={{
@@ -1581,54 +1681,139 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
               display: "flex",
               flexDirection: "row",
               justifyContent: "space-between",
-              borderTop: 1,
-              borderLeft: 1,
-              borderRight: 1,
-              borderBottom: 1,
-              marginBottom: "-5px",
-              paddingHorizontal: 4,
-              backgroundColor: "#efefef",
-              marginTop: "10px",
+              borderWidth: 1,
               borderColor: "#000",
-              paddingVertical: 4,
+              marginTop: 10,
+              backgroundColor: "#efefef",
+              paddingHorizontal: 4,
+              marginBottom: "-6px",
             }}
           >
-            <Text style={{ fontSize: 9, width: "4%" }}>S.No</Text>
+            {/* S.No */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "6%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              S.No
+            </Text>
 
-            <Text style={{ fontSize: 10, width: "24%" }}>BookCode</Text>
+            {/* Book Code & Name */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "28%",
+                paddingLeft: 4,
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              Book Code & Name
+            </Text>
 
-            <Text style={{ fontSize: 10, width: "12%", textAlign: "right" }}>
+            {/* Price */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
               Price
             </Text>
 
-            <Text style={{ fontSize: 10, width: "8%", textAlign: "right" }}>
+            {/* Qty */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
               Qty
             </Text>
 
-            {hasDiscount1 && (
-              <Text style={{ fontSize: 10, width: "10%", textAlign: "right" }}>
-                Discount 1
-              </Text>
-            )}
-            {hasDiscount2 && (
-              <Text style={{ fontSize: 10, width: "10%", textAlign: "right" }}>
-                Discount 2
-              </Text>
-            )}
-            {hasDiscount3 && (
-              <Text style={{ fontSize: 10, width: "10%", textAlign: "right" }}>
-                Discount 3
-              </Text>
-            )}
-
-            <Text style={{ fontSize: 10, width: "10%", textAlign: "right" }}>
-              HSN
+            {/* Gross Amount */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "12%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              Gross Amount
             </Text>
 
-            <Text style={{ fontSize: 10, width: "13%", textAlign: "right" }}>
+            {/* Discount 1 */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              Dis 1
+            </Text>
+
+            {/* Discount 2 */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              Dis 2
+            </Text>
+
+            {/* Discount 3 */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              Dis 3
+            </Text>
+
+            {/* Amount */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "10%",
+                textAlign: "right",
+                paddingVertical: 6,
+              }}
+            >
               Amount
             </Text>
           </View>
+
           {/* Table Body */}
           {data?.books?.map((product, index) => {
             const price = product.price || 0;
@@ -1645,74 +1830,155 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
 
             return (
               <View
-                key={index}
                 style={{
                   display: "flex",
                   flexDirection: "row",
                   justifyContent: "space-between",
-                  borderBottom: 1,
-                  borderLeft: 1,
-                  borderRight: 1,
-                  marginBottom: "-5px",
-                  paddingHorizontal: 4,
+                  borderWidth: 1,
                   borderColor: "#000",
-                  paddingVertical: 4,
+                  // marginTop: 10,
+                  // backgroundColor: "#efefef",
+                  paddingHorizontal: 4,
+                  marginBottom: "-6px",
                 }}
               >
-                <Text style={{ fontSize: 9, width: "4%", paddingLeft: "3px" }}>
+                {/* S.No */}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    width: "6%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
                   {index + 1}
                 </Text>
 
-                <Text style={{ fontSize: 10, width: "24%" }}>
-                  {product?.product[bookLanguage].bookCode} {"\n"}(
-                  {product?.language === "english"
-                    ? "English Medium"
-                    : "Hindi Medium"}
-                  )
+                {/* Book Code & Name */}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    width: "28%",
+                    paddingLeft: 4,
+                    paddingRight: 5,
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  {product?.product?.[bookLanguage]?.bookCode ??
+                    product?.product?.bookCode}{" "}
+                  - ({product?.language === "english" ? "English" : "Hindi"})
+                  {"\n"}
+                  {product?.product?.[bookLanguage]?.title ??
+                    product?.product?.title}
+                  {/* {product?.product[bookLanguage].title} */}
                 </Text>
 
+                {/* Price */}
                 <Text
-                  style={{ fontSize: 10, width: "12%", textAlign: "right" }}
+                  style={{
+                    fontSize: 10,
+                    width: "8%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
                 >
                   {price}
                 </Text>
 
-                <Text style={{ fontSize: 10, width: "8%", textAlign: "right" }}>
+                {/* Qty */}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    width: "8%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
                   {qty}
                 </Text>
 
-                {hasDiscount1 && (
-                  <Text
-                    style={{ fontSize: 10, width: "10%", textAlign: "right" }}
-                  >
-                    {product.discount1 ?? "-"}
-                  </Text>
-                )}
-                {hasDiscount2 && (
-                  <Text
-                    style={{ fontSize: 10, width: "10%", textAlign: "right" }}
-                  >
-                    {product.discount2 ?? "-"}
-                  </Text>
-                )}
-                {hasDiscount3 && (
-                  <Text
-                    style={{ fontSize: 10, width: "10%", textAlign: "right" }}
-                  >
-                    {product.discount3 ?? "-"}
-                  </Text>
-                )}
-
+                {/* Gross Amount */}
                 <Text
-                  style={{ fontSize: 10, width: "10%", textAlign: "right" }}
+                  style={{
+                    fontSize: 10,
+                    width: "12%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
                 >
-                  {product?.hsnCode}
+                  {price * qty}
                 </Text>
 
+                {/* Discount 1 */}
                 <Text
-                  style={{ fontSize: 10, width: "13%", textAlign: "right" }}
+                  style={{
+                    fontSize: 10,
+                    width: "8%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
                 >
-                  {amount.toFixed(2)}
+                  {/* {product.discount1 ?? "-"}% */}
+                  {product.discount1 != null && product.discount1 !== undefined
+                    ? `${product.discount1}%`
+                    : "-"}
+                </Text>
+
+                {/* Discount 2 */}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    width: "8%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  {/* {product.discount2 ?? "-"}% */}
+                  {product.discount2 != null && product.discount2 !== undefined
+                    ? `${product.discount2}%`
+                    : "-"}
+                </Text>
+
+                {/* Discount 3 */}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    width: "8%",
+                    textAlign: "center",
+                    borderRightWidth: 1,
+                    borderColor: "#000",
+                    paddingVertical: 6,
+                  }}
+                >
+                  {product.discount3 != null && product.discount3 !== undefined
+                    ? `${product.discount3}%`
+                    : "-"}
+                </Text>
+
+                {/* Amount */}
+                <Text
+                  style={{
+                    fontSize: 10,
+                    width: "10%",
+                    textAlign: "right",
+                    paddingVertical: 6,
+                  }}
+                >
+                  {Math.round(amount)}
                 </Text>
               </View>
             );
@@ -1720,211 +1986,457 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
 
           <View
             style={{
-              paddingVertical: 8,
-              paddingHorizontal: 5,
-              backgroundColor: "#efefef",
-              marginTop: "18px",
-            }}
-          >
-            <Text style={{ fontSize: 12 }}>Shipping Info</Text>
-          </View>
-          <View
-            style={{
               display: "flex",
               flexDirection: "row",
               justifyContent: "space-between",
-              borderTop: 1,
+              borderWidth: 1,
               borderColor: "#000",
-              paddingVertical: "3px",
-              paddingHorizontal: "5px",
+              // marginTop: 10,
               backgroundColor: "#efefef",
-              marginBottom: "-5px",
-              borderLeft: 1,
-              borderRight: 1,
+              paddingHorizontal: 4,
+              marginBottom: "-6px",
             }}
           >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>Length</Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              {data?.shipping?.length} cm
+            {/* Book Code & Name */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "34.5%",
+                paddingLeft: 4,
+                borderRightWidth: 1,
+                borderColor: "#000",
+                textAlign: "center",
+                paddingVertical: 6,
+              }}
+            >
+              SUB TOTAL
             </Text>
-          </View>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: 1,
-              borderColor: "#000",
-              paddingVertical: "3px",
-              marginBottom: "-5px",
-              paddingHorizontal: "5px",
-              backgroundColor: "#efefef",
-              borderLeft: 1,
-              borderRight: 1,
-            }}
-          >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>Width</Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              {data?.shipping?.width} cm
-            </Text>
-          </View>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: 1,
-              borderColor: "#000",
-              paddingVertical: "3px",
-              marginBottom: "-5px",
-              paddingHorizontal: "5px",
-              backgroundColor: "#efefef",
-              borderLeft: 1,
-              borderRight: 1,
-            }}
-          >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>Height</Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              {data?.shipping?.height} cm
-            </Text>
-          </View>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: 1,
-              borderColor: "#000",
-              paddingVertical: "3px",
-              paddingHorizontal: "5px",
-              backgroundColor: "#efefef",
-              borderLeft: 1,
-              borderRight: 1,
-              borderBottom: 1,
-            }}
-          >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>Weight</Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              {data?.shipping?.weight} kg
-            </Text>
-          </View>
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: 1,
-              borderColor: "#000",
-              paddingVertical: "3px",
-              paddingHorizontal: "5px",
-              backgroundColor: "#efefef",
-              marginTop: "12px",
-              marginBottom: "-5px",
-              borderLeft: 1,
-              borderRight: 1,
-            }}
-          >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Grand Total
-            </Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Rs. {summary?.totalPrice?.toLocaleString("en-IN")}
-            </Text>
-          </View>
-          {summary?.discountAmount && (
-            <>
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  borderTop: 1,
-                  borderColor: "#000",
-                  paddingVertical: "3px",
-                  paddingHorizontal: "5px",
-                  backgroundColor: "#efefef",
-                  marginBottom: "-5px",
-                  borderLeft: 1,
-                  borderRight: 1,
-                }}
-              >
-                <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-                  Total Discount
-                </Text>
-                <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-                  Rs. {summary?.discountAmount}
-                </Text>
-              </View>
 
-              <View
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  borderTop: 1,
-                  borderColor: "#000",
-                  paddingVertical: "3px",
-                  paddingHorizontal: "5px",
-                  backgroundColor: "#efefef",
-                  marginBottom: "-5px",
-                  borderLeft: 1,
-                  borderRight: 1,
-                }}
-              >
-                <Text style={{ fontSize: "11px", fontWeight: 600 }}>Total</Text>
-                <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-                  Rs. {summary?.finalAmount}
-                </Text>
-              </View>
-            </>
-          )}
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: 1,
-              borderColor: "#000",
-              paddingVertical: "3px",
-              paddingHorizontal: "5px",
-              backgroundColor: "#efefef",
-              marginBottom: "-5px",
-              borderLeft: 1,
-              borderRight: 1,
-            }}
-          >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Shipping & Handling Charges
+            {/* Price */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              {/* Price */}
             </Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Rs. {data?.shipping?.shippingCharges}
+
+            {/* Qty */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              {totalQty}
+            </Text>
+
+            {/* Gross Amount */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "12%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              {Math.round(totalGross)}
+            </Text>
+
+            {/* Discount 1 */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              -
+            </Text>
+
+            {/* Discount 2 */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              -
+            </Text>
+
+            {/* Discount 3 */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "8%",
+                textAlign: "center",
+                borderRightWidth: 1,
+                borderColor: "#000",
+                paddingVertical: 6,
+              }}
+            >
+              -
+            </Text>
+
+            {/* Amount */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "10%",
+                textAlign: "right",
+                paddingVertical: 6,
+              }}
+            >
+              {Math.round(totalFinal)}
             </Text>
           </View>
-          {data?.plusRemark && (
+
+          {data?.adjustmentPlus && (
             <View
               style={{
                 display: "flex",
                 flexDirection: "row",
                 justifyContent: "space-between",
-                borderTop: 1,
+                borderWidth: 1,
                 borderColor: "#000",
-                paddingVertical: "3px",
-                paddingHorizontal: "5px",
+                marginTop: 10,
                 backgroundColor: "#efefef",
-                marginBottom: "-5px",
-                borderLeft: 1,
-                borderRight: 1,
+                paddingHorizontal: 4,
+                marginBottom: "-6px",
               }}
             >
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-                ADJ + ({data?.plusRemark})
+              <Text
+                style={{
+                  fontSize: 10,
+                  width: "89.5%",
+                  paddingRight: 8,
+                  borderRightWidth: 1,
+                  borderColor: "#000",
+                  textAlign: "right",
+                  paddingVertical: 6,
+                }}
+              >
+                Adjustment (+) - ({data?.plusRemark})
               </Text>
-              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+
+              {/* Amount */}
+              <Text
+                style={{
+                  fontSize: 10,
+                  width: "10%",
+                  textAlign: "right",
+                  paddingVertical: 6,
+                }}
+              >
+                {/* {totalFinal} */}
                 Rs. {data?.adjustmentPlus?.toLocaleString("en-IN")}
               </Text>
             </View>
           )}
-          {data?.minusRemark && (
+
+          {data?.adjustmentMinus && (
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderWidth: 1,
+                borderColor: "#000",
+                // marginTop: 10,
+                backgroundColor: "#efefef",
+                paddingHorizontal: 4,
+                marginBottom: "-6px",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  width: "89.5%",
+                  paddingRight: 8,
+                  borderRightWidth: 1,
+                  borderColor: "#000",
+                  textAlign: "right",
+                  paddingVertical: 6,
+                }}
+              >
+                Adjustment (-) - ({data?.minusRemark})
+              </Text>
+
+              {/* Amount */}
+              <Text
+                style={{
+                  fontSize: 10,
+                  width: "10%",
+                  textAlign: "right",
+                  paddingVertical: 6,
+                }}
+              >
+                Rs. {data?.adjustmentMinus?.toLocaleString("en-IN")}
+              </Text>
+            </View>
+          )}
+
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              borderWidth: 1,
+              borderColor: "#000",
+              // marginTop: 10,
+              backgroundColor: "#efefef",
+              paddingHorizontal: 4,
+              marginBottom: "-6px",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 10,
+                width: "89.5%",
+                paddingRight: 8,
+                borderRightWidth: 1,
+                borderColor: "#000",
+                textAlign: "right",
+                paddingVertical: 6,
+              }}
+            >
+              Shipping and Handling Charges (+)
+            </Text>
+
+            {/* Amount */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "10%",
+                textAlign: "right",
+                paddingVertical: 6,
+              }}
+            >
+              {/* {totalFinal} */}
+              Rs. {data?.shipping?.shippingCharges}
+            </Text>
+          </View>
+          <View
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              borderWidth: 1,
+              borderColor: "#000",
+              // marginTop: 10,
+              backgroundColor: "#efefef",
+              paddingHorizontal: 4,
+              marginBottom: "-6px",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 10,
+                width: "89.5%",
+                paddingRight: 8,
+                borderRightWidth: 1,
+                borderColor: "#000",
+                textAlign: "right",
+                paddingVertical: 6,
+              }}
+            >
+              Net Amount
+            </Text>
+
+            {/* Amount */}
+            <Text
+              style={{
+                fontSize: 10,
+                width: "10%",
+                textAlign: "right",
+                paddingVertical: 6,
+              }}
+            >
+              Rs. {summary?.grandTotal?.toLocaleString("en-IN")}
+              /-
+            </Text>
+          </View>
+
+          {/* <View
+              style={{
+                paddingVertical: 8,
+                paddingHorizontal: 5,
+                backgroundColor: "#efefef",
+                marginTop: "18px",
+              }}
+            >
+              <Text style={{ fontSize: 12 }}>Shipping Info</Text>
+            </View> */}
+          {/* <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                paddingHorizontal: "5px",
+                backgroundColor: "#efefef",
+                marginBottom: "-5px",
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>Length</Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                {data?.shipping?.length} cm
+              </Text>
+            </View> */}
+          {/* <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                marginBottom: "-5px",
+                paddingHorizontal: "5px",
+                backgroundColor: "#efefef",
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>Width</Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                {data?.shipping?.width} cm
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                marginBottom: "-5px",
+                paddingHorizontal: "5px",
+                backgroundColor: "#efefef",
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>Height</Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                {data?.shipping?.height} cm
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                paddingHorizontal: "5px",
+                backgroundColor: "#efefef",
+                borderLeft: 1,
+                borderRight: 1,
+                borderBottom: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>Weight</Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                {data?.shipping?.weight} kg
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                paddingHorizontal: "5px",
+                backgroundColor: "#efefef",
+                marginTop: "12px",
+                marginBottom: "-5px",
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Grand Total
+              </Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Rs. {summary?.totalPrice?.toLocaleString("en-IN")}
+              </Text>
+            </View>
+            {summary?.discountAmount && (
+              <>
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 1,
+                    borderColor: "#000",
+                    paddingVertical: "3px",
+                    paddingHorizontal: "5px",
+                    backgroundColor: "#efefef",
+                    marginBottom: "-5px",
+                    borderLeft: 1,
+                    borderRight: 1,
+                  }}
+                >
+                  <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                    Total Discount
+                  </Text>
+                  <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                    Rs. {summary?.discountAmount}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                    borderTop: 1,
+                    borderColor: "#000",
+                    paddingVertical: "3px",
+                    paddingHorizontal: "5px",
+                    backgroundColor: "#efefef",
+                    marginBottom: "-5px",
+                    borderLeft: 1,
+                    borderRight: 1,
+                  }}
+                >
+                  <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                    Total
+                  </Text>
+                  <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                    Rs. {summary?.finalAmount}
+                  </Text>
+                </View>
+              </>
+            )}
             <View
               style={{
                 display: "flex",
@@ -1941,42 +2453,113 @@ const BulkClientInvoice = ({ data = {}, couponPercentage = 0 }) => {
               }}
             >
               <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-                ADJ - ({data?.minusRemark})
+                Shipping & Handling Charges
               </Text>
               <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-                Rs. {data?.adjustmentMinus?.toLocaleString("en-IN")}
+                Rs. {data?.shipping?.shippingCharges}
               </Text>
             </View>
-          )}
-          {/* net payable  */}
-          <View
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              borderTop: 1,
-              borderColor: "#000",
-              paddingVertical: "3px",
-              paddingHorizontal: "5px",
-              backgroundColor: "#efefef",
-              marginBottom: "-5px",
-              borderBottom: 1,
-              borderLeft: 1,
-              borderRight: 1,
-            }}
-          >
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Net Payable :
-            </Text>
-            <Text style={{ fontSize: "11px", fontWeight: 600 }}>
-              Rs. {Math.round(summary?.grandTotal?.toLocaleString("en-IN"))}
-              /-
-            </Text>
-          </View>
+            {data?.plusRemark && (
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  borderTop: 1,
+                  borderColor: "#000",
+                  paddingVertical: "3px",
+                  paddingHorizontal: "5px",
+                  backgroundColor: "#efefef",
+                  marginBottom: "-5px",
+                  borderLeft: 1,
+                  borderRight: 1,
+                }}
+              >
+                <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                  ADJ + ({data?.plusRemark})
+                </Text>
+                <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                  ADJ + ({data?.plusRemark})
+
+                  Rs. {data?.adjustmentPlus?.toLocaleString("en-IN")}
+                </Text>
+              </View>
+            )}
+            {data?.minusRemark && (
+              <View
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  borderTop: 1,
+                  borderColor: "#000",
+                  paddingVertical: "3px",
+                  paddingHorizontal: "5px",
+                  backgroundColor: "#efefef",
+                  marginBottom: "-5px",
+                  borderLeft: 1,
+                  borderRight: 1,
+                }}
+              >
+                <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                  ADJ - ({data?.minusRemark})
+                </Text>
+                <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                  Rs. {data?.adjustmentMinus?.toLocaleString("en-IN")}
+                </Text>
+              </View>
+            )}
+            
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+                borderTop: 1,
+                borderColor: "#000",
+                paddingVertical: "3px",
+                paddingHorizontal: "5px",
+                backgroundColor: "#efefef",
+                marginBottom: "-5px",
+                borderBottom: 1,
+                borderLeft: 1,
+                borderRight: 1,
+              }}
+            >
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Net Payable :
+              </Text>
+              <Text style={{ fontSize: "11px", fontWeight: 600 }}>
+                Rs. {Math.round(summary?.grandTotal?.toLocaleString("en-IN"))}
+                /-
+              </Text>
+            </View> */}
+        </View>
+        {/* Footer */}
+        <View
+          fixed
+          style={{
+            paddingTop: 20,
+            position: "fixed",
+            bottom: 10,
+            left: 20,
+            right: 20,
+            fontSize: 7,
+            color: "grey",
+            backgroundColor: "#FFF",
+          }}
+        >
+          <Text style={styles.footerTitle}>TERMS & CONDITIONS</Text>
+          {terms.map((term, idx) => (
+            <View style={styles.bulletRow} key={idx}>
+              <View style={styles.bullet} />
+              <Text style={styles.bulletPoint}>{term}</Text>
+            </View>
+          ))}
         </View>
       </Page>
     </Document>
-    //  </PDFViewer>
+    // </PDFViewer>
   );
 };
 

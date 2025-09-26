@@ -17,7 +17,12 @@ import toast from "react-hot-toast";
 import * as Yup from "yup"; // <-- Add this
 // import { yupResolver } from "@hookform/resolvers/yup";
 
-const RefundModal = ({ openModal, setOpenModal, orderdata }) => {
+const RefundModal = ({
+  openModal,
+  setOpenModal,
+  orderdata,
+  orderTotalAmount,
+}) => {
   const dispatch = useDispatch();
 
   const [isEditable, setIsEditable] = useState(false);
@@ -28,10 +33,7 @@ const RefundModal = ({ openModal, setOpenModal, orderdata }) => {
       .typeError("Amount must be a number")
       .required("Amount is required")
       .min(1, "Amount must be greater than 0")
-      .max(
-        orderdata?.totalAmount || 0,
-        `Amount cannot exceed ₹${orderdata?.totalAmount}`
-      ),
+      .max(orderTotalAmount || 0, `Amount cannot exceed ₹${orderTotalAmount}`),
   });
 
   const {
@@ -97,8 +99,8 @@ const RefundModal = ({ openModal, setOpenModal, orderdata }) => {
               name="amount"
               label="Amount"
               type="numeric"
-              defaultValue={orderdata?.totalAmount}
-              max={orderdata?.totalAmount}
+              defaultValue={orderTotalAmount}
+              max={orderTotalAmount}
               disabled={!isEditable}
               // options={mediumOptions}
             />

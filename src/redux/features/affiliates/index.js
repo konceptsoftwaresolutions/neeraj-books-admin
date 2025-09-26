@@ -83,34 +83,56 @@ export const getAffiliateTiles = (payload, callback = () => { }) => {
 }
 
 
-export const getQRImageAffiliate = (payload, callback = () => { }) => {
-    return async (dispatch) => {
-        try {
-            const response = await axiosInstance.post(
-                "/user/affiliate/payment-picture",
-                { id: payload },
-                {
-                    responseType: "blob", // important for getting blob data
-                }
-            );
-
-            if (response.status === 200 && response.data) {
-                // Make sure it's a valid Blob object
-                const blob = new Blob([response.data], { type: response.data.type || "image/png" });
-                const imageUrl = URL.createObjectURL(blob);
-                console.log("Blob URL:", imageUrl);
-                callback(true, imageUrl);
-            }
-        } catch (error) {
-            console.log(error)
-            let message = "ERROR";
-            if (error?.hasOwnProperty("response")) {
-                message = error?.response?.data;
-            }
-            toast.error(message);
+export const getQRImageAffiliate = (payload, callback = () => {}) => {
+  return async (dispatch) => {
+    try {
+      const response = await axiosInstance.post(
+        "/user/affiliate/payment-picture",
+        { id: payload },
+        {
+          responseType: "blob", // important for getting blob data
         }
-    };
+      );
+
+      // Check if the response is actually an image blob
+      const contentType = response.headers["content-type"];
+      if (response.status === 200 && contentType?.includes("image")) {
+        const blob = new Blob([response.data], { type: contentType || "image/png" });
+        const imageUrl = URL.createObjectURL(blob);
+        callback(true, imageUrl);
+      } else {
+        // Not an image, probably an error message
+        callback(false, null);
+      }
+    } catch (error) {
+      console.log(error);
+      let message = "ERROR";
+
+      // If the server returned JSON instead of an image
+      if (error?.response?.data) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const result = JSON.parse(reader.result);
+            console.log(result)
+            if (result?.message === "Payment picture not found for this user.") {
+              callback(false, null); // handle "no image" case
+              toast.error(result?.message);
+              return;
+            }
+          } catch (e) {
+            // Not JSON
+          }
+        };
+        reader.readAsText(error.response.data);
+      }
+
+    //   toast.error(message);
+      callback(false, null);
+    }
+  };
 };
+
 
 
 // /user/affiliate/orders
@@ -233,6 +255,8 @@ export const deleteAffiliate = (payload, callback = () => { }) => {
         try {
             const response = await axiosInstance.post('/user/affiliate/delete', { id: payload });
             if (response.status === 200) {
+                callback(true)
+                toast.success('Affiliate Deleted Successfully')
             }
         } catch (error) {
             let message = "ERROR";

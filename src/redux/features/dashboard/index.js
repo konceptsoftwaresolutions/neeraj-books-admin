@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import createAxiosInstance from "../../../config/axiosConfig";
+import toast from "react-hot-toast";
 
 const initialState = {
   allUsers: null,
@@ -37,7 +38,7 @@ export const getDashboardData = (payload) => {
         dispatch(setDashboard({ dashboardData: response.data }))
       }
     } catch (error) {
-      console.log(error)
+      toast.error(error?.response?.data?.error || error?.response?.data?.message || 'Failed')
       dispatch(setDashboard({ dashboardLoader: false }))
     }
   };

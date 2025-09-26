@@ -1,158 +1,385 @@
-import { ChevronFirst, ChevronLast, LogOut, Menu } from "lucide-react";
-import logo from "../assets/logo.png";
-import { createContext, useContext, useState } from "react";
+import React, { useState, createContext, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  ChevronDown,
+  Home,
+  Package,
+  ShoppingCart,
+  BarChart3,
+  FileText,
+  HelpCircle,
+  ChevronLeft,
+  ChevronRight,
+  List,
+  Book,
+  // UserGroup,
+  Grid3X3,
+  Truck,
+  Boxes,
+  UserCheck,
+  FileQuestion,
+  Percent,
+  Gift,
+  // ShoppingCartX,
+  Share,
+  BookOpen,
+  MessageSquare,
+  Layers,
+  Star,
+} from "lucide-react";
+import logo from "../assets/logo.png";
 import { logoutThunkMiddleware } from "../redux/features/user";
 import { persistor } from "../redux/store";
-import LogoModal from "./LogoModal";
 import { Tooltip } from "antd";
-import { setBook } from "../redux/features/books";
 
 const SidebarContext = createContext();
 
-export default function Sidebar({ children }) {
+const Sidebar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { userData } = useSelector((state) => state.user);
+  const { role } = useSelector((state) => state.auth);
 
-  const [expanded, setExpanded] = useState(true);
-  const [mobileBtnClicked, setMobileBtnClicked] = useState(false);
-  const [showLogoModal, setShowLogoModal] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true); // Collapsed by default
+  const [expandedMenus, setExpandedMenus] = useState({});
+
+  const getRoute = (path) => (role ? `/${role}${path}` : path);
 
   const logoutHandler = () => {
     dispatch(logoutThunkMiddleware(persistor, navigate));
   };
 
-  return (
-    <>
-      <aside className="z-10 h-[100%]">
-        <nav
-          className={` flex flex-col justify-between bg-white border-r  mobile-nav md:relative md:left-0 absolute left-[-100%] ease-in-out duration-300 h-[100%] ${
-            mobileBtnClicked ? "absolute !left-0" : ""
-          }`}
-        >
-          <div className="sticky top-0">
-            <div className="p-4 pb-2 flex justify-between items-center">
-              <img
-                onClick={() => setShowLogoModal(!showLogoModal)}
-                src={logo}
-                className={`overflow-hidden transition-all cursor-pointer ${
-                  expanded ? "w-12" : "w-0"
+  const toggleMenu = (menuKey) => {
+    if (isCollapsed) return; // Don't expand menus when collapsed
+    setExpandedMenus((prev) => ({
+      ...prev,
+      [menuKey]: !prev[menuKey],
+    }));
+  };
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+    // Close all expanded menus when collapsing
+    if (!isCollapsed) {
+      setExpandedMenus({});
+    }
+  };
+
+  const menuItems = [
+    {
+      key: "dashboard",
+      icon: <LayoutDashboard size={20} />,
+      label: "Dashboard",
+      path: getRoute("/dashboard"),
+      show: role !== "user",
+    },
+    {
+      key: "category",
+      icon: <List size={20} />,
+      label: "Category",
+      path: getRoute("/categori"),
+    },
+    {
+      key: "books",
+      icon: <Book size={20} />,
+      label: "Books",
+      path: getRoute("/books"),
+    },
+    {
+      key: "orders",
+      icon: <ShoppingCart size={20} />,
+      label: "Orders",
+      path: getRoute("/orders"),
+    },
+    {
+      key: "incompleteOrders",
+      icon: <ShoppingCart size={20} />,
+      label: "Incomplete Orders",
+      path: getRoute("/incomplete-orders"),
+    },
+    {
+      key: "bulkOrders",
+      icon: <Boxes size={20} />,
+      label: "Bulk Orders",
+      children: [
+        { label: "All Bulk Orders", path: getRoute("/allbulkOrders"), icon: <Package size={16} /> },
+        { label: "Bulk Orders Client", path: getRoute("/bulk-orders-client"), },
+      ],
+    },
+    {
+      key: "websiteSettings",
+      icon: <Settings size={20} />,
+      label: "Website Settings",
+      children: [
+        { label: "About Page", path: getRoute("/about"), icon: <FileText size={16} /> },
+        { label: "Popups", path: getRoute("/popups"), icon: <Layers size={16} /> },
+        { label: "Quiz", path: getRoute("/quiz"), icon: <FileQuestion size={16} /> },
+        { label: "Coupons", path: getRoute("/coupons"), icon: <Gift size={16} /> },
+        { label: "Abandoned Cart", path: getRoute("/abandonedcart"), icon: <ShoppingCart size={16} /> },
+        { label: "Promotions / Affiliate", path: getRoute("/promotions"), icon: <Share size={16} /> },
+        { label: "Team Members", path: getRoute("/teamMembers"), icon: <Users size={16} /> },
+        { label: "Old Website Books", path: getRoute("/oldbooks"), icon: <BookOpen size={16} /> },
+        { label: "Testimonials", path: getRoute("/testimonials"), icon: <MessageSquare size={16} /> },
+      ],
+    },
+    {
+      key: "customer",
+      icon: <UserCheck size={20} />,
+      label: "Customer",
+      path: getRoute("/customer"),
+    },
+    {
+      key: "manageSections",
+      icon: <Grid3X3 size={20} />,
+      label: "Manage Sections",
+      path: getRoute("/sections"),
+    },
+    {
+      key: "shippingCalculator",
+      icon: <Truck size={20} />,
+      label: "Shipping Calculator",
+      path: getRoute("/shipping"),
+    },
+  ];
+
+  const SidebarItem = ({ item, isChild = false }) => {
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedMenus[item.key];
+
+    if (hasChildren) {
+      return (
+        <div className="mb-1">
+          {isCollapsed ? (
+            <Tooltip title={item.label} placement="right">
+              <div className="flex justify-center">
+                <div className="flex items-center justify-center w-12 h-12 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all duration-200 cursor-pointer">
+                  {item.icon}
+                </div>
+              </div>
+            </Tooltip>
+          ) : (
+            <button
+              onClick={() => toggleMenu(item.key)}
+              className={`w-full flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all duration-200 ${
+                isChild ? "pl-12 text-sm" : ""
+              }`}
+            >
+              <div className="flex items-center text-black">
+                {item.icon}
+                <span className="ml-3 font-medium">{item.label}</span>
+              </div>
+              <ChevronDown
+                size={16}
+                className={`transform transition-transform duration-200 ${
+                  isExpanded ? "rotate-180" : ""
                 }`}
               />
-              <button
-                onClick={() => {
-                  setExpanded((curr) => !curr);
-                  dispatch(setBook({ menuExpanded: !expanded }));
-                }}
-                className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 md:block hidden"
-              >
-                {expanded ? <ChevronFirst /> : <ChevronLast />}
-              </button>
+            </button>
+          )}
+
+          {!isCollapsed && isExpanded && (
+            <div className="mt-1 space-y-1 bg-gray-50 rounded-lg p-2">
+              {item.children.map((child, index) => (
+                <NavLink
+                  key={index}
+                  to={child.path}
+                  onClick={() => setIsOpen(false)}
+                  className={({ isActive }) =>
+                    `flex items-center pl-8 pr-4 py-2 text-sm rounded-lg transition-all duration-200 ${
+                      isActive
+                        ? "text-blue-700 font-medium"
+                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    }`
+                  }
+                  style={({ isActive }) => isActive ? {background: 'linear-gradient(90deg, #1f437f, #be2220)', color: 'white'} : {}}
+                >
+                  {child.icon && <span className="mr-2">{child.icon}</span>}
+                  <div className="w-2 h-2 rounded-full bg-current opacity-40 mr-3"></div>
+                  {child.label}
+                </NavLink>
+              ))}
             </div>
+          )}
+        </div>
+      );
+    }
 
-            <SidebarContext.Provider value={{ expanded }}>
-              <ul className="flex-1 px-3 h-[66vh] overflow-y-scroll sideul">
-                {children}
-              </ul>
-            </SidebarContext.Provider>
-          </div>
-
-          <div className="border-t flex p-3 fixed bottom-0">
-            <img src={logo} className="w-10 h-10 rounded-md" />
-            <div
-              className={`flex justify-between items-center overflow-hidden transition-all ${
-                expanded ? "w-52 ml-3" : "w-0"
-              } `}
+    return (
+      <div className="mb-1">
+        {isCollapsed ? (
+          <Tooltip title={item.label} placement="right">
+            <NavLink
+              to={item.path}
+              onClick={() => setIsOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center justify-center w-12 h-12 rounded-lg transition-all duration-200 mx-auto ${
+                  isActive
+                    ? "text-white shadow-lg"
+                    : "text-black hover:bg-blue-50 hover:text-blue-600"
+                }`
+              }
+              style={({ isActive }) => isActive ? {background: 'linear-gradient(90deg, #1f437f, #be2220)'} : {}}
             >
-              <div className="leading-4">
-                <h4 className="font-semibold">{userData?.name}</h4>
-                <span className="text-xs text-gray-600">{userData?.email}</span>
-              </div>
-              <button
-                className="p-2 rounded-md hover:bg-gray-100 flex items-center rotate-180"
-                onClick={logoutHandler}
-              >
-                <Tooltip title="Logout">
-                  <LogOut size={20} />
-                </Tooltip>
-              </button>
-            </div>
-          </div>
-        </nav>
-      </aside>
-      <div className="w-[100vw] md:hidden flex justify-between items-center bg-white border-r shadow-sm px-3 fixed ">
-        <img
-          src={logo}
-          className={`overflow-hidden transition-all w-[200px]`}
-        />
-        <button
-          onClick={() => {
-            console.log("Clicked");
-            setMobileBtnClicked(!mobileBtnClicked);
-          }}
-          className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
-        >
-          {/* <ChevronFirst /> */}
-          <Menu />
-        </button>
+              {item.icon}
+            </NavLink>
+          </Tooltip>
+        ) : (
+          <NavLink
+            to={item.path}
+            onClick={() => setIsOpen(false)}
+            className={({ isActive }) =>
+              `flex items-center px-4 py-3 rounded-lg transition-all duration-200 ${
+                isActive
+                  ? "text-white shadow-lg"
+                  : "text-black hover:bg-blue-50 hover:text-blue-600"
+              } ${isChild ? "pl-12 text-sm" : ""}`
+            }
+            style={({ isActive }) => isActive ? {background: 'linear-gradient(90deg, #1f437f, #be2220)'} : {}}
+          >
+            {item.icon}
+            <span className="ml-3 font-medium ">{item.label}</span>
+          </NavLink>
+        )}
       </div>
-      <LogoModal
-        showLogoModal={showLogoModal}
-        setShowLogoModal={setShowLogoModal}
-      />
+    );
+  };
+
+  const sidebarWidth = isCollapsed ? "w-20" : "w-72";
+
+  return (
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+
+      {/* Mobile Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 px-4 py-3 z-30">
+        <div className="flex items-center justify-between">
+          <img src={logo} alt="Logo" className="h-8" />
+          <button
+            onClick={() => setIsOpen(true)}
+            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <Menu size={20} />
+          </button>
+        </div>
+      </div>
+
+      {/* Sidebar */}
+      <aside
+        className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        ${sidebarWidth} bg-white border-r border-gray-200
+        transform transition-all duration-300 ease-in-out
+        ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
+        flex flex-col
+      `}
+      >
+        {/* Header */}
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-6 py-5 border-b border-gray-200`}>
+          {!isCollapsed && (
+            <div className="flex items-center">
+              <img src={logo} alt="Logo" className="h-8 w-8 mr-3" />
+              <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
+            </div>
+          )}
+          
+          {isCollapsed && (
+            <img src={logo} alt="Logo" className="h-8 w-8" />
+          )}
+
+          {/* Desktop Collapse Toggle */}
+          <div className="hidden lg:flex items-center">
+            <button
+              onClick={toggleCollapse}
+              className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+          </div>
+
+          {/* Mobile Close Button */}
+          <button
+            onClick={() => setIsOpen(false)}
+            className="lg:hidden p-1 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-4 py-6 overflow-y-auto">
+          <div className="space-y-2">
+            {menuItems.map((item) => {
+              if (item.show === false) return null;
+              return <SidebarItem key={item.key} item={item} />;
+            })}
+          </div>
+          
+          {!isCollapsed && (
+            <hr className="my-6 border-gray-200" />
+          )}
+        </nav>
+
+        {/* User Profile */}
+        <div className="border-t border-gray-200 p-4">
+          {isCollapsed ? (
+            <div className="flex justify-center">
+              <Tooltip title={`${userData?.name || "Admin User"} - Logout`} placement="right">
+                <button
+                  onClick={logoutHandler}
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold hover:opacity-80 transition-all duration-200"
+                  style={{background: 'linear-gradient(90deg, #1f437f, #be2220)'}}
+                >
+                  {userData?.name?.charAt(0)?.toUpperCase() || "A"}
+                </button>
+              </Tooltip>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center min-w-0">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold" style={{background: 'linear-gradient(90deg, #1f437f, #be2220)'}}>
+                  {userData?.name?.charAt(0)?.toUpperCase() || "A"}
+                </div>
+                <div className="ml-3 min-w-0 flex-1">
+                  <p className="text-sm font-medium text-gray-900 truncate">
+                    {userData?.name || "Admin User"}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">
+                    {userData?.email || ""}
+                  </p>
+                </div>
+              </div>
+              <Tooltip title="Logout" placement="top">
+                <button
+                  onClick={logoutHandler}
+                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                >
+                  <LogOut size={16} />
+                </button>
+              </Tooltip>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Main Content Spacer for Desktop */}
+      <div className={`${sidebarWidth} flex-shrink-0 hidden lg:block`}></div>
     </>
   );
-}
+};
 
-export function SidebarItem({
-  icon,
-  text,
-  active,
-  alert,
-  to,
-  dropdown,
-  subItem = false,
-}) {
-  const { expanded } = useContext(SidebarContext);
-  return (
-    <NavLink
-      to={to}
-      className={({ isActive }) =>
-        `flex items-center py-2 px-3 my-1 font-medium rounded-md cursor-pointer transition-colors group ${
-          dropdown
-            ? "text-gray-900" // no background on hover or active if dropdown
-            : isActive
-            ? "primary-gradient text-white"
-            : "hover:bg-[#1f437f0d] text-gray-900"
-        }`
-      }
-    >
-      {icon}
-      <span
-        className={`overflow-hidden transition-all ${
-          expanded ? "w-52 ml-3" : "hidden"
-        }`}
-      >
-        {text}
-      </span>
-      {alert && (
-        <div
-          className={`absolute right-2 w-2 h-2 rounded bg-gradient-to-r from-[#29A6E0] via-[#2E3494] to-[#076838] ${
-            expanded ? "" : "top-2"
-          }`}
-        ></div>
-      )}
-
-      {!expanded && (
-        <div
-          className={`z-[9] absolute left-full rounded-md px-2 py-1 ml-6 bg-gradient-to-r from-[#29A6E0] via-[#2E3494] to-[#076838] text-white text-sm invisible opacity-20 -translate-x-3 transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-x-0`}
-        >
-          {text}
-        </div>
-      )}
-    </NavLink>
-  );
-}
+export default Sidebar;

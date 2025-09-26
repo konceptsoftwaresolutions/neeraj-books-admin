@@ -7,7 +7,6 @@ import { tableStyle } from "../../constant/tableStyle";
 import { useDispatch, useSelector } from "react-redux";
 import { allOrdersColumn } from "../../constant/tableColumns";
 import { Button } from "@material-tailwind/react";
-import { Plus } from "lucide-react";
 import usePath from "../../hooks/usePath";
 import {
   getAllOrders,
@@ -39,7 +38,7 @@ const Orders = () => {
   const path = usePath();
 
   // const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(50);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false); // Drawer visibility state
   const [filters, setFilters] = useState({}); // Applied filters state
   const [ordersData, setOrdersData] = useState();
@@ -117,7 +116,9 @@ const Orders = () => {
     await toast.promise(
       (async () => {
         if (data.appliedCoupon) {
+          console.log(data.appliedCoupon);
           couponPercentage = await fetchCouponPercentage(data.appliedCoupon);
+          console.log(couponPercentage);
         }
 
         const blob = await pdf(
@@ -125,6 +126,8 @@ const Orders = () => {
         ).toBlob();
 
         const blobUrl = URL.createObjectURL(blob);
+
+        console.log(blobUrl);
         window.open(blobUrl, "_blank");
       })(),
       {
@@ -438,6 +441,7 @@ const Orders = () => {
             paginationDefaultPage={currentPage}
             onChangePage={handlePageChange}
             onChangeRowsPerPage={handlePerRowsChange}
+            paginationRowsPerPageOptions={[50, 100, 150, 200]} // 👈 your custom options
           />
         ) : (
           <div className="w-full flex justify-center py-10">

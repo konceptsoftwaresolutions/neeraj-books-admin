@@ -34,14 +34,15 @@ const useCartCalculations = (cartItems, discountDetails, appliedCouponDiscount) 
             const ebookCost = parseFloat(ebookPrice || 0);
 
             if (onlyEbookSelected) {
-                // Ebook-only items: count full quantity
-                totalEbookAmount += ebookCost * quantity;
-                totalEbookQuantity += quantity;
+                // Ebook-only items: count once (ignore quantity)
+                totalEbookAmount += ebookCost;
+                totalEbookQuantity += 1;
             } else if (isEbookAlsoSelected) {
-                // Ebook selected as part of combo: count as 1
+                // Ebook selected as part of combo: also count once
                 totalEbookAmount += ebookCost;
                 totalEbookQuantity += 1;
             }
+
         });
 
         // Round the totals

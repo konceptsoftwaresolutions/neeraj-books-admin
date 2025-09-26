@@ -124,3 +124,30 @@ export const initiateRefund = (payload, setIsLoading, callback = () => { }) => {
         }
     };
 };
+
+
+
+
+export const getShippingCharges = (payload, callback = () => { }) => {
+    return async (dispatch) => {
+        try {
+            const response = await axiosInstance.post("/order/getShippingCharges", payload);
+            if (response.status === 200) {
+                // console.log("response is ", response)
+                callback(true, response.data);
+            }
+
+        } catch (error) {
+            console.log(error)
+            if (error.status === 500) {
+                callback(false, "not_available")
+            }
+            let message = "error";
+            if (error?.hasOwnProperty("message")) {
+                message = error?.message;
+            }
+        } finally {
+
+        }
+    };
+};

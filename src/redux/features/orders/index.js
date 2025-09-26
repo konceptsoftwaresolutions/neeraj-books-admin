@@ -61,7 +61,7 @@ export const getAllIncompleteOrders = (payload, callback = () => { }) => {
                 // filter out txnid starting with NPX for callback
                 // const filteredData = data.filter(order => order?.orderId?.startsWith("NPX"));
                 dispatch(setOrder({ allIncompleteOrders: data }))
-                callback(true, data , response?.data?.totalOrders , response?.data?.totalPages)
+                callback(true, data, response?.data?.totalOrders, response?.data?.totalPages)
             }
         } catch (error) {
             let message = "ERROR";
@@ -581,9 +581,9 @@ export const generateSingleBulkOrder = (payload, setIsLoading, callback = () => 
             const response = await axiosInstance.post('/bulkOrder/create', payload);
             if (response.status === 201) {
                 setIsLoading(false)
-                console.log(response)
+                // console.log(response)
                 callback(true)
-                toast.success(response.data.message || 'Created Successfully');
+                toast.success('Created Successfully');
             }
         } catch (error) {
             console.log(error)
