@@ -147,7 +147,7 @@ function Customer() {
 
   return (
     <PageCont>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div className="flex justify-center items-center gap-3">
           <Heading text="All Customer" />
         </div>

@@ -35,6 +35,9 @@ import {
   Star,
 } from "lucide-react";
 import logo from "../assets/logo.png";
+import logo1 from "../assets/orders.png";
+import logo2 from "../assets/incomplete.png";
+import logo3 from "../assets/bulkorder.png";
 import { logoutThunkMiddleware } from "../redux/features/user";
 import { persistor } from "../redux/store";
 import { Tooltip } from "antd";
@@ -48,7 +51,7 @@ const Sidebar = () => {
   const { role } = useSelector((state) => state.auth);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(true); // Collapsed by default
+  const [isCollapsed, setIsCollapsed] = useState(false); // Collapsed by default
   const [expandedMenus, setExpandedMenus] = useState({});
 
   const getRoute = (path) => (role ? `/${role}${path}` : path);
@@ -95,23 +98,27 @@ const Sidebar = () => {
     },
     {
       key: "orders",
-      icon: <ShoppingCart size={20} />,
+      icon: <img src={logo1} alt="Orders" className="w-5 h-6" />,
       label: "Orders",
       path: getRoute("/orders"),
     },
     {
       key: "incompleteOrders",
-      icon: <ShoppingCart size={20} />,
+      icon: <img src={logo2} alt="Orders" className="w-5 h-5" />,
       label: "Incomplete Orders",
       path: getRoute("/incomplete-orders"),
     },
     {
       key: "bulkOrders",
-      icon: <Boxes size={20} />,
+      icon: <img src={logo3} alt="Orders" className="w-5 h-5" />,
       label: "Bulk Orders",
       children: [
-        { label: "All Bulk Orders", path: getRoute("/allbulkOrders"), icon: <Package size={16} /> },
-        { label: "Bulk Orders Client", path: getRoute("/bulk-orders-client"), },
+        {
+          label: "All Bulk Orders",
+          path: getRoute("/allbulkOrders"),
+          icon: <Package size={16} />,
+        },
+        { label: "Bulk Orders Client", path: getRoute("/bulk-orders-client") },
       ],
     },
     {
@@ -119,15 +126,51 @@ const Sidebar = () => {
       icon: <Settings size={20} />,
       label: "Website Settings",
       children: [
-        { label: "About Page", path: getRoute("/about"), icon: <FileText size={16} /> },
-        { label: "Popups", path: getRoute("/popups"), icon: <Layers size={16} /> },
-        { label: "Quiz", path: getRoute("/quiz"), icon: <FileQuestion size={16} /> },
-        { label: "Coupons", path: getRoute("/coupons"), icon: <Gift size={16} /> },
-        { label: "Abandoned Cart", path: getRoute("/abandonedcart"), icon: <ShoppingCart size={16} /> },
-        { label: "Promotions / Affiliate", path: getRoute("/promotions"), icon: <Share size={16} /> },
-        { label: "Team Members", path: getRoute("/teamMembers"), icon: <Users size={16} /> },
-        { label: "Old Website Books", path: getRoute("/oldbooks"), icon: <BookOpen size={16} /> },
-        { label: "Testimonials", path: getRoute("/testimonials"), icon: <MessageSquare size={16} /> },
+        {
+          label: "About Page",
+          path: getRoute("/about"),
+          icon: <FileText size={16} />,
+        },
+        {
+          label: "Popups",
+          path: getRoute("/popups"),
+          icon: <Layers size={16} />,
+        },
+        {
+          label: "Quiz",
+          path: getRoute("/quiz"),
+          icon: <FileQuestion size={16} />,
+        },
+        {
+          label: "Coupons",
+          path: getRoute("/coupons"),
+          icon: <Gift size={16} />,
+        },
+        {
+          label: "Abandoned Cart",
+          path: getRoute("/abandonedcart"),
+          icon: <ShoppingCart size={16} />,
+        },
+        {
+          label: "Promotions / Affiliate",
+          path: getRoute("/promotions"),
+          icon: <Share size={16} />,
+        },
+        {
+          label: "Team Members",
+          path: getRoute("/teamMembers"),
+          icon: <Users size={16} />,
+        },
+        {
+          label: "Old Website Books",
+          path: getRoute("/oldbooks"),
+          icon: <BookOpen size={16} />,
+        },
+        {
+          label: "Testimonials",
+          path: getRoute("/testimonials"),
+          icon: <MessageSquare size={16} />,
+        },
       ],
     },
     {
@@ -199,7 +242,15 @@ const Sidebar = () => {
                         : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                     }`
                   }
-                  style={({ isActive }) => isActive ? {background: 'linear-gradient(90deg, #1f437f, #be2220)', color: 'white'} : {}}
+                  style={({ isActive }) =>
+                    isActive
+                      ? {
+                          background:
+                            "linear-gradient(90deg, #1f437f, #be2220)",
+                          color: "white",
+                        }
+                      : {}
+                  }
                 >
                   {child.icon && <span className="mr-2">{child.icon}</span>}
                   <div className="w-2 h-2 rounded-full bg-current opacity-40 mr-3"></div>
@@ -214,7 +265,7 @@ const Sidebar = () => {
 
     return (
       <div className="mb-1">
-        {isCollapsed ? (
+        {isCollapsed && !isOpen ? ( // collapsed AND not mobile
           <Tooltip title={item.label} placement="right">
             <NavLink
               to={item.path}
@@ -226,7 +277,11 @@ const Sidebar = () => {
                     : "text-black hover:bg-blue-50 hover:text-blue-600"
                 }`
               }
-              style={({ isActive }) => isActive ? {background: 'linear-gradient(90deg, #1f437f, #be2220)'} : {}}
+              style={({ isActive }) =>
+                isActive
+                  ? { background: "linear-gradient(90deg, #1f437f, #be2220)" }
+                  : {}
+              }
             >
               {item.icon}
             </NavLink>
@@ -242,17 +297,23 @@ const Sidebar = () => {
                   : "text-black hover:bg-blue-50 hover:text-blue-600"
               } ${isChild ? "pl-12 text-sm" : ""}`
             }
-            style={({ isActive }) => isActive ? {background: 'linear-gradient(90deg, #1f437f, #be2220)'} : {}}
+            style={({ isActive }) =>
+              isActive
+                ? { background: "linear-gradient(90deg, #1f437f, #be2220)" }
+                : {}
+            }
           >
             {item.icon}
-            <span className="ml-3 font-medium ">{item.label}</span>
+            <span className="ml-3 font-medium">{item.label}</span>{" "}
+            {/* label shows now */}
           </NavLink>
         )}
       </div>
     );
   };
 
-  const sidebarWidth = isCollapsed ? "w-20" : "w-72";
+  // const sidebarWidth = isCollapsed ? "w-20" : "w-72";
+  const sidebarWidth = isCollapsed && !isOpen ? "w-20" : "w-72";
 
   return (
     <>
@@ -280,7 +341,7 @@ const Sidebar = () => {
       {/* Sidebar */}
       <aside
         className={`
-        fixed lg:static inset-y-0 left-0 z-50
+        fixed inset-y-0 left-0 z-50
         ${sidebarWidth} bg-white border-r border-gray-200
         transform transition-all duration-300 ease-in-out
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
@@ -288,17 +349,19 @@ const Sidebar = () => {
       `}
       >
         {/* Header */}
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'} px-6 py-5 border-b border-gray-200`}>
+        <div
+          className={`flex items-center ${
+            isCollapsed ? "justify-center" : "justify-between"
+          } px-6 py-5 border-b border-gray-200`}
+        >
           {!isCollapsed && (
             <div className="flex items-center">
               <img src={logo} alt="Logo" className="h-8 w-8 mr-3" />
               <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
             </div>
           )}
-          
-          {isCollapsed && (
-            <img src={logo} alt="Logo" className="h-8 w-8" />
-          )}
+
+          {isCollapsed && <img src={logo} alt="Logo" className="h-8 w-8" />}
 
           {/* Desktop Collapse Toggle */}
           <div className="hidden lg:flex items-center">
@@ -307,7 +370,11 @@ const Sidebar = () => {
               className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
               title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
-              {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+              {isCollapsed ? (
+                <ChevronRight size={20} />
+              ) : (
+                <ChevronLeft size={20} />
+              )}
             </button>
           </div>
 
@@ -328,21 +395,24 @@ const Sidebar = () => {
               return <SidebarItem key={item.key} item={item} />;
             })}
           </div>
-          
-          {!isCollapsed && (
-            <hr className="my-6 border-gray-200" />
-          )}
+
+          {!isCollapsed && <hr className="my-6 border-gray-200" />}
         </nav>
 
         {/* User Profile */}
         <div className="border-t border-gray-200 p-4">
-          {isCollapsed ? (
+          {isCollapsed && !isOpen ? (
             <div className="flex justify-center">
-              <Tooltip title={`${userData?.name || "Admin User"} - Logout`} placement="right">
+              <Tooltip
+                title={`${userData?.name || "Admin User"} - Logout`}
+                placement="right"
+              >
                 <button
                   onClick={logoutHandler}
                   className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold hover:opacity-80 transition-all duration-200"
-                  style={{background: 'linear-gradient(90deg, #1f437f, #be2220)'}}
+                  style={{
+                    background: "linear-gradient(90deg, #1f437f, #be2220)",
+                  }}
                 >
                   {userData?.name?.charAt(0)?.toUpperCase() || "A"}
                 </button>
@@ -351,7 +421,12 @@ const Sidebar = () => {
           ) : (
             <div className="flex items-center justify-between">
               <div className="flex items-center min-w-0">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold" style={{background: 'linear-gradient(90deg, #1f437f, #be2220)'}}>
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                  style={{
+                    background: "linear-gradient(90deg, #1f437f, #be2220)",
+                  }}
+                >
                   {userData?.name?.charAt(0)?.toUpperCase() || "A"}
                 </div>
                 <div className="ml-3 min-w-0 flex-1">

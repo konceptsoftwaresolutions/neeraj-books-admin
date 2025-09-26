@@ -62,7 +62,7 @@ const AddCouponModal = ({ openModal, setOpenModal }) => {
         style={{ maxHeight: "calc(90vh - 64px)" }} // Adjust height based on header height
       >
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full grid grid-cols-2 gap-3">
+          <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3">
             <InputField
               control={control}
               errors={errors}

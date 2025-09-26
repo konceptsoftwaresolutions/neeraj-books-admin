@@ -109,7 +109,8 @@ const Books = () => {
 
   const tableData = useMemo(() => transformData(allBooks), [allBooks]);
 
-  const normalizeText = (text) => text?.toLowerCase()?.replace(/[^a-z0-9]/g, "");
+  const normalizeText = (text) =>
+    text?.toLowerCase()?.replace(/[^a-z0-9]/g, "");
 
   useEffect(() => {
     if (!searchText.trim()) {
@@ -123,7 +124,9 @@ const Books = () => {
       const bookCodeMatch = normalizeText(book.bookCode)?.includes(
         normalizedSearch
       );
-      const mediumMatch = normalizeText(book.medium)?.includes(normalizedSearch);
+      const mediumMatch = normalizeText(book.medium)?.includes(
+        normalizedSearch
+      );
       const paperBackPriceMatch =
         String(book.paperBackPrice) === normalizedSearch;
       const eBookPriceMatch = String(book.eBookPrice) === normalizedSearch;
@@ -406,12 +409,12 @@ const Books = () => {
 
   return (
     <PageCont>
-      <div className="flex justify-between items-center">
-        <div className="flex justify-center items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex justify-start items-center gap-3 w-full sm:w-auto">
           <Heading text="All Books" />
         </div>
 
-        <div className="flex gap-1">
+        <div className="flex flex-wrap gap-2 sm:gap-1 w-full sm:w-auto">
           <Button
             type="submit"
             variant="filled"
@@ -451,7 +454,7 @@ const Books = () => {
         </div>
       </div>
 
-      <div className="flex justify-start gap-2 mt-5">
+      <div className="flex flex-wrap justify-start gap-2 mt-5">
         <Button
           variant="filled"
           className="bg-blue-700 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center gap-1"

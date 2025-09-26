@@ -128,18 +128,19 @@ const Home = () => {
   return (
     <PageCont>
       <div className="grid grid-cols-1 gap-y-3">
-        <div className="flex justify-start items-center gap-3   ">
+        <div className="flex justify-start items-center gap-3 flex-wrap">
           <Heading text="Admin Dashboard" />
         </div>
 
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-3 flex-wrap">
           <button
             onClick={handleResetFilters}
             className="bg-black text-white px-3 flex items-center gap-1"
           >
             Reset <RiResetLeftFill />
           </button>
-          <div className="flex">
+
+          <div className="flex flex-wrap gap-1">
             {["today", "weekly", "monthly", "yearly", "all"].map((time) => (
               <button
                 key={time}
@@ -152,7 +153,8 @@ const Home = () => {
               </button>
             ))}
           </div>
-          <div className="flex gap-4">
+
+          <div className="flex flex-wrap gap-2 items-center">
             <DatePicker
               className="border px-2 py-1 rounded-none border-black"
               onChange={(date, dateString) => setTempFromDate(dateString)}
@@ -178,6 +180,7 @@ const Home = () => {
           </div>
         </div>
       </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-4 my-10">
         <StatsCard
           icon={FaBox}

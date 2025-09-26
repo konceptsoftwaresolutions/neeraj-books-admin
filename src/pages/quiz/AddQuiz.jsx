@@ -124,7 +124,7 @@ const AddQuiz = () => {
 
                 <div>
                   <h4 className="mb-2">Options</h4>
-                  <div className="flex gap-3">
+                  <div className="grid  md:flex gap-3">
                     {question.options.map((_, optionIndex) => (
                       <InputField
                         key={optionIndex}

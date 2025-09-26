@@ -157,8 +157,8 @@ function AllBulkClients() {
 
   return (
     <PageCont>
-      <div className="flex justify-between items-center">
-        <div className="flex justify-center items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex justify-start items-center gap-3 w-full sm:w-auto">
           <Heading text="Bulk Orders Clients" />
         </div>
         <div className="flex justify-end gap-1">

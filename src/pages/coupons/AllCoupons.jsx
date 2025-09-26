@@ -44,7 +44,7 @@ const AllCoupons = () => {
   return (
     <PageCont>
       <div className="flex justify-between items-center">
-        <div className="flex justify-between items-center gap-3 w-full">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 w-full">
           <Heading text="All Coupons" />
           <Button
             type="submit"

@@ -53,7 +53,7 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
   return (
-    <div className="flex h-screen sticky top-0">
+    <div className="flex h-screen">
       <Sidebar
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}

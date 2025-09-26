@@ -507,14 +507,14 @@ const EditOrders = () => {
         <>
           <div className="mt-10">
             <div className="mb-10">
-              <p className="text-center text-3xl">
+              <p className="text-center text-lg md:text-3xl">
                 Order No -{" "}
                 <span className="text-blue-700 font-semibold">
                   {orderdata?.orderId}
                 </span>
               </p>
             </div>
-            <div className="flex justify-end gap-1 mb-6">
+            <div className="grid grid-cols-2 md:flex justify-end items-center gap-1 mb-6">
               <Button
                 className="bg-green-400 capitalize"
                 onClick={handleOrderUpdate}
@@ -566,8 +566,8 @@ const EditOrders = () => {
                 </Button>
               )}
             </div>
-            <div className="flex justify-between ">
-              <div className="w-[50%]">
+            <div className="flex flex-col md:flex-row justify-between ">
+              <div className="w-[100%] md:w-[50%]">
                 <p>Ship to :</p>
                 <ul className="space-y-2">
                   <li>
@@ -588,8 +588,8 @@ const EditOrders = () => {
                   <li>{orderdata?.shippingAddress?.email}</li>
                 </ul>
               </div>
-              <div className="w-[50%]">
-                <ul className="text-right space-y-2">
+              <div className="w-[100%] md:w-[50%]">
+                <ul className="md:text-right space-y-2">
                   <li>
                     Order Date :{" "}
                     {orderdata?.createdAt &&
@@ -616,7 +616,7 @@ const EditOrders = () => {
                     <li>Shipped By : {orderdata?.courier}</li>
                   )}
                 </ul>
-                <div className="w-full flex flex-col items-end   justify-end gap-y-2">
+                <div className="w-full flex flex-col items-start md:items-end   justify-end gap-y-2">
                   <p className="p-2 rounded-md text-white px-3 bg-red-400 my-2 cursor-pointer capitalize">
                     Mark As Returned
                   </p>
@@ -633,7 +633,7 @@ const EditOrders = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 justify-between w-full gap-10 mt-7 ">
               <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5">
-                <p className="text-2xl border-b border-black  mb-3 pb-3">
+                <p className="text-lg md:text-2xl border-b border-black  mb-3 pb-3">
                   Shipping Info
                 </p>
                 <div className="">
@@ -686,7 +686,7 @@ const EditOrders = () => {
               </div>
               <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5">
                 <div className="flex justify-between items-center border-b border-black  mb-5 pb-3">
-                  <p className="text-2xl ">Total</p>
+                  <p className="text-lg md:text-2xl ">Total</p>
                   {orderdata?.paymentMode !== "Prepaid" && (
                     <Button
                       className="capitalize"
@@ -698,7 +698,7 @@ const EditOrders = () => {
                 </div>
                 {totalPaperbackQuantity > 0 && (
                   <>
-                    <p className="text-lg mt-2">Printed Books Amount</p>
+                    <p className=" text-bast md:text-lg mt-2">Printed Books Amount</p>
                     <div className="border border-black">
                       <div className="flex justify-between border-b-[1px] border-black p-2 text-md">
                         <p> No. of Books:</p>

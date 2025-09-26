@@ -610,7 +610,7 @@ const CreateBook = () => {
       <Heading text="Create Book" />
       <div className="mt-4">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <InputField
               control={control}
               errors={errors}

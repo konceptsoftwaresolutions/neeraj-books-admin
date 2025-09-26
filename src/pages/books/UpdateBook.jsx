@@ -959,7 +959,7 @@ const UpdateBook = () => {
         <>
           <div className="mt-4">
             <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                 <InputField
                   control={control}
                   errors={errors}
@@ -1011,7 +1011,7 @@ const UpdateBook = () => {
                 {/* <p className="border-b-2 border-gray-200 pb-2 mb-2 font-semibold">
                 EngBook Fields
               </p> */}
-                <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
+                <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-1 md:grid-cols-3 ">
                   <InputField
                     control={control}
                     errors={errors}
@@ -1534,7 +1534,7 @@ const UpdateBook = () => {
                     <p className="text-center w-full">No ebook added</p>
                   )}
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <InputField
                     control={control}
                     errors={errors}
@@ -1732,7 +1732,7 @@ const UpdateBook = () => {
                   </Tooltip>
                 </div>
                 <div className="grid p-3">
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <InputField
                       control={control}
                       errors={errors}

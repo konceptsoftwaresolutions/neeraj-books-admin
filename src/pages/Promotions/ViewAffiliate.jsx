@@ -219,7 +219,7 @@ const ViewAffiliate = () => {
 
       {/* Approve/Disapprove Form */}
       <form onSubmit={handleSubmit(onSubmit)} className="">
-        <div className="grid grid-cols-3 gap-3 w-full">
+        <div className="grid grid-cols-1  md:grid-cols-3 gap-3 w-full">
           <InputField
             control={control}
             errors={errors}
@@ -296,30 +296,33 @@ const ViewAffiliate = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-              <p>
-                <strong>Name:</strong>{" "}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6 text-sm text-gray-600">
+              {/* Name */}
+              <div>
+                <strong className="block mb-1">Name:</strong>
                 {isEditing ? (
-                  <>
+                  <div className="flex flex-col sm:flex-row sm:space-x-2">
                     <input
                       name="firstName"
                       value={formValues.firstName || ""}
                       onChange={handleChange}
-                      className="border px-2 py-1 rounded w-28"
+                      className="border px-2 py-1 rounded w-full sm:w-1/2"
                     />
                     <input
                       name="lastName"
                       value={formValues.lastName || ""}
                       onChange={handleChange}
-                      className="border px-2 py-1 rounded w-28 ml-2"
+                      className="border px-2 py-1 rounded w-full sm:w-1/2 mt-2 sm:mt-0"
                     />
-                  </>
+                  </div>
                 ) : (
-                  `${affiliateData.firstName} ${affiliateData.lastName}`
+                  <p>{`${affiliateData.firstName} ${affiliateData.lastName}`}</p>
                 )}
-              </p>
-              <p>
-                <strong>Email:</strong>{" "}
+              </div>
+
+              {/* Email */}
+              <div>
+                <strong className="block mb-1">Email:</strong>
                 {isEditing ? (
                   <input
                     name="email"
@@ -328,11 +331,13 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.email
+                  <p>{affiliateData.email}</p>
                 )}
-              </p>
-              <p>
-                <strong>Mobile:</strong>{" "}
+              </div>
+
+              {/* Mobile */}
+              <div>
+                <strong className="block mb-1">Mobile:</strong>
                 {isEditing ? (
                   <input
                     name="mobile"
@@ -341,11 +346,13 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.mobile
+                  <p>{affiliateData.mobile}</p>
                 )}
-              </p>
-              <p>
-                <strong>Institution:</strong>{" "}
+              </div>
+
+              {/* Institution */}
+              <div>
+                <strong className="block mb-1">Institution:</strong>
                 {isEditing ? (
                   <input
                     name="institutionName"
@@ -354,11 +361,13 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.institutionName
+                  <p>{affiliateData.institutionName}</p>
                 )}
-              </p>
-              <p className="col-span-2">
-                <strong>Address:</strong>{" "}
+              </div>
+
+              {/* Address full width */}
+              <div className="col-span-1 md:col-span-2">
+                <strong className="block mb-1">Address:</strong>
                 {isEditing ? (
                   <input
                     name="address"
@@ -367,15 +376,21 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  `${affiliateData.address}, ${affiliateData.city}, ${affiliateData.state}, ${affiliateData.country}`
+                  <p>
+                    {`${affiliateData.address}, ${affiliateData.city}, ${affiliateData.state}, ${affiliateData.country}`}
+                  </p>
                 )}
-              </p>
-              <p>
-                <strong>Approved:</strong>{" "}
-                {affiliateData.approved ? "Yes" : "No"}
-              </p>
-              <p>
-                <strong>About:</strong>{" "}
+              </div>
+
+              {/* Approved */}
+              <div>
+                <strong className="block mb-1">Approved:</strong>
+                <p>{affiliateData.approved ? "Yes" : "No"}</p>
+              </div>
+
+              {/* About */}
+              <div>
+                <strong className="block mb-1">About:</strong>
                 {isEditing ? (
                   <textarea
                     name="aboutYourself"
@@ -384,28 +399,34 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.aboutYourself
+                  <p>{affiliateData.aboutYourself}</p>
                 )}
-              </p>
-              <p>
-                <strong>Created At:</strong>{" "}
-                {new Date(affiliateData.createdAt).toLocaleString()}
-              </p>
-              <p>
-                <strong>Updated At:</strong>{" "}
-                {new Date(affiliateData.updatedAt).toLocaleString()}
-              </p>
+              </div>
+
+              {/* Created At */}
+              <div>
+                <strong className="block mb-1">Created At:</strong>
+                <p>{new Date(affiliateData.createdAt).toLocaleString()}</p>
+              </div>
+
+              {/* Updated At */}
+              <div>
+                <strong className="block mb-1">Updated At:</strong>
+                <p>{new Date(affiliateData.updatedAt).toLocaleString()}</p>
+              </div>
             </div>
           </div>
 
           {/* Account Info */}
-          <div>
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">
+          <div className="w-full">
+            <h2 className="text-lg sm:text-xl font-semibold mb-4 text-gray-700">
               Affiliate Account Details
             </h2>
-            <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-              <p>
-                <strong>Account Number:</strong>{" "}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-gray-600">
+              {/* Account Number */}
+              <div>
+                <strong className="block mb-1">Account Number:</strong>
                 {isEditing ? (
                   <input
                     name="accountNumber"
@@ -414,11 +435,13 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.accountNumber
+                  <p>{affiliateData.accountNumber}</p>
                 )}
-              </p>
-              <p>
-                <strong>Bank Name:</strong>{" "}
+              </div>
+
+              {/* Bank Name */}
+              <div>
+                <strong className="block mb-1">Bank Name:</strong>
                 {isEditing ? (
                   <input
                     name="bankName"
@@ -427,11 +450,13 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.bankName
+                  <p>{affiliateData.bankName}</p>
                 )}
-              </p>
-              <p>
-                <strong>Branch Name:</strong>{" "}
+              </div>
+
+              {/* Branch Name */}
+              <div>
+                <strong className="block mb-1">Branch Name:</strong>
                 {isEditing ? (
                   <input
                     name="branchName"
@@ -440,11 +465,13 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.branchName
+                  <p>{affiliateData.branchName}</p>
                 )}
-              </p>
-              <p>
-                <strong>UPI ID:</strong>{" "}
+              </div>
+
+              {/* UPI ID */}
+              <div>
+                <strong className="block mb-1">UPI ID:</strong>
                 {isEditing ? (
                   <input
                     name="upiId"
@@ -453,11 +480,13 @@ const ViewAffiliate = () => {
                     className="border px-2 py-1 rounded w-full"
                   />
                 ) : (
-                  affiliateData.upiId
+                  <p>{affiliateData.upiId}</p>
                 )}
-              </p>
-              <p className="col-span-2">
-                <strong>Payment QR:</strong>{" "}
+              </div>
+
+              {/* Payment QR */}
+              <div className="col-span-1 sm:col-span-2">
+                <strong className="block mb-1">Payment QR:</strong>
                 {isEditing ? (
                   <input
                     name="paymentPicture"
@@ -471,20 +500,16 @@ const ViewAffiliate = () => {
                     }
                     className="border px-2 py-1 rounded w-full"
                   />
+                ) : affiliateData?.paymentPicture ? (
+                  <img
+                    src={imgUrl}
+                    alt="QR Code"
+                    className="w-28 h-28 sm:w-32 sm:h-32 object-cover mt-2 rounded-md"
+                  />
                 ) : (
-                  <>
-                    {affiliateData?.paymentPicture ? (
-                      <img
-                        src={imgUrl}
-                        alt="QR Code"
-                        className="w-28 h-28 object-cover mt-2"
-                      />
-                    ) : (
-                      "N/A"
-                    )}
-                  </>
+                  <p className="mt-1">N/A</p>
                 )}
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -492,7 +517,7 @@ const ViewAffiliate = () => {
 
       {/* Tiles */}
       {tilesData && (
-        <div className="mt-10 grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="mt-10 grid  grid-cols-1 md:grid-cols-3 gap-4">
           <Tile label="Pending Orders" value={tilesData.totalPendingOrders} />
           <Tile label="Shipped Orders" value={tilesData.totalShippedOrders} />
           <Tile
@@ -515,7 +540,7 @@ const ViewAffiliate = () => {
       )}
 
       {/* Actions */}
-      <div className="grid grid-cols-5 gap-4 w-full mt-10">
+      <div className="grid md:grid-cols-5 md:gap-4 w-full mt-10">
         <button
           className=" mt-4 bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition"
           onClick={handleOrdersClick}

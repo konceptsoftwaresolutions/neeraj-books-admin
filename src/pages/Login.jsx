@@ -119,8 +119,8 @@ const Login = () => {
   };
 
   return (
-    <div className="h-[100vh] w-full flex flex-col justify-center primary-gradient">
-      <div className="sm:min-w-[30rem] mx-auto bg-white shadow-2xl rounded-2xl p-10">
+    <div className="h-[100vh] w-full flex flex-col justify-center primary-gradient px-2">
+      <div className="sm:min-w-[30rem] mx-auto bg-white shadow-2xl rounded-lg md:rounded-2xl p-6 md:p-10">
         <div className="flex justify-center flex-col items-center pb-6 text-center">
           <img src={logo} alt="logo" className="w-[250px]" />
         </div>

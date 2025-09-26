@@ -318,7 +318,7 @@ const OldBooks = () => {
         </div>
       </div>
 
-      <div className="flex justify-start gap-2 mt-5">
+      <div className="flex flex-wrap justify-start gap-2 mt-5">
         <Button
           variant="filled"
           className="bg-blue-700 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center gap-1"

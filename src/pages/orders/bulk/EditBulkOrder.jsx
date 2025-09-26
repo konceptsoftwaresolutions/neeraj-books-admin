@@ -365,14 +365,14 @@ const EditBulkOrder = () => {
       <PageCont>
         <Heading text="Bulk Order Detail" />
         <div className="mt-5">
-          <p className="text-center text-3xl">
+          <p className="text-center text-lg md:text-3xl">
             Order No -{" "}
             <span className="text-blue-700 font-semibold">
               {orderDetails?.orderId}
             </span>
           </p>
 
-          <div className="flex justify-end gap-1 my-5">
+          <div className=" grid grid-cols-2 md:flex justify-end gap-1 my-5">
             <Button
               className="bg-green-400 capitalize"
               onClick={handleOrderUpdate}
@@ -417,8 +417,8 @@ const EditBulkOrder = () => {
               </Button>
             )}
           </div>
-          <div className="flex justify-between ">
-            <div className="w-[50%]">
+          <div className="flex flex-col md:flex-row justify-between ">
+            <div className="w-[100%] md:w-[50%]">
               <p>Ship to :</p>
               <ul className="space-y-2">
                 <li className="capitalize">
@@ -436,8 +436,8 @@ const EditBulkOrder = () => {
                 <li>{clientData?.mobile}</li>
               </ul>
             </div>
-            <div className="w-[50%]">
-              <ul className="text-right space-y-2">
+            <div className="w-[100%] md:w-[50%]">
+              <ul className="md:text-right space-y-2">
                 <li>
                   Order Date :{" "}
                   {new Date(orderDetails?.date).toLocaleDateString("en-GB")}
@@ -464,7 +464,7 @@ const EditBulkOrder = () => {
                 </li>
                 <li>Shipped By : {orderDetails?.courier}</li>
               </ul>
-              <div className="w-full flex flex-col items-end   justify-end gap-y-2">
+              <div className="w-full flex flex-col items-start md:items-end   justify-end gap-y-2">
                 <p className="p-2 rounded-md text-white px-3 bg-red-400 my-2 cursor-pointer capitalize">
                   Mark As Returned
                 </p>
@@ -479,11 +479,11 @@ const EditBulkOrder = () => {
           />
 
           <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5 my-10">
-            <p className="text-2xl border-b border-black  mb-3 pb-3">
+            <p className="text-lg md:text-2xl border-b border-black  mb-3 pb-3">
               Adjustments
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid md:grid-cols-2 gap-3">
               <InputField
                 control={control}
                 errors={errors}
@@ -515,9 +515,9 @@ const EditBulkOrder = () => {
             </div>
           </div>
           <form>
-            <div className="grid grid-cols-2 gap-3 mt-7">
+            <div className="grid md:grid-cols-2 gap-3 mt-7">
               <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5">
-                <p className="text-2xl border-b border-black  mb-3 pb-3">
+                <p className="text-lg md:text-2xl border-b border-black  mb-3 pb-3">
                   Shipping Info
                 </p>
 
@@ -565,7 +565,7 @@ const EditBulkOrder = () => {
               </div>
 
               <div className="w-[100%] bg-[#e3f2fd61] rounded-md p-5">
-                <p className="text-2xl border-b-[1px] border-black pb-2">
+                <p className="text-lg md:text-2xl border-b-[1px] border-black pb-2">
                   Total
                 </p>
 

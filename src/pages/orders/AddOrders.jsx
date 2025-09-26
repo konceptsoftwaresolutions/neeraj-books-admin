@@ -32,7 +32,6 @@ function AddOrders() {
   const [isLoading, setIsLoading] = useState(false);
   const [totalWithoutShipping, setTotalWithoutShipping] = useState();
   const [clientPincode, setClientPincode] = useState();
-  const [amountAfterAllDiscount, setAmountAfterAllDiscounts] = useState();
   const [shippingValue, setShippingValue] = useState(null);
 
   const prevShippingPayload = useRef({
@@ -66,14 +65,12 @@ function AddOrders() {
         value: bookData.english._id,
       });
     }
-
     if (bookData.hindi) {
       options.push({
         label: `${bookData.hindi.title} - ${bookData.hindi.bookCode} - (Hindi)`,
         value: bookData.hindi._id,
       });
     }
-
     return options;
   };
 
@@ -91,7 +88,7 @@ function AddOrders() {
   } = useForm({
     defaultValues: {
       client: "",
-      date: new Date().toISOString().split("T")[0], // ⬅️ sets today's date in "YYYY-MM-DD"
+      date: new Date().toISOString().split("T")[0],
       books: [
         {
           product: "",
@@ -129,7 +126,6 @@ function AddOrders() {
       dispatch(
         getBulkClientById({ id: client }, (success, data) => {
           if (success && data) {
-            console.log(data);
             setClientPincode(data.pincode);
           }
         })
@@ -143,7 +139,6 @@ function AddOrders() {
     let totalWeight = 0;
 
     books?.forEach((book, index) => {
-      // 🟡 Auto-fill price & qty when product is selected
       let matchedProduct;
       if (book.product) {
         matchedProduct = allProducts.find(
@@ -194,7 +189,7 @@ function AddOrders() {
       const d1 = parseFloat(book.discount1) || 0;
       const d2 = parseFloat(book.discount2) || 0;
       const d3 = parseFloat(book.discount3) || 0;
-      // ✅ Progressive discount logic
+
       let amt = price * qty;
       amt -= (amt * d1) / 100;
       amt -= (amt * d2) / 100;
@@ -239,7 +234,6 @@ function AddOrders() {
     adjustmentMinus,
   ]);
 
-  // ----------------------------------------function for calculating the shipping charges
   useEffect(() => {
     if (
       !totalBooks ||
@@ -280,7 +274,6 @@ function AddOrders() {
     clientPincode,
     totalWithoutShipping,
     paymentMode,
-
     dispatch,
     setValue,
   ]);
@@ -322,7 +315,6 @@ function AddOrders() {
     });
 
     const finalPayload = {
-      // ...data,
       client: data.client,
       date: data.date,
       shipping: {
@@ -342,8 +334,6 @@ function AddOrders() {
       books: transformedBooks,
     };
 
-    // console.log(finalPayload);
-
     dispatch(
       generateSingleBulkOrder(finalPayload, setIsLoading, (success) => {
         if (success) {
@@ -351,7 +341,6 @@ function AddOrders() {
         }
       })
     );
-    // submit finalPayload to API
   };
 
   const handleAddBook = () =>
@@ -368,28 +357,11 @@ function AddOrders() {
 
   const handleRemoveBook = (index) => remove(index);
 
-  const getShippingRate = (totalBooks, grandTotal) => {
-    const payload = {
-      deliveryPincode: "110009",
-      isCod: true,
-      noOfBooksWithoutEbook: totalBooks,
-      orderWeight: 2.3,
-      totalOrderValueAfterDiscount: grandTotal,
-    };
-    dispatch(
-      getShippingCharges(payload, (success, data) => {
-        if (success) {
-          setValue("shipping", data);
-        }
-      })
-    );
-  };
-
   return (
     <PageCont>
       <Heading text="Add Orders" />
       <form onSubmit={handleSubmit(onSubmit)} className="mt-4">
-        {/* Client Information */}
+        {/* Client Info */}
         <Section title="Client Information">
           <Grid>
             <InputField
@@ -411,7 +383,7 @@ function AddOrders() {
           </Grid>
         </Section>
 
-        {/* Book Information */}
+        {/* Book Info */}
         <Section title="Book Information">
           {fields?.map((item, index) => (
             <div
@@ -424,12 +396,12 @@ function AddOrders() {
                   variant="outlined"
                   size="sm"
                   color="red"
-                  className="capitalize"
+                  className="capitalize w-full sm:w-auto"
                 >
                   <RxCross2 color="red" />
                 </Button>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                 <div className="col-span-full">
                   <InputField
                     control={control}
@@ -495,14 +467,12 @@ function AddOrders() {
               </div>
             </div>
           ))}
-
-          {/* Button at bottom-right */}
-          <div className="flex justify-end mt-4">
+          <div className="flex justify-end mt-4 w-full">
             <Button
               onClick={handleAddBook}
               variant="contained"
               color="primary"
-              className="capitalize"
+              className="capitalize w-full sm:w-auto"
             >
               + Add Book
             </Button>
@@ -559,9 +529,9 @@ function AddOrders() {
           </Grid>
         </Section>
 
-        {/* Total */}
+        {/* Totals */}
         <Section title="Total">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <InputField
               control={control}
               errors={errors}
@@ -591,7 +561,7 @@ function AddOrders() {
               type="description"
             />
           </div>
-          <div className="mt-3 grid grid-cols-2">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2">
             <InputField
               control={control}
               errors={errors}
@@ -607,7 +577,7 @@ function AddOrders() {
         <Button
           loading={isLoading}
           type="submit"
-          className="primary-gradient mt-6 capitalize"
+          className="primary-gradient mt-6 capitalize w-full sm:w-auto"
         >
           Create Order
         </Button>
@@ -616,17 +586,17 @@ function AddOrders() {
   );
 }
 
-// Reusable layout components
+// Responsive Section
 const Section = ({ title, children, actionText, onAction }) => (
-  <div className="bg-gray-100 rounded-md p-4 mb-6">
-    <div className="flex justify-between items-center mb-4">
+  <div className="bg-gray-100 rounded-md p-4 sm:p-6 mb-6">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
       <p className="font-semibold text-lg">{title}</p>
       {actionText && (
         <Button
           type="button"
           variant="outlined"
           onClick={onAction}
-          className="capitalize"
+          className="capitalize w-full sm:w-auto mt-2 sm:mt-0"
         >
           {actionText}
         </Button>
@@ -636,8 +606,9 @@ const Section = ({ title, children, actionText, onAction }) => (
   </div>
 );
 
+// Responsive Grid
 const Grid = ({ children, columns = 3 }) => {
-  const gridClass = `w-full grid gap-3 grid-cols-2 md:grid-cols-${columns} lg:grid-cols-${columns}`;
+  const gridClass = `w-full grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-${columns}`;
   return <div className={gridClass}>{children}</div>;
 };
 

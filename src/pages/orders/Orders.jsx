@@ -355,11 +355,12 @@ const Orders = () => {
 
   return (
     <PageCont>
-      <div className="flex justify-between items-center">
-        <div className="flex justify-center items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex justify-start items-center gap-3 w-full sm:w-auto">
           <Heading text="All Orders" />
         </div>
-        <div className="flex gap-3">
+
+        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
           <Button
             type="submit"
             variant="filled"
@@ -377,15 +378,16 @@ const Orders = () => {
             <FaFilter size={16} />
             Filter / Search
           </Button>
+
           {/* <Button
-            type="submit"
-            variant="filled"
-            className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize "
-            onClick={() => path.changeEndPoint("addbulkOrders")}
-          >
-            <Plus className="pr-1" />
-            Add Orders
-          </Button> */}
+      type="submit"
+      variant="filled"
+      className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue capitalize "
+      onClick={() => path.changeEndPoint("addbulkOrders")}
+    >
+      <Plus className="pr-1" />
+      Add Orders
+    </Button> */}
         </div>
       </div>
 
@@ -395,7 +397,7 @@ const Orders = () => {
             Filter is active
           </p>
         )}
-        <div className="flex justify-start gap-2 mb-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 mb-3 w-full sm:w-auto">
           <Button
             variant="filled"
             className="bg-blue-700 text-white px-4 py-2 rounded-md font-semibold capitalize flex items-center gap-1"

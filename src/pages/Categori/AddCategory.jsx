@@ -159,12 +159,12 @@ const AddCategory = () => {
 
   return (
     <PageCont>
-      <div className="flex justify-between">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <Heading text="Add Category" />
         <Button
           type="submit"
           variant="filled"
-          className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center capitalize justify-center bg-cstm-blue "
+          className="text-white py-[8px] px-[16px] font-bold text-md rounded-md flex items-center capitalize justify-center bg-cstm-blue"
           onClick={() => setShowParentModal(!showParentModal)}
         >
           <Plus className="pr-1" />

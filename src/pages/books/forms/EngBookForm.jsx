@@ -79,7 +79,7 @@ const EngBookForm = ({
         <p className="border-b-2 border-gray-200 pb-2 mb-2 font-semibold">
           English Book Fields
         </p>
-        <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 ">
+        <div className="w-full grid gap-y-3 gap-x-3 grid-cols-1 md:grid-cols-3 ">
           <InputField
             control={control}
             errors={errors}
@@ -400,7 +400,7 @@ const EngBookForm = ({
             </>
           )}
         </div>
-        <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 mt-5">
+        <div className="w-full grid gap-y-3 gap-x-3 grid-cols-1 md:grid-cols-3 mt-5">
           <InputField
             control={control}
             errors={errors}
@@ -425,7 +425,7 @@ const EngBookForm = ({
           /> */}
         </div>
 
-        <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 mt-5">
+        <div className="w-full grid  gap-y-3 gap-x-3 grid-cols-1 md:grid-cols-3 mt-5">
           <InputField
             control={control}
             errors={errors}
@@ -585,7 +585,7 @@ const EngBookForm = ({
           </Tooltip>
         </div>
         <div className="grid gap-3 p-3">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <InputField
               control={control}
               errors={errors}
@@ -615,7 +615,7 @@ const EngBookForm = ({
 
           {samplePaperFields?.map((item, index) => (
             <div key={item.id} className="bg-[#f5f7fb] rounded-lg mt-2 pb-2">
-              <div className="grid grid-cols-1  p-3 relative ">
+              <div className="grid grid-cols-1 p-3 relative ">
                 {/* Title Input */}
                 <InputField
                   control={control}

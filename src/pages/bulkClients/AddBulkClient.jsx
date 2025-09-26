@@ -115,7 +115,7 @@ function AddBulkClient() {
       <Heading text="Add Client" />
       <div className="mt-4">
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+          <div className="w-full grid py-6 gap-y-3 gap-x-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
             <InputField
               control={control}
               errors={errors}

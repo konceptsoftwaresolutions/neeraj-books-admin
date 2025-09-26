@@ -98,7 +98,8 @@ function Categori() {
     },
   ];
 
-  const normalizeText = (text) => text?.toLowerCase()?.replace(/[^a-z0-9]/g, "");
+  const normalizeText = (text) =>
+    text?.toLowerCase()?.replace(/[^a-z0-9]/g, "");
 
   useEffect(() => {
     if (searchText.trim() === "") {
@@ -115,15 +116,15 @@ function Categori() {
 
   return (
     <PageCont>
-      <div className="flex justify-between items-center">
-        <div className="flex justify-center items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div className="flex justify-start items-center gap-3 w-full sm:w-auto">
           <Heading text="Category" />
         </div>
-        <div className="flex gap-x-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3 w-full sm:w-auto">
           <Button
             type="submit"
             variant="filled"
-            className="text-white capitalize py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue "
+            className="text-white capitalize py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue"
             onClick={() => path.changeEndPoint("addcategory")}
           >
             <Plus className="pr-1" />
@@ -132,7 +133,7 @@ function Categori() {
           <Button
             type="submit"
             variant="filled"
-            className="text-white capitalize py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue "
+            className="text-white capitalize py-[8px] px-[16px] font-bold text-md rounded-md flex items-center justify-center bg-cstm-blue"
             onClick={() => setExcelModal(!excelModal)}
           >
             <FaFileExcel className="pr-1" />

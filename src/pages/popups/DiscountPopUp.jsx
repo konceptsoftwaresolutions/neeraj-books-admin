@@ -64,7 +64,7 @@ const DiscountPopUp = () => {
         </h2>
         <div>
           <form onSubmit={handleSubmit(disountPopUpSubmit)}>
-            <div className="grid grid-cols-3 gap-3 ">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 ">
               <InputField
                 control={control}
                 errors={errors}

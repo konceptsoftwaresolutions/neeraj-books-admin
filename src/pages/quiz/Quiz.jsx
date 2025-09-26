@@ -89,7 +89,7 @@ const Quiz = () => {
 
   return (
     <PageCont>
-      <div className="flex justify-between items-center gap-3">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <Heading text="Quizzes" />
         <div className="flex gap-2">
           <Button

@@ -60,7 +60,7 @@ const TopBar = () => {
         </h2>
         <div>
           <form onSubmit={handleSubmit(discountTextSubmit)}>
-            <div className="grid grid-cols-2 gap-3 ">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 ">
               <InputField
                 control={control}
                 errors={errors}
